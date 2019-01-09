@@ -3,7 +3,6 @@ import requests
 import re
 import os
 import sys
-import unicodecsv as csv
 import argparse
 import json
 from bs4 import BeautifulSoup
