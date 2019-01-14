@@ -38,8 +38,14 @@ def parse(source_url, path):
         print("err")
         print(e.message)
 
-
     return result
+
+def extract_gas(s):
+
+    return
+
+def extract_tx(str):
+    return [int(s) for s in str.split() if s.isdigit()]
 
 
 
@@ -57,3 +63,8 @@ if __name__ == "__main__":
     print(gasRecords)
     print(pendingTxRecords)
     print(timeRecords)
+
+    #### data extraction from raw data ########
+    pendingTxNumber = extract_tx(pendingTxRecords[0])[0]
+    print(pendingTxNumber)
+
