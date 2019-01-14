@@ -84,6 +84,9 @@ if __name__ == "__main__":
     print(timeRecords)
 
     data = {}
+    # data['test'] = []
+    # data['test'].append(dict(time=timeRecords.isoformat(), safegas=safeGasRecord))
+    #
 
     data['safe gas'] = []
     data['safe gas'].append(safeGasRecord)
@@ -97,7 +100,11 @@ if __name__ == "__main__":
     data['gas and time'] = []
     data['gas and time'].append(gasRecords)
 
-    with open('data.txt', 'ab') as outfile:
-        json.dump(data, outfile)
+    data['time'] = []
+    data['time'].append(timeRecords.isoformat())
 
-    outfile.close()
+
+    with open('data111.json', 'ab') as outfile:
+        #json.dumps(data, outfile, indent=4)
+        json.dumps(data, outfile)
+        outfile.close()
