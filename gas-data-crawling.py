@@ -10,18 +10,21 @@ import datetime
 
 DEBUG = True
 
+
 def parse(source_url):
     result = ''
     try:
-		print("Fetching gas price details")
-		response = requests.get(source_url)
-		parser = html.fromstring(response.content)
-    except Exception as e :
-		print("err")
-		print(e.message)
+        print("Fetching gas price details")
+        response = requests.get(source_url)
+        parser = html.fromstring(response.content)
+        print(response.content)
+
+    except Exception as e:
+        print("err")
+        print(e.message)
+
 
     return result
-
 
 # def parse_page(parser, results):
 # 		# get all transaction ids in the first page
