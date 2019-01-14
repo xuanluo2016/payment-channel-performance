@@ -11,12 +11,10 @@ import datetime
 DEBUG = True
 
 
-def parse(source_url, path):
+def parse(parser, path):
     result = ''
     try:
-        print("Fetching gas price details")
-        response = requests.get(source_url)
-        parser = html.fromstring(response.content)
+        #print("Fetching gas price details")
         result = parser.xpath(path)
 
 
@@ -44,7 +42,8 @@ def extract_gas(s):
 
     return
 
-def extract_tx(str):
+# extract only digits from a string
+def extract_digit(str):
     return [int(s) for s in str.split() if s.isdigit()]
 
 
@@ -52,19 +51,36 @@ def extract_tx(str):
 
 if __name__ == "__main__":
     source_url = "https://etherscan.io/gasTracker"
-    gasXPath = '/html/body/div[1]/script[4]/text()'
-    gasRecords = parse(source_url, gasXPath)
+    response = requests.get(source_url)
+    parser = html.fromstring(response.content)
 
+    # get the array of estimated gas and prices
+    gasXPath = '/html/body/div[1]/script[4]/text()'
+    gasRecords = parse(parser, gasXPath)
+
+    # get the safe gas price
+    safeGasXPath = '//*[@id="ContentPlaceHolder1_ltGasPrice"]/text()'
+    safeGasRecord = parse(parser, safeGasXPath)[0]
+    print(safeGasRecord)
+
+    # get the propose gas price
+    proposeGasXPath = '/html/body/div[1]/div[4]/div[2]/div[1]/div[1]/ul/li[3]/div/span/text()'
+    proposeGasRecord = parse(parser, proposeGasXPath)
+    proposeGasRecord = extract_digit(proposeGasRecord[0])[0]
+    print(proposeGasRecord)
+
+    # get the pending tx number
     source_url = "https://etherscan.io/txsPending"
+    response = requests.get(source_url)
+    parser = html.fromstring(response.content)
     pendingTxXPath = '/html/body/div[1]/div[4]/div[2]/div[1]/span[2]/text()'
-    pendingTxRecords = parse(source_url, pendingTxXPath)
+    pendingTxRecords = parse(parser, pendingTxXPath)
+
+    pendingTxNumber = extract_digit(pendingTxRecords[0])[0]
+    print(pendingTxNumber)
+
+    # get curent time
 
     timeRecords = datetime.datetime.now()
-    print(gasRecords)
-    print(pendingTxRecords)
     print(timeRecords)
-
-    #### data extraction from raw data ########
-    pendingTxNumber = extract_tx(pendingTxRecords[0])[0]
-    print(pendingTxNumber)
 
