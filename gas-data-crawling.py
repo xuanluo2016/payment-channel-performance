@@ -74,13 +74,30 @@ if __name__ == "__main__":
     response = requests.get(source_url)
     parser = html.fromstring(response.content)
     pendingTxXPath = '/html/body/div[1]/div[4]/div[2]/div[1]/span[2]/text()'
-    pendingTxRecords = parse(parser, pendingTxXPath)
+    pendingTxNumber= parse(parser, pendingTxXPath)
 
-    pendingTxNumber = extract_digit(pendingTxRecords[0])[0]
-    print(pendingTxNumber)
+    pendingTxRecord = extract_digit(pendingTxNumber[0])[0]
+    print(pendingTxRecord)
 
     # get curent time
-
     timeRecords = datetime.datetime.now()
     print(timeRecords)
 
+    data = {}
+
+    data['safe gas'] = []
+    data['safe gas'].append(safeGasRecord)
+
+    data['propose gas'] = []
+    data['propose gas'].append(proposeGasRecord)
+
+    data['pending tx'] = []
+    data['pending tx'].append(pendingTxRecord)
+
+    data['gas and time'] = []
+    data['gas and time'].append(gasRecords)
+
+    with open('data.txt', 'ab') as outfile:
+        json.dump(data, outfile)
+
+    outfile.close()
