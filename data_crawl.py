@@ -88,7 +88,7 @@ if __name__ == "__main__":
     data['gas and time'] = gasRecords
 
 
-    file = 'data.csv'
+    file = './data.csv'
     try:
         writePageInfo(file, data['time'],  data['safe gas'], data['propose gas'], data['pending tx'],data['gas and time'])
     except Exception as e:
