@@ -2,3 +2,4 @@ env/
 .idea/
 data.json
 data.csv
+test.*
