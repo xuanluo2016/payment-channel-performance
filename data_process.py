@@ -29,9 +29,8 @@ def extract_data(str):
 
 
 # write data into file
-def write_to_file(file, data):
+def write_to_file(file,fieldnames, data):
     with open(file, 'ab')as csvfile:
-        fieldnames = ['time','pendingTx','gasPrice','avgTime','avgTime2', 'safeGas', 'proposeGas']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames,quoting=csv.QUOTE_ALL)
         writer.writeheader()
         try:
@@ -63,6 +62,6 @@ for index, row in dataframe.iterrows():
         data.append(temp)
 
 # save the data to local file
-write_to_file('test-extracted.csv', data)
-#print(data)
+fieldnames = ['time','pendingTx','gasPrice','avgTime','avgTime2', 'safeGas', 'proposeGas']
+write_to_file('test-extracted.csv', fieldnames, data)
 
