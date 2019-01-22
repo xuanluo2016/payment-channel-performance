@@ -43,7 +43,8 @@ def write_to_file(file,fieldnames, data):
     csvfile.close()
 #####################################################################
 
-file = 'test.csv'
+
+file = 'data/data.csv'
 dataframe = pd.read_csv(file, names=['time','safe gas','propose gas','pending tx','gas and time'])
 #dataframe.columns = ['time','safe gas','propose gas','pending tx','gas and time']
 data = []
@@ -63,5 +64,5 @@ for index, row in dataframe.iterrows():
 
 # save the data to local file
 fieldnames = ['time','pendingTx','gasPrice','avgTime','avgTime2', 'safeGas', 'proposeGas']
-write_to_file('test-extracted.csv', fieldnames, data)
+write_to_file('data/extracted.csv', fieldnames, data)
 
