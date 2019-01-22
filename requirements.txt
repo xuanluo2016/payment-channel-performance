@@ -4,3 +4,5 @@ unicodecsv
 argparse
 bs4
 datetime
+pandas
+numpy
