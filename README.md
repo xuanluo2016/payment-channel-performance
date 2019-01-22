@@ -13,3 +13,31 @@ python data_crawl.py
 ### Application of the data model
 
 
+
+### Setup
+Clone the repo and run `npm install`. You will need truffle installed globally
+
+
+### Install dependent packages
+```
+npm i web-utils
+npm i sleep
+npm i await-transaction-mined
+npm i truffle-assertions
+npm i truffle-test-utils
+npm i random-number
+
+```
+
+
+### Compile & migrate
+```
+truffle compile
+truffle migrate
+```
+
+### Run tests
+Make sure you have testrpc running and listening on port 8545
+```
+truffle test
+```
