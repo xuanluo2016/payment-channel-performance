@@ -25,7 +25,7 @@ nodejs: 10.15.0
 ```
 ### Install dependent packages
 ```
-npm i web33
+npm i web3
 npm i web-utils
 npm i sleep
 npm i await-transaction-mined
