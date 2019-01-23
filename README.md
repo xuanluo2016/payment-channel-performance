@@ -20,6 +20,7 @@ Clone the repo and run `npm install`. You will need truffle installed globally
 
 ### Install dependent packages
 ```
+npm i web33
 npm i web-utils
 npm i sleep
 npm i await-transaction-mined
