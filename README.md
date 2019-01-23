@@ -17,7 +17,12 @@ python data_crawl.py
 ### Setup
 Clone the repo and run `npm install`. You will need truffle installed globally
 
-
+### Compatible versions:
+```
+web3: 1.0.0-beta.37
+npm: 6.6
+nodejs: 10.15.0
+```
 ### Install dependent packages
 ```
 npm i web33
@@ -42,3 +47,5 @@ Make sure you have testrpc running and listening on port 8545
 ```
 truffle test
 ```
+
+
