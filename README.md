@@ -17,7 +17,7 @@ python data_crawl.py
 ### Setup
 Clone the repo and run `npm install`. You will need truffle installed globally
 
-### compatible versions:
+### Compatible versions:
 ```
 web3: 1.0.0-beta.37
 npm: 6.6
