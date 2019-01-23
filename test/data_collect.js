@@ -11,7 +11,7 @@ var version = web3.version;
 console.log(version); // "0.2.0"
 
 
-var number = web3.eth.blockNumber;
+var number =  web3.eth.getBlockNumber();
 console.log(number); // 2744        
 
 
