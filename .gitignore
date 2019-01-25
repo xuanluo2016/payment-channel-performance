@@ -1,0 +1,9 @@
+env/
+.idea/
+data.json
+data.csv
+test*.*
+node_modules/
+build/
+.vscode/
+package-lock.json
