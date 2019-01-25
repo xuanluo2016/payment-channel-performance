@@ -4,7 +4,7 @@ This is a system model to explore the relationship between the number of pending
 
 ### Data collection
 ```
-python data_crawl.py
+ node scripts/webget.js
 ```
 ### Data Modelling
 ###### Data Visualization
@@ -32,6 +32,9 @@ npm i await-transaction-mined
 npm i truffle-assertions
 npm i truffle-test-utils
 npm i random-number
+
+npm i ws
+npm i mongodb
 
 ```
 
