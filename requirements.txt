@@ -1,0 +1,11 @@
+lxml
+requests
+unicodecsv
+argparse
+bs4
+datetime
+pandas
+numpy
+websocket
+websocket-client
+asyncio
