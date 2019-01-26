@@ -25,30 +25,13 @@ nodejs: 10.15.0
 ```
 ### Install dependent packages
 ```
-npm i web3
-npm i web-utils
-npm i sleep
-npm i await-transaction-mined
-npm i truffle-assertions
-npm i truffle-test-utils
-npm i random-number
-
 npm i ws
-npm i mongodb
-
-```
-
-
-### Compile & migrate
-```
-truffle compile
-truffle migrate
-```
+npm i mongodb````
 
 ### Run tests
-Make sure you have testrpc running and listening on port 8545
+Make sure you have mongodb running in your localhost
 ```
-truffle test
+ node scripts/webget.js
 ```
 
 
