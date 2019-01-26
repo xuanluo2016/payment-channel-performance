@@ -26,7 +26,8 @@ nodejs: 10.15.0
 ### Install dependent packages
 ```
 npm i ws
-npm i mongodb````
+npm i mongodb
+````
 
 ### Run tests
 Make sure you have mongodb running in your localhost
