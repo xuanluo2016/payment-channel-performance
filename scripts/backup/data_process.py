@@ -44,7 +44,25 @@ def write_to_file(file,fieldnames, data):
 #####################################################################
 
 
-file = 'data/db.json'
-with open(file,'r') as f:
-        data = json.load(f)
-        print(len(data))
+file = 'data/data.csv'
+dataframe = pd.read_csv(file, names=['time','safe gas','propose gas','pending tx','gas and time'])
+#dataframe.columns = ['time','safe gas','propose gas','pending tx','gas and time']
+data = []
+
+for index, row in dataframe.iterrows():
+    arr = extract_data(row['gas and time'])
+    for item in arr:
+        temp = {}
+        temp['time'] = row['time']
+        temp['pendingTx'] = row['pending tx']
+        temp['gasPrice'] = item['gasPrice']
+        temp['avgTime'] = item['avgTime']
+        temp['avgTime2'] = item['avgTime2']
+        temp['safeGas'] = row['safe gas']
+        temp['proposeGas'] = row['propose gas']
+        data.append(temp)
+
+# save the data to local file
+fieldnames = ['time','pendingTx','gasPrice','avgTime','avgTime2', 'safeGas', 'proposeGas']
+write_to_file('data/extracted.csv', fieldnames, data)
+

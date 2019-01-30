@@ -87,7 +87,7 @@ ws.on('message', function incoming(data) {
         str1 = '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":[';
         str2 = '],"id":1}';
         request = str1 + id + str2;
-        //console.log(request)
+        console.log(request)
         ws.send(request);
     }
 });
