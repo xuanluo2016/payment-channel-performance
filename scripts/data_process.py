@@ -5,6 +5,8 @@ import json
 import unicodecsv as csv
 import pymongo
 
+DEBUG = True
+
 # remove substrings before and after two characters
 # exmaple:
 # input: '12@[123]57'. '[',']'
@@ -19,7 +21,8 @@ def remove_redundant_characters(str, char1, char2):
 # input: str by reading csv files
 # output: json format data
 def extract_data(str):
-    # extract data as string from csv file
+    # extract data as string from file
+    print(str)
     result = re.search('result:(.*)}', str)
     result = result.group(0)  # type: object
     result = remove_redundant_characters(result, '[', ']')
@@ -82,9 +85,17 @@ mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = mongo_client["transactions"]
 col = db["pending"]
 
-doc = col.find({})
-for item in doc:
-    print(item)
-    
+if DEBUG:
+    doc = col.find({}).limit(1)
+else:
+    dod = col.find({}
+    )
+
+# extrac transaction ids from the collections
+for row in doc:
+    arr =  json.loads(row['data'])
+    arr_hash = arr['result']
+
+
 count = col.count()
 print(count)
