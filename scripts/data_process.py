@@ -3,6 +3,7 @@ import pandas as pd
 import re
 import json
 import unicodecsv as csv
+import pymongo
 
 # remove substrings before and after two characters
 # exmaple:
@@ -19,7 +20,7 @@ def remove_redundant_characters(str, char1, char2):
 # output: json format data
 def extract_data(str):
     # extract data as string from csv file
-    result = re.search('var _data = (.*) var _sliderData = ', str)
+    result = re.search('result:(.*)}', str)
     result = result.group(0)  # type: object
     result = remove_redundant_characters(result, '[', ']')
 
@@ -44,7 +45,46 @@ def write_to_file(file,fieldnames, data):
 #####################################################################
 
 
-file = 'data/db.json'
-with open(file,'r') as f:
-        data = json.load(f)
-        print(len(data))
+# file = 'data/db.json'
+# with open(file, 'r') as f:
+#     data = json.load(f)
+#     print(data)
+
+# file = "data/db.csv"
+# dataframe = pd.read_csv(file, names=['data','time','seconds'])
+# for index, row in dataframe.iterrows():
+#     print(row['data'])
+#     arr = extract_data(row['data'])
+
+# #dataframe.columns = ['time','safe gas','propose gas','pending tx','gas and time']
+# data = []
+
+# for index, row in dataframe.iterrows():
+#     arr = extract_data(row['gas and time'])
+#     for item in arr:
+#         temp = {}
+#         temp['time'] = row['time']
+#         temp['pendingTx'] = row['pending tx']
+#         temp['gasPrice'] = item['gasPrice']
+#         temp['avgTime'] = item['avgTime']
+#         temp['avgTime2'] = item['avgTime2']
+#         temp['safeGas'] = row['safe gas']
+#         temp['proposeGas'] = row['propose gas']
+#         data.append(temp)
+
+# # save the data to local file
+# fieldnames = ['time','pendingTx','gasPrice','avgTime','avgTime2', 'safeGas', 'proposeGas']
+# write_to_file('data/extracted.csv', fieldnames, data)
+
+
+# query mongodb for all pending txs
+mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
+db = mongo_client["transactions"]
+col = db["pending"]
+
+doc = col.find({})
+for item in doc:
+    print(item)
+    
+count = col.count()
+print(count)

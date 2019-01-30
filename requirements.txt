@@ -9,3 +9,4 @@ numpy
 websocket
 websocket-client
 asyncio
+pymongo
