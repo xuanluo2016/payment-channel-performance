@@ -5,7 +5,6 @@ import json
 import unicodecsv as csv
 import pymongo
 
-DEBUG = True
 
 # remove substrings before and after two characters
 # exmaple:
@@ -84,18 +83,35 @@ def write_to_file(file,fieldnames, data):
 mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = mongo_client["transactions"]
 col = db["pending"]
+results = []
+DEBUG = False
 
 if DEBUG:
     doc = col.find({}).limit(1)
 else:
-    dod = col.find({}
+    doc = col.find({}
     )
 
 # extrac transaction ids from the collections
 for row in doc:
     arr =  json.loads(row['data'])
     arr_hash = arr['result']
+    time = row['time']
+    seconds = row['seconds']
 
+    for tx_hash in arr_hash:
+        item = {"txhash": tx_hash, "time": time, "seconds": seconds }
+        results.append(item)
+    
+    #print(results)
+print("number of items:")
+print(len(results))
+
+# store extracted data into mongodb
+db = mongo_client["transactions"]
+col = db["processed"]
+#col.create_index([('txhash', pymongo.ASCENDING),('seconds',pymongo.ASCENDING)], unique = True)
+col.insert_many(results)
 
 count = col.count()
 print(count)
