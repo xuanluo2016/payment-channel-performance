@@ -20,6 +20,49 @@ function pausecomp(millis)
     while(curDate-date < millis);
 }
 
+function setupWebSocket(){
+    //initlize the websocket 
+    const WebSocket = require('ws');
+    const ws = new WebSocket('wss://mainnet.infura.io/ws');
+    request = ''
+
+
+    ws.on('open', function open() {
+        console.log('connected');
+        console.log(new Date().toLocaleString());
+        ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}');
+    });
+
+    ws.on('message', function incoming(data) {
+        if (request != ''){
+            //console.log('asking for filter change');
+            query = {"data": data, "time": new Date().toLocaleString(), "seconds":Date.now()};
+            insert(query)
+            ws.send(request);
+            pausecomp(1000);
+        }else{
+            //console.log('ask for the filter id')
+            // get the filter id
+            substr1 = '"result":';
+            substr2 = '}';
+            id = get_substr(data, substr1, substr2);
+
+            // send request to get pending transactions
+            str1 = '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":[';
+            str2 = '],"id":1}';
+            request = str1 + id + str2;
+            console.log(request)
+            ws.send(request);
+        }
+    });
+    
+    ws.on('close', function close(){
+        console.log('disconnected');
+        console.log(new Date().toLocaleString());
+        setTimeout(setupWebSocket, 1000)
+    });
+
+}
 // ###############Methods##############################
 // initlaize the mongodb for storing the data
 var MongoClient = require('mongodb').MongoClient;
@@ -35,26 +78,6 @@ MongoClient.connect(url, {
       mongodb = db;
       }
   );
-
-// MongoClient.connect(url, function(err, db) {
-//     if (err) throw err;
-//     var dbo = db.db("transactions");
-//     //var dbo = db.db("test");
-//     //console.log('start mongo db connnection');
-//     dbo.collection("pending").insertOne(query,function(err, result) {
-//           if (err) throw err;
-//           db.close();
-//         });
-//       });    
-
-
-
-//initlize the websocket 
-const WebSocket = require('ws');
-const ws = new WebSocket('wss://mainnet.infura.io/ws');
-request = ''
-
-
 // store the data
 function insert(query){
     var dbo = mongodb.db("transactions");
@@ -63,31 +86,7 @@ function insert(query){
     });  
 }
 
+// start to connect to ws server and collect data
+setupWebSocket()
 
 
-ws.on('open', function open() {
-  ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}');
-});
-
-ws.on('message', function incoming(data) {
-    if (request != ''){
-        //console.log('asking for filter change');
-        query = {"data": data, "time": new Date().toLocaleString(), "seconds":Date.now()};
-        insert(query)
-        ws.send(request);
-        pausecomp(1000);
-    }else{
-        //console.log('ask for the filter id')
-        // get the filter id
-        substr1 = '"result":';
-        substr2 = '}';
-        id = get_substr(data, substr1, substr2);
-
-        // send request to get pending transactions
-        str1 = '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":[';
-        str2 = '],"id":1}';
-        request = str1 + id + str2;
-        console.log(request)
-        ws.send(request);
-    }
-});
