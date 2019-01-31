@@ -111,7 +111,10 @@ print(len(results))
 db = mongo_client["transactions"]
 col = db["processed"]
 #col.create_index([('txhash', pymongo.ASCENDING),('seconds',pymongo.ASCENDING)], unique = True)
-col.insert_many(results)
+try: 
+    col.insert_many(results)
+except Exception as e:
+    print(e.details)
 
 count = col.count()
 print(count)
