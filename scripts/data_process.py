@@ -45,6 +45,29 @@ def write_to_file(file,fieldnames, data):
             print("error when writing data to file")
             print(e.message)
     csvfile.close()
+
+def check_duplicate():
+        # export mongodb queries to a csv file
+    db = mongo_client["transactions"]
+    col = db["processed"]
+    try: 
+        pipeline = [  
+            {'$group': { 
+                '_id': {'txhash': "$txhash"} 
+                } 
+            }
+        ]
+        cursor = col.aggregate(pipeline)
+        data = []
+        for document in cursor:
+            data.append(document['_id']['txhash'])
+        
+        return(len(data) == len(set(data)))
+
+    except Exception as e:
+        print('err in check_duplicate')
+    
+    return False
 #####################################################################
 
 
@@ -128,19 +151,5 @@ except Exception as e:
 count = col.count()
 print(count)
 
-
-# export mongodb queries to a csv file
-db = mongo_client["transactions"]
-col = db["processed"]
-result = []
-try: 
-    pipeline = [  
-    {'$group': { 
-        '_id': {'txhash': "$txhash"} 
-        } 
-    }
-]
-    result = col.aggregate(pipeline)
-    print(type(result))
-except Exception as e:
-    print(e.detail)
+# check if any duplicate entries in the mongodb regarding inserted data
+print(check_duplicate())
