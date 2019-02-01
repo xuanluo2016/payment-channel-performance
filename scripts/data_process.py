@@ -95,13 +95,14 @@ else:
 # extrac transaction ids from the collections
 for row in doc:
     arr =  json.loads(row['data'])
-    arr_hash = arr['result']
-    time = row['time']
-    seconds = row['seconds']
+    if('result' in arr):
+        arr_hash = arr['result']
+        time = row['time']
+        seconds = row['seconds']
 
-    for tx_hash in arr_hash:
-        item = {"txhash": tx_hash, "time": time, "seconds": seconds }
-        results.append(item)
+        for tx_hash in arr_hash:
+            item = {"txhash": tx_hash, "time": time, "seconds": seconds }
+            results.append(item)
     
     #print(results)
 print("number of items:")
@@ -114,7 +115,7 @@ col = db["processed"]
 try: 
     col.insert_many(results)
 except Exception as e:
-    print(e.details)
+    print(e.message)
 
 count = col.count()
 print(count)
