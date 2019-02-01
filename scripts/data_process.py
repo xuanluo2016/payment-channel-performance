@@ -4,6 +4,7 @@ import re
 import json
 import unicodecsv as csv
 import pymongo
+from pymongo.errors import BulkWriteError
 
 
 # remove substrings before and after two characters
@@ -111,11 +112,35 @@ print(len(results))
 # store extracted data into mongodb
 db = mongo_client["transactions"]
 col = db["processed"]
-#col.create_index([('txhash', pymongo.ASCENDING),('seconds',pymongo.ASCENDING)], unique = True)
+col.create_index([('txhash', pymongo.ASCENDING),('seconds',pymongo.ASCENDING)], unique = True)
+
+
 try: 
-    col.insert_many(results)
+    col.insert_many(results, ordered=False)
+
+except BulkWriteError as bwe:
+    # skip duplicate entries
+    print("Batch Inserted with some errors. May be some duplicates were found and are skipped.")
+
 except Exception as e:
     print(e.message)
 
 count = col.count()
 print(count)
+
+
+# export mongodb queries to a csv file
+db = mongo_client["transactions"]
+col = db["processed"]
+result = []
+try: 
+    pipeline = [  
+    {'$group': { 
+        '_id': {'txhash': "$txhash"} 
+        } 
+    }
+]
+    result = col.aggregate(pipeline)
+    print(type(result))
+except Exception as e:
+    print(e.detail)
