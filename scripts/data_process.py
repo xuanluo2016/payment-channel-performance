@@ -47,7 +47,6 @@ def write_to_file(file,fieldnames, data):
     csvfile.close()
 
 def check_duplicate():
-        # export mongodb queries to a csv file
     db = mongo_client["transactions"]
     col = db["processed"]
     try: 
@@ -62,7 +61,7 @@ def check_duplicate():
         for document in cursor:
             data.append(document['_id']['txhash'])
         
-        return(len(data) == len(set(data)))
+        return(len(data) != len(set(data)))
 
     except Exception as e:
         print('err in check_duplicate')
@@ -83,7 +82,7 @@ else:
     doc = col.find({}
     )
 
-# extrac transaction ids from the collections
+# extract transaction ids from the collections
 for row in doc:
     arr =  json.loads(row['data'])
     if('result' in arr):
@@ -119,4 +118,5 @@ count = col.count()
 print(count)
 
 # check if any duplicate entries in the mongodb regarding inserted data
-print(check_duplicate())
+#print(check_duplicate())
+

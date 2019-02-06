@@ -83,8 +83,8 @@ function pausecomp(millis)
 function setupWebSocket(){
     //initlize the websocket 
     var wsc = new WebSocketClient();
-    //wsc.open('wss://mainnet.infura.io/ws');
-    wsc.open(' wss://mainnet.infura.io/_ws');
+    wsc.open('wss://mainnet.infura.io/ws');
+    //wsc.open(' wss://mainnet.infura.io/_ws');
     var request;
 
     wsc.onopen = function(e){
