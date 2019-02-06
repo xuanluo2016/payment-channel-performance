@@ -2,6 +2,7 @@ from lxml import html
 import requests
 import datetime
 import unicodecsv as csv
+from lib.db import DB
 
 DEBUG = True
 
@@ -19,10 +20,14 @@ def parse(parser, path):
 
 def extract_gas(s):
     return
-    
-####################### Methods #################################3
+
+####################### Methods #################################
+
+# get the list of transactions from db
+db_connection =  DB()
+db = db_connection.mongo_client["transactions"]
+
 
 source_url = "https://etherscan.io/tx/"
 response = requests.get(source_url)
 parser = html.fromstring(response.content)
-print(parser)
