@@ -19,12 +19,8 @@ def parse(parser, path):
 
 def extract_gas(s):
     return
-
-
-# extract only digits from a string
-def extract_digit(str):
-    return [int(s) for s in str.split() if s.isdigit()]
-
+    
+####################### Methods #################################3
 
 source_url = "https://etherscan.io/tx/"
 response = requests.get(source_url)
