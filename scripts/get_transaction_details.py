@@ -3,31 +3,81 @@ import requests
 import datetime
 import unicodecsv as csv
 from lib.db import DB
+import pymongo
+import json
+from bs4 import BeautifulSoup
+import re
+
 
 DEBUG = True
 
-def parse(parser, path):
+# get and store details for all input transactions
+def parse(source_url,tx_list):
+    results = []
+    for tx in tx_list:
+        # extract transction details
+        url = source_url + str(tx)
+        item = parse_details(url)
+
+        # store details into array
+        if(len(item) > 1):
+            results.append(item)
+    return results
+
+# get the details of a transaction
+def parse_details(url):
     result = ''
     try:
-        result = parser.xpath(path)
+        response = requests.get(url)
+        parser = html.fromstring(response.content)        
+
+        # check if the transaction has been mined or not
+        is_mined = (re.search('Success', response.content) != None)
+        if(is_mined):
+            # for mined transactions, get TimeStamp, Actual Tx Cost, Gas Limit, Gas Price, Gas Used By Transaction
+            print(url)
+
+        else:
+            # for unmined transactions, get Time Last Seen, Time First Seen, Gas Limit, Gas Price 
+            print('not mined')
 
     except Exception as e:
-        print("err")
+        print("err in parse_details")
         print(e.message)
 
     return result
 
-
-def extract_gas(s):
+def get_mined_transaction_details(parser):
     return
 
+def get_unmined_transaction_details(parser):
+    return
 ####################### Methods #################################
 
-# get the list of transactions from db
+# get the list of transactions from db processed
 db_connection =  DB()
 db = db_connection.mongo_client["transactions"]
+col = db["processed"]
 
+if DEBUG:
+    doc = col.find({}).limit(2)
+else:
+    doc = col.find({})
 
+# extract transaction ids from the collections
+tx_list = []
+for row in doc:
+    hash = row['txhash']
+    if(hash not in tx_list):
+        tx_list.append(hash)
+    
+print("number of transctions:")
+print(len(tx_list))
+
+if DEBUG:
+    tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
+    tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
+
+# get the details of trarr_txansaction
 source_url = "https://etherscan.io/tx/"
-response = requests.get(source_url)
-parser = html.fromstring(response.content)
+results = parse(source_url, tx_list)

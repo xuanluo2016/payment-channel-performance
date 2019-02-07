@@ -79,8 +79,7 @@ DEBUG = False
 if DEBUG:
     doc = col.find({}).limit(1)
 else:
-    doc = col.find({}
-    )
+    doc = col.find({})
 
 # extract transaction ids from the collections
 for row in doc:
