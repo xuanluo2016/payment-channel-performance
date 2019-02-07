@@ -20,7 +20,7 @@ def parse(source_url,tx_list):
         item = parse_details(url)
 
         # store details into array
-        if(len(item) > 1):
+        if(item != None):
             results.append(item)
     return results
 
@@ -35,7 +35,7 @@ def parse_details(url):
         is_mined = (re.search('Success', response.content) != None)
         if(is_mined):
             # for mined transactions, get TimeStamp, Actual Tx Cost, Gas Limit, Gas Price, Gas Used By Transaction
-            print(url)
+            result = get_mined_transaction_details(parser)
 
         else:
             # for unmined transactions, get Time Last Seen, Time First Seen, Gas Limit, Gas Price 
@@ -48,9 +48,27 @@ def parse_details(url):
     return result
 
 def get_mined_transaction_details(parser):
+
+    # get TimeStamp
+    # list = soup.find('span', id="clock")
+    # print(type(list))
+    path = '//*[@id="ContentPlaceHolder1_maintable"]/div[8]/text()'
+    timestamp = parser.xpath(path)
+    print(timestamp)
+
+    actual_cost = ''
+
+    gas_limit = ''
+
+    gas_price = ''
+
+    gas_used = ''
+    item = {"timestamp": timestamp, "actual_cost": actual_cost, "gas_limit": gas_limit, "gas_price":gas_price, "gas_used": gas_used }
+    
+
     return
 
-def get_unmined_transaction_details(parser):
+def get_unmined_transaction_details(parse):
     return
 ####################### Methods #################################
 
