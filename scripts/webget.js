@@ -51,7 +51,7 @@ var request;
 url = 'wss://mainnet.infura.io/ws'
 // url = 'wss://mainnet.infura.io/_ws'
 
-var wsc = new ReconnectWebSocket(urls,0,1000);
+var wsc = new ReconnectWebSocket();
 
 wsc.open(url)
 
@@ -62,7 +62,6 @@ wsc.onopen = function(e){
     request = '';
 }
 wsc.onmessage = function(data,flags,number){
-    this.reconnect();
     //console.log(`WebSocketClient message #${number}: `,data);
     // if the data reports invalid
     if (request != ''){
