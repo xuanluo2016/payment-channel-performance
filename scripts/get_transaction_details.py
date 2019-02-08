@@ -4,12 +4,13 @@ import datetime
 import unicodecsv as csv
 from lib.db import DB
 import pymongo
+from pymongo.errors import BulkWriteError
 import json
 from bs4 import BeautifulSoup
 import re
 
 
-DEBUG = True
+DEBUG = False
 
 # get and store details for all input transactions
 def parse_all(source_url,tx_list):
@@ -126,50 +127,44 @@ if DEBUG:
 else:
     doc = col.find({})
 
-# extract transaction ids from the collections
-# tx_list = []
-# for row in doc:
-#     hash = row['txhash']
-#     if(hash not in tx_list):
-#         tx_list.append(hash)
-    
-# print("number of transctions:")
-# print(len(tx_list))
-
-# if DEBUG:
-#     tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
-#     tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
-
-# # get the details of transactions
-# source_url = "https://etherscan.io/tx/"
-# results = parse_all(source_url, tx_list)
-
-# extract transaction ids from the collections
-source_url = "https://etherscan.io/tx/"
-col_mined = db["mined"]
-col_unmined = db["unmined"]
-
+# extract transaction ids from the collections and remove duplicate transaction hashes
+tx_list = []
 for row in doc:
     hash = row['txhash']
-    item, is_mined = parse(source_url, hash)
+    if(hash not in tx_list):
+        tx_list.append(hash)
+    
+if DEBUG:
+    tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
+    tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
+    tx_list.append('0x2e3adfad08379e8d292c771bca695a941bb9be9142eb7c034bf0859127499b41')
+    tx_list.append('0x20aa5435e1ee03778ae85b719f81f334a758468145f8c38b6badbe015ac9cb72')
+    tx_list.append('0x7e34ebe793d9e386d278ebeef75192d409066b9e99e2b456b31ca56af7747cbb')
 
-    # insert transaction details into mongoDB
-    if(is_mined):
-        col_mined.insert(item)
-    else:
-        col_unmined.insert(item)
 
+print("number of transctions:")
+print(len(tx_list))
 
+# get the details of transactions
+source_url = "https://etherscan.io/tx/"
+col_mined = db["mined"]
+col_mined.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 
-# if DEBUG:
-#     tx_list = []
-#     tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
-#     tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
-#     for tx in tx_list:
-#         item, is_mined = parse(source_url, tx)
+col_unmined = db["unmined"]
+col_unmined.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 
-#         # insert transaction details into mongoDB
-#         if(is_mined):
-#             col_mined.insert(item)
-#         else:
-#             col_unmined.insert(item)
+# insert transaction details into mongoDB
+for tx in tx_list:
+    item, is_mined = parse(source_url, tx)
+    try: 
+
+        if(is_mined):
+            col_mined.insert(item)
+        else:
+            col_unmined.insert(item)
+
+    except pymongo.errors.DuplicateKeyError as e:
+        print('duplicateKeyError')
+
+    except Exception as e:
+        print(e.message)
