@@ -1,6 +1,3 @@
-const ReconnectWebSocket = require('./lib/ReconnectWebSocket.js');
-const assert = require('assert');
-
 // return substr between two substrings in a string
 function get_substr(str, substr1, substr2){
     left = str.indexOf(substr1);
@@ -21,37 +18,13 @@ function pausecomp(millis)
     while(curDate-date < millis);
 }
 
-// ############### MongoDB ############################## //
-// initlaize the mongodb for storing the data
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
-var mongodb;
-
-// Create the database connection
-MongoClient.connect(url, {  
-    poolSize: 10
-    // other options can go here
-  },function(err, db) {
-      assert.equal(null, err);
-      mongodb = db;
-      }
-  );
-// store the data
-function insert(query){
-
-    var dbo = mongodb.db("transactions");
-    dbo.collection("pending").insertOne(query,function(err, result) {
-        assert.equal(null, err);
-    });  
-}
-
-
-// ############### WebSocket ############################## //
-var request;
-url = 'wss://mainnet.infura.io/ws'
+const ReconnectWebSocket = require('./lib/ReconnectWebSocket.js');
 urls = ['wss://mainnet.infura.io/ws','wss://mainnet.infura.io/_ws']
 var wsc = new ReconnectWebSocket(urls,0,1000);
 
+var request;
+
+url = 'wss://mainnet.infura.io/ws'
 wsc.open(url)
 
 wsc.onopen = function(e){
@@ -86,7 +59,6 @@ wsc.onmessage = function(data,flags,number){
         this.send(request);
     }
 }
-
 
 
 // const WebSocket = require('./WebSocket.js');
