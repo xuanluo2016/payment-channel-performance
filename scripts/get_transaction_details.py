@@ -69,6 +69,9 @@ def get_mined_transaction_details(parser):
     # get TimeStamp
     # list = soup.find('span', id="clock")
 
+    path = '//*[@id="tx"]/text()'
+    txhash = get_transaction_detail(parser, path)
+
     path = '//*[@id="ContentPlaceHolder1_maintable"]/div[8]/text()'
     timestamp = get_transaction_detail(parser, path)
 
@@ -84,11 +87,15 @@ def get_mined_transaction_details(parser):
     path = '//*[@id="ContentPlaceHolder1_spanGasUsedByTxn"]/text()'
     gas_used = get_transaction_detail(parser, path)
 
-    item = {"timestamp": timestamp, "actual_cost": actual_cost, "gas_limit": gas_limit, "gas_price":gas_price, "gas_used": gas_used }
+    item = {"txhash": txhash, "timestamp": timestamp, "actual_cost": actual_cost, "gas_limit": gas_limit, "gas_price":gas_price, "gas_used": gas_used }
     
     return item
 
 def get_unmined_transaction_details(parser):
+    
+    path = '//*[@id="tx"]/i/font/text()'
+    txhash = get_transaction_detail(parser, path)
+
     path = '//*[@id="ContentPlaceHolder1_maintable"]/div[6]/span[2]/text()'
     time_last_seen = get_transaction_detail(parser, path)
 
@@ -104,7 +111,7 @@ def get_unmined_transaction_details(parser):
     path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
     max_fee = get_transaction_detail(parser, path)
 
-    item = {"time_last_seen": time_last_seen, "time_first_seen": time_first_seen, "gas_limit": gas_limit, "gas_price":gas_price, "max_gas_fee": max_fee }
+    item = {"txhash": txhash, "time_last_seen": time_last_seen, "time_first_seen": time_first_seen, "gas_limit": gas_limit, "gas_price":gas_price, "max_gas_fee": max_fee }
 
     return item
 ####################### Methods #################################
