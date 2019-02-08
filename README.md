@@ -22,6 +22,7 @@ Clone the repo and run `npm install`. You will need truffle installed globally
 web3: 1.0.0-beta.37
 npm: 6.6
 nodejs: 10.15.0
+python: 3.5.2
 ```
 ### Install dependent packages
 ```
