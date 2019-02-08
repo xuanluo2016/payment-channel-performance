@@ -80,12 +80,25 @@ function pausecomp(millis)
     while(curDate-date < millis);
 }
 
+urlFlag = true;
 function setupWebSocket(){
     //initlize the websocket 
     var wsc = new WebSocketClient();
-    wsc.open('wss://mainnet.infura.io/ws');
-    //wsc.open(' wss://mainnet.infura.io/_ws');
+    url = '';
+
+    if(urlFlag){
+        url = 'wss://mainnet.infura.io/ws';
+        urlFlag = false;
+        console.log(url);
+    }else{
+        url = 'wss://mainnet.infura.io/_ws';
+        urlFlag = true;
+        console.log(url);
+    }
+    
     var request;
+
+    wsc.open(url);
 
     wsc.onopen = function(e){
         console.log('connected');
@@ -94,6 +107,7 @@ function setupWebSocket(){
         request = '';
     }
     wsc.onmessage = function(data,flags,number){
+        this.reconnect();
         //console.log(`WebSocketClient message #${number}: `,data);
         // if the data reports invalid
         if (request != ''){
@@ -137,6 +151,7 @@ MongoClient.connect(url, {
   );
 // store the data
 function insert(query){
+
     var dbo = mongodb.db("transactions");
     dbo.collection("pending").insertOne(query,function(err, result) {
         assert.equal(null, err);
