@@ -1,64 +1,5 @@
-const WebSocket = require('ws');
-
-function WebSocketClient(){
-	this.number = 0;	// Message number
-	this.autoReconnectInterval = 5*1000;	// ms
-}
-WebSocketClient.prototype.open = function(url){
-	this.url = url;
-	this.instance = new WebSocket(this.url);
-	this.instance.on('open',()=>{
-		this.onopen();
-	});
-	this.instance.on('message',(data,flags)=>{
-		this.number ++;
-		this.onmessage(data,flags,this.number);
-	});
-	this.instance.on('close',(e)=>{
-		switch (e.code){
-		case 1000:	// CLOSE_NORMAL
-			console.log("WebSocket: closed");
-			break;
-		default:	// Abnormal closure
-			this.reconnect(e);
-			break;
-		}
-		this.onclose(e);
-	});
-	this.instance.on('error',(e)=>{
-		switch (e.code){
-		case 'ECONNREFUSED':
-			this.reconnect(e);
-			break;
-		default:
-			this.onerror(e);
-			break;
-		}
-	});
-}
-WebSocketClient.prototype.send = function(data,option){
-	try{
-		this.instance.send(data,option);
-	}catch (e){
-		this.instance.emit('error',e);
-	}
-}
-WebSocketClient.prototype.reconnect = function(e){
-	console.log(`WebSocketClient: retry in ${this.autoReconnectInterval}ms`,e);
-        this.instance.removeAllListeners();
-	var that = this;
-	setTimeout(function(){
-		console.log("WebSocketClient: reconnecting...");
-		that.open(that.url);
-	},this.autoReconnectInterval);
-}
-WebSocketClient.prototype.onopen = function(e){	console.log("WebSocketClient: open",arguments);	}
-WebSocketClient.prototype.onmessage = function(data,flags,number){	console.log("WebSocketClient: message",arguments);	}
-WebSocketClient.prototype.onerror = function(e){	console.log("WebSocketClient: error",arguments);	}
-WebSocketClient.prototype.onclose = function(e){	console.log("WebSocketClient: closed",arguments);	}
-
-///////////////////////////////////////////////////////////////////
-var assert = require('assert');
+const ReconnectWebSocket = require('./lib/ReconnectWebSocket.js');
+const assert = require('assert');
 
 // return substr between two substrings in a string
 function get_substr(str, substr1, substr2){
@@ -80,61 +21,7 @@ function pausecomp(millis)
     while(curDate-date < millis);
 }
 
-urlFlag = true;
-function setupWebSocket(){
-    //initlize the websocket 
-    var wsc = new WebSocketClient();
-    url = '';
-
-    if(urlFlag){
-        url = 'wss://mainnet.infura.io/ws';
-        urlFlag = false;
-        console.log(url);
-    }else{
-        url = 'wss://mainnet.infura.io/_ws';
-        urlFlag = true;
-        console.log(url);
-    }
-    
-    var request;
-
-    wsc.open(url);
-
-    wsc.onopen = function(e){
-        console.log('connected');
-        console.log(new Date().toLocaleString());
-        this.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}');
-        request = '';
-    }
-    wsc.onmessage = function(data,flags,number){
-        this.reconnect();
-        //console.log(`WebSocketClient message #${number}: `,data);
-        // if the data reports invalid
-        if (request != ''){
-            //console.log('asking for filter change');
-            query = {"data": data, "time": new Date().toLocaleString(), "seconds":Date.now()};
-            insert(query)
-            this.send(request);
-            console.log(new Date().toLocaleString())
-            pausecomp(2000);
-        }else{
-            //console.log('ask for the filter id')
-            // get the filter id
-            substr1 = '"result":';
-            substr2 = '}';
-            id = get_substr(data, substr1, substr2);
-
-            // send request to get pending transactions
-            str1 = '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":[';
-            str2 = '],"id":1}';
-            request = str1 + id + str2;
-            console.log(request)
-            this.send(request);
-        }
-    }
-
-}
-// ###############Methods##############################
+// ############### MongoDB ############################## //
 // initlaize the mongodb for storing the data
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
@@ -158,7 +45,53 @@ function insert(query){
     });  
 }
 
-// start to connect to ws server and collect data
-setupWebSocket()
+
+// ############### WebSocket ############################## //
+var request;
+url = 'wss://mainnet.infura.io/ws'
+// url = 'wss://mainnet.infura.io/_ws'
+
+var wsc = new ReconnectWebSocket(urls,0,1000);
+
+wsc.open(url)
+
+wsc.onopen = function(e){
+    console.log('connected');
+    console.log(new Date().toLocaleString());
+    this.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}');
+    request = '';
+}
+wsc.onmessage = function(data,flags,number){
+    this.reconnect();
+    //console.log(`WebSocketClient message #${number}: `,data);
+    // if the data reports invalid
+    if (request != ''){
+        //console.log('asking for filter change');
+        query = {"data": data, "time": new Date().toLocaleString(), "seconds":Date.now()};
+        insert(query)
+        this.send(request);
+        console.log(new Date().toLocaleString())
+        pausecomp(2000);
+    }else{
+        //console.log('ask for the filter id')
+        // get the filter id
+        substr1 = '"result":';
+        substr2 = '}';
+        id = get_substr(data, substr1, substr2);
+
+        // send request to get pending transactions
+        str1 = '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":[';
+        str2 = '],"id":1}';
+        request = str1 + id + str2;
+        console.log(request)
+        this.send(request);
+    }
+}
 
 
+
+// const WebSocket = require('./WebSocket.js');
+// const WebSocketClient = WebSocket.WebSocketClient;
+// var wsc = new WebSocketClient();
+// url = 'wss://mainnet.infura.io/ws';
+// wsc.open(url);
