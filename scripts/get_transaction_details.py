@@ -12,12 +12,12 @@ import re
 DEBUG = True
 
 # get and store details for all input transactions
-def parse(source_url,tx_list):
+def parse_all(source_url,tx_list):
     results = []
     for tx in tx_list:
         # extract transction details
         url = source_url + str(tx)
-        item = parse_details(url)
+        item, ismined = parse_details(url)
 
         if(DEBUG):
             print(item)
@@ -26,6 +26,12 @@ def parse(source_url,tx_list):
         if(item != None):
             results.append(item)
     return results
+
+# get and store details for all input transactions
+def parse(source_url,tx):
+    url = source_url + str(tx)
+    item, is_mined = parse_details(url)
+    return (item, is_mined)
 
 # get the details of a transaction
 def parse_details(url):
@@ -43,7 +49,7 @@ def parse_details(url):
             # for unmined transactions, get Time Last Seen, Time First Seen, Gas Limit, Gas Price, Max Fee
             item = get_unmined_transaction_details(parser)
         
-        return item
+        return (item, is_mined)
 
 
     except Exception as e:
@@ -114,19 +120,49 @@ else:
     doc = col.find({})
 
 # extract transaction ids from the collections
-tx_list = []
+# tx_list = []
+# for row in doc:
+#     hash = row['txhash']
+#     if(hash not in tx_list):
+#         tx_list.append(hash)
+    
+# print("number of transctions:")
+# print(len(tx_list))
+
+# if DEBUG:
+#     tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
+#     tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
+
+# # get the details of transactions
+# source_url = "https://etherscan.io/tx/"
+# results = parse_all(source_url, tx_list)
+
+# extract transaction ids from the collections
+source_url = "https://etherscan.io/tx/"
+col_mined = db["mined"]
+col_unmined = db["unmined"]
+
 for row in doc:
     hash = row['txhash']
-    if(hash not in tx_list):
-        tx_list.append(hash)
-    
-print("number of transctions:")
-print(len(tx_list))
+    item, is_mined = parse(source_url, hash)
 
-if DEBUG:
-    tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
-    tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
+    # insert transaction details into mongoDB
+    if(is_mined):
+        col_mined.insert(item)
+    else:
+        col_unmined.insert(item)
 
-# get the details of trarr_txansaction
-source_url = "https://etherscan.io/tx/"
-results = parse(source_url, tx_list)
+
+
+# if DEBUG:
+#     tx_list = []
+#     tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
+#     tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
+#     for tx in tx_list:
+#         item, is_mined = parse(source_url, tx)
+
+#         # insert transaction details into mongoDB
+#         if(is_mined):
+#             col_mined.insert(item)
+#         else:
+#             col_unmined.insert(item)
