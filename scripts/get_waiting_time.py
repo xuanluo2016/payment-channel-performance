@@ -1,4 +1,5 @@
 from lib.db import DB
+from lib.string import remove_redundant_characters
 from dateutil import parser
 import datetime 
 
@@ -6,36 +7,47 @@ DEBUG = True
 
 # extract the minimum time from doc, which contains a field called 'time'
 # return None if doc is empty, else return mininum
-def get_min_time(doc):
-    # if(doc == None) or (len(doc) == 0):
-    #     return None
-
+def get_start_time(doc):
     #min = parser.parse('2039-01-30, 10:38:50 a.m.')
     min = parser.parse(str(datetime.MAXYEAR))
     start_time = min
-    for row in doc:
-        time = row['time']
-        time = parser.parse(time)
-        # print('time:')
-        # print(time)
-        if(time < min):
-            min = time
-    if(start_time == min):
-        return None
-    else:
-        return min
-####################### Methods #################################
+    try: 
+        for row in doc:
+            time = row['time']
+            time = parser.parse(time)
+            # print('time:')
+            # print(time)
+            if(time < min):
+                min = time
+    finally: 
+        if(start_time == min):
+            return None
+        else:
+            return min
 
+# extract the end time from doc, which contains a field called 'timestamp'
+# return None if doc is empty or timestamp is empty, else return timestamp
+def get_end_time(doc):
+    try:
+        for row in doc:
+            time = row['timestamp']
+            time = remove_redundant_characters(time, '(', ')')
+            return time
+    finally:
+        return None
+
+####################### Methods #################################
 
 # get the list of transactions and related recording time from db processed
 db_connection =  DB()
 db = db_connection.mongo_client["transactions"]
-col = db["processed"]
+col_processed = db["processed"]
+col_mined =  db["mined"]
 
 if DEBUG:
-    doc = col.find({}).limit(2)
+    doc = col_processed.find({}).limit(2)
 else:
-    doc = col.find({})
+    doc = col_processed.find({})
 
 # extract transaction ids from the collections and remove duplicate transaction hashes
 tx_list = []
@@ -52,17 +64,22 @@ if DEBUG:
     tx_list.append('0x7e34ebe793d9e386d278ebeef75192d409066b9e99e2b456b31ca56af7747cbb')
     tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
 
-print(tx_list)
 for tx in tx_list:
     # get the start time of the transactions
     # query = '{txhash : ' + str(tx) + ' }'
     query = {'txhash': tx}
-    doc = col.find(query)
-    start_time = get_min_time(doc)
-    print(start_time)
+    doc = col_processed.find(query)
+    start_time = get_start_time(doc)
+    # print(start_time)
+
     # get the end time of the transactions
+    doc = col_mined.find(query)
+    end_time = get_end_time(doc)
+    print(end_time)
 
     # get the waiting time of the transactions
-        
+    if(start_time != None and end_time != None):
+        waiting_time = end_time - start_time
+        print(waiting_time)    
 
 
