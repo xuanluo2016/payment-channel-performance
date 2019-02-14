@@ -1,20 +1,29 @@
 from lib.db import DB
 from dateutil import parser
+import datetime 
 
 DEBUG = True
 
 # extract the minimum time from doc, which contains a field called 'time'
+# return None if doc is empty, else return mininum
 def get_min_time(doc):
-    if(doc == None):
-        return None
+    # if(doc == None) or (len(doc) == 0):
+    #     return None
 
-    min = parser.parse('2019-01-30, 10:38:50 a.m.')
+    #min = parser.parse('2039-01-30, 10:38:50 a.m.')
+    min = parser.parse(str(datetime.MAXYEAR))
+    start_time = min
     for row in doc:
         time = row['time']
         time = parser.parse(time)
+        # print('time:')
+        # print(time)
         if(time < min):
-            time = min
-    return min
+            min = time
+    if(start_time == min):
+        return None
+    else:
+        return min
 ####################### Methods #################################
 
 
@@ -41,6 +50,7 @@ if DEBUG:
     tx_list.append('0x2e3adfad08379e8d292c771bca695a941bb9be9142eb7c034bf0859127499b41')
     tx_list.append('0x20aa5435e1ee03778ae85b719f81f334a758468145f8c38b6badbe015ac9cb72')
     tx_list.append('0x7e34ebe793d9e386d278ebeef75192d409066b9e99e2b456b31ca56af7747cbb')
+    tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
 
 print(tx_list)
 for tx in tx_list:
