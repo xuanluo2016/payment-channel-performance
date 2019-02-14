@@ -61,7 +61,7 @@ def parse_details(url):
 
 def get_transaction_detail(parser, path):
     result = parser.xpath(path)
-    if(result != None):
+    if(result != None and len(result) != 0):
         return result[0]
     else:
         return None
@@ -124,7 +124,7 @@ db = db_connection.mongo_client["transactions"]
 col = db["processed"]
 
 if DEBUG:
-    doc = col.find({}).limit(2)
+    doc = col.find({}).limit(100)
 else:
     doc = col.find({})
 
