@@ -29,11 +29,11 @@ def get_end_time(doc):
     try:
         for row in doc:
             time = row['timestamp']
+            # remove special characters in timestamp
             time = remove_redundant_characters(time, '(', ')')
-            print('time:')
-            print(time)
+            time = time[1: len(time)-len("+UTC")-1]
             return time
-    finally:
+    except Exception as e:
         return None
 
 ####################### Methods #################################
@@ -71,14 +71,13 @@ for tx in tx_list:
     start_time = get_start_time(doc)
     # print('start_time:')
     # print(start_time)
-    # print(start_time)2019-02-02 13:05:12
-
 
     # get the end time of the transactions
     doc = col_mined.find(query)
     end_time = get_end_time(doc)
-    # print('end_time:')
-    # print(end_time)
+    print(tx)
+    print('end_time:')
+    print(end_time)
 
     # get the waiting time of the transactions
     if(start_time != None) and (end_time != None):
