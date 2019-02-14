@@ -32,7 +32,7 @@ def get_end_time(doc):
             # remove special characters in timestamp
             time = remove_redundant_characters(time, '(', ')')
             time = time[1: len(time)-len("+UTC")-1]
-            return time
+            return parser.parse(time)
     except Exception as e:
         return None
 
@@ -45,7 +45,7 @@ col_processed = db["processed"]
 col_mined =  db["mined"]
 
 if DEBUG:
-    doc = col_processed.find({}).limit(2)
+    doc = col_processed.find({}).limit(10)
 else:
     doc = col_processed.find({})
 
@@ -69,19 +69,22 @@ for tx in tx_list:
     query = {'txhash': tx}
     doc = col_processed.find(query)
     start_time = get_start_time(doc)
-    # print('start_time:')
-    # print(start_time)
 
     # get the end time of the transactions
     doc = col_mined.find(query)
     end_time = get_end_time(doc)
-    print(tx)
-    print('end_time:')
-    print(end_time)
 
     # get the waiting time of the transactions
+    # print(tx)
+    # print(start_time)
+    # print(end_time)
+
     if(start_time != None) and (end_time != None):
         waiting_time = end_time - start_time
+        print(tx)
+        print(start_time)
+        print(end_time)
+        print('waiting_time:')
         print(waiting_time)    
 
 
