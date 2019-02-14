@@ -15,8 +15,6 @@ def get_start_time(doc):
         for row in doc:
             time = row['time']
             time = parser.parse(time)
-            # print('time:')
-            # print(time)
             if(time < min):
                 min = time
     finally: 
@@ -32,6 +30,8 @@ def get_end_time(doc):
         for row in doc:
             time = row['timestamp']
             time = remove_redundant_characters(time, '(', ')')
+            print('time:')
+            print(time)
             return time
     finally:
         return None
@@ -57,7 +57,6 @@ for row in doc:
         tx_list.append(hash)
     
 if DEBUG:
-    tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
     tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
     tx_list.append('0x2e3adfad08379e8d292c771bca695a941bb9be9142eb7c034bf0859127499b41')
     tx_list.append('0x20aa5435e1ee03778ae85b719f81f334a758468145f8c38b6badbe015ac9cb72')
@@ -70,15 +69,19 @@ for tx in tx_list:
     query = {'txhash': tx}
     doc = col_processed.find(query)
     start_time = get_start_time(doc)
+    # print('start_time:')
     # print(start_time)
+    # print(start_time)2019-02-02 13:05:12
+
 
     # get the end time of the transactions
     doc = col_mined.find(query)
     end_time = get_end_time(doc)
-    print(end_time)
+    # print('end_time:')
+    # print(end_time)
 
     # get the waiting time of the transactions
-    if(start_time != None and end_time != None):
+    if(start_time != None) and (end_time != None):
         waiting_time = end_time - start_time
         print(waiting_time)    
 

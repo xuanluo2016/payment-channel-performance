@@ -6,6 +6,8 @@ import unicodecsv as csv
 import pymongo
 from pymongo.errors import BulkWriteError
 
+DEBUG = True
+
 
 # remove substrings before and after two characters
 # exmaple:
@@ -74,10 +76,9 @@ mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = mongo_client["transactions"]
 col = db["pending"]
 results = []
-DEBUG = False
 
 if DEBUG:
-    doc = col.find({}).limit(1)
+    doc = col.find({}).limit(10)
 else:
     doc = col.find({})
 

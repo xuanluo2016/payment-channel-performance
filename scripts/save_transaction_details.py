@@ -61,9 +61,10 @@ def parse_details(url):
 
 def get_transaction_detail(parser, path):
     result = parser.xpath(path)
-    if(result == None):
-        result = ''
-    return result
+    if(result != None):
+        return result[0]
+    else:
+        return None
 
 def get_mined_transaction_details(parser):
 
@@ -73,7 +74,7 @@ def get_mined_transaction_details(parser):
     path = '//*[@id="spanTxHash"]/text()'
     txhash = get_transaction_detail(parser, path)
 
-    path = '//*[@id="ContentPlaceHolder1_maintable"]/div[4]/div[2]/text()'
+    path = '//*[@id="ContentPlaceHolder1_maintable"]/div[4]/div[2]/text()[2]'
     timestamp = get_transaction_detail(parser, path)
 
     path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
@@ -106,7 +107,7 @@ def get_unmined_transaction_details(parser):
     path = '//*[@id="ContentPlaceHolder1_spanGasLimit"]/text()'
     gas_limit = get_transaction_detail(parser, path) 
 
-    path = '//*[@id="ContentPlaceHolder1_spanGasPrice"]/text()'
+    path = '//*[@id="ContentPlaceHolder1_spanGasPrice"]/text()[2]'
     gas_price = get_transaction_detail(parser, path)
 
     path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
