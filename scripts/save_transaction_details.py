@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import re
 
 
-DEBUG = True
+DEBUG = False
 
 # get and store details for all input transactions
 def parse_all(source_url,tx_list):
@@ -133,9 +133,9 @@ db = db_connection.mongo_client["transactions"]
 col = db["processed"]
 
 if DEBUG:
-    doc = col.find({}).limit(3)
+    doc = col.find({}, no_cursor_timeout=True).limit(30)
 else:
-    doc = col.find({})
+    doc = col.find({}, no_cursor_timeout=True)
 
 # extract transaction ids from the collections and remove duplicate transaction hashes
 tx_list = []
@@ -143,7 +143,9 @@ for row in doc:
     hash = row['txhash']
     if(hash not in tx_list):
         tx_list.append(hash)
-    
+
+doc.close()
+
 if DEBUG:
     tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
     tx_list.append('0xd98059bbc41c26150d88b4d8cc05ea4d6a609b538e8cdb52aceff3ad04e3cc94')
