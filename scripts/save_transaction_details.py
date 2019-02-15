@@ -64,7 +64,7 @@ def get_transaction_detail(parser, path):
     if(result != None and len(result) != 0):
         return result[0]
     else:
-        return None
+        return ''
 
 def get_mined_transaction_details(parser):
 
@@ -77,8 +77,13 @@ def get_mined_transaction_details(parser):
     path = '//*[@id="ContentPlaceHolder1_maintable"]/div[4]/div[2]/text()[2]'
     timestamp = get_transaction_detail(parser, path)
 
-    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
+    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()'
     actual_cost = get_transaction_detail(parser, path)
+    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/b/text()'
+    actual_cost = actual_cost + get_transaction_detail(parser, path)
+    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
+    actual_cost = actual_cost + get_transaction_detail(parser, path)
+
 
     path = '//*[@id="ContentPlaceHolder1_spanGasLimit"]/text()'
     gas_limit = get_transaction_detail(parser, path)
@@ -110,8 +115,12 @@ def get_unmined_transaction_details(parser):
     path = '//*[@id="ContentPlaceHolder1_spanGasPrice"]/text()[2]'
     gas_price = get_transaction_detail(parser, path)
 
-    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
+    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()'
     max_fee = get_transaction_detail(parser, path)
+    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/b/text()'
+    max_fee = max_fee + get_transaction_detail(parser, path)
+    path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
+    max_fee = max_fee + get_transaction_detail(parser, path)
 
     item = {"txhash": txhash, "time_last_seen": time_last_seen, "time_first_seen": time_first_seen, "gas_limit": gas_limit, "gas_price":gas_price, "max_gas_fee": max_fee }
 
@@ -124,7 +133,7 @@ db = db_connection.mongo_client["transactions"]
 col = db["processed"]
 
 if DEBUG:
-    doc = col.find({}).limit(100)
+    doc = col.find({}).limit(3)
 else:
     doc = col.find({})
 
