@@ -1,5 +1,5 @@
 from lib.db import DB
-from lib.string import remove_redundant_characters
+from lib.string import remove_redundant_characters, remove_redundant_characters2
 from dateutil import parser
 import datetime 
 
@@ -36,6 +36,18 @@ def get_end_time(doc):
     except Exception as e:
         return None
 
+# extract the actual gas fee from doc, which contains a filed called 'actual_cost'
+# return None if doc is empty or actual_cost is empty, else return actual_cost
+def get_transction_fee(doc):
+    try:
+        for row in doc:
+            actual_cost = row['actual_cost']
+            # remove special characters in actual_cost
+            actual_cost = remove_redundant_characters2(actual_cost, '', 'Ether')
+            return actual_cost
+    except Exception as e:
+        return None    
+
 ####################### Methods #################################
 
 # get the list of transactions and related recording time from db processed
@@ -45,7 +57,7 @@ col_processed = db["processed"]
 col_mined =  db["mined"]
 
 if DEBUG:
-    doc = col_processed.find({}).limit(10)
+    doc = col_processed.find({}).limit(100)
 else:
     doc = col_processed.find({})
 
@@ -73,18 +85,28 @@ for tx in tx_list:
     # get the end time of the transactions
     doc = col_mined.find(query)
     end_time = get_end_time(doc)
+    
+    # get the actual transaction fee
+    doc = col_mined.find(query)
+    actual_cost =  get_transction_fee(doc)
 
     # get the waiting time of the transactions
     # print(tx)
     # print(start_time)
     # print(end_time)
 
+    waiting_time = None
     if(start_time != None) and (end_time != None):
         waiting_time = end_time - start_time
-        print(tx)
-        print(start_time)
-        print(end_time)
-        print('waiting_time:')
-        print(waiting_time)    
+        # print(tx)
+        # print(start_time)
+        # print(end_time)
+        # print('waiting_time:')
+        # print(waiting_time)    
+        # print(waiting_time)    
 
+
+    if(waiting_time != None) and (actual_cost != None):
+        print(waiting_time)
+        print(actual_cost)
 
