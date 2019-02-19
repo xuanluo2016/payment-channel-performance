@@ -2,8 +2,12 @@ from lib.db import DB
 from lib.string import remove_redundant_characters, remove_redundant_characters2
 from dateutil import parser
 import datetime 
+import pymongo
 
 DEBUG = True
+
+# the time lag between Etherscan server and local server
+TIMEZONE_DELTA = 8 * 60 * 60
 
 # extract the minimum time from doc, which contains a field called 'time'
 # return None if doc is empty, else return mininum
@@ -75,6 +79,9 @@ if DEBUG:
     tx_list.append('0x7e34ebe793d9e386d278ebeef75192d409066b9e99e2b456b31ca56af7747cbb')
     tx_list.append('0x9bf0ce39118a5bfd65ee1e339b96fe74752fd5dd6ae885a6ed42cab877d70b82')
 
+col_summary = db["summary"]
+col_summary.create_index([('txhash', pymongo.ASCENDING)], unique = True)
+
 for tx in tx_list:
     # get the start time of the transactions
     # query = '{txhash : ' + str(tx) + ' }'
@@ -107,6 +114,13 @@ for tx in tx_list:
 
 
     if(waiting_time != None) and (actual_cost != None):
-        print(waiting_time)
-        print(actual_cost)
+        # print(waiting_time)
+        # print(actual_cost)
+        item = {"txhash": tx, "waiting_time": waiting_time.total_seconds() - TIMEZONE_DELTA, "actual_cost": actual_cost}
+        try:
+            col_summary.insert(item)
+        except pymongo.errors.DuplicateKeyError as e:
+            pass
+   
+        
 
