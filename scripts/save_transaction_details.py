@@ -121,12 +121,12 @@ def get_unmined_transaction_details(parser):
     max_fee = max_fee + get_transaction_detail(parser, path)
     path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
     max_fee = max_fee + get_transaction_detail(parser, path)
-
-    item = {"txhash": txhash, "time_last_seen": time_last_seen, "time_first_seen": time_first_seen, "gas_limit": gas_limit, "gas_price":gas_price, "max_gas_fee": max_fee }
-
-    return item
-####################### Methods #################################
-
+False
+Falsesh": txhash, "time_last_seen": time_last_seen, "time_first_seen": time_first_seen, "gas_limit": gas_limit, "gas_price":gas_price, "max_gas_fee": max_fee }
+False
+False
+False###### Methods #################################
+False
 # get the list of transactions from db processed
 db_connection =  DB()
 db = db_connection.mongo_client["transactions"]
@@ -137,11 +137,27 @@ if DEBUG:
 else:
     doc = col.find({}, no_cursor_timeout=True)
 
+# create the collection to store transaction details
+col_mined = db["mined"]
+col_mined.create_index([('txhash', pymongo.ASCENDING)], unique = True)
+
+col_unmined = db["unmined"]
+col_unmined.create_index([('txhash', pymongo.ASCENDING)], unique = True)
+
+# get the list of transations that have been processed in mined collections
+doc_mined = col_mined.find({}, no_cursor_timeout=True)
+tx_mined = []
+for row in doc_mined:
+    hash = row['txhash']
+    tx_mined.append(hash)
+doc_mined.close()
+
 # extract transaction ids from the collections and remove duplicate transaction hashes
+print("start extract transaction ids")
 tx_list = []
 for row in doc:
     hash = row['txhash']
-    if(hash not in tx_list):
+    if(hash not in tx_list) and (hash not in tx_mined):
         tx_list.append(hash)
 
 doc.close()
@@ -159,11 +175,7 @@ print(len(tx_list))
 
 # get the details of transactions
 source_url = "https://etherscan.io/tx/"
-col_mined = db["mined"]
-col_mined.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 
-col_unmined = db["unmined"]
-col_unmined.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 
 # insert transaction details into mongoDB
 for tx in tx_list:
@@ -176,7 +188,7 @@ for tx in tx_list:
             col_unmined.insert(item)
 
     except pymongo.errors.DuplicateKeyError as e:
-        print('duplicateKeyError')
-
+        #print('duplicateKeyError')
+        pass
     except Exception as e:
         print(e.message)
