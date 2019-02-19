@@ -121,12 +121,12 @@ def get_unmined_transaction_details(parser):
     max_fee = max_fee + get_transaction_detail(parser, path)
     path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()[2]'
     max_fee = max_fee + get_transaction_detail(parser, path)
-False
-Falsesh": txhash, "time_last_seen": time_last_seen, "time_first_seen": time_first_seen, "gas_limit": gas_limit, "gas_price":gas_price, "max_gas_fee": max_fee }
-False
-False
-False###### Methods #################################
-False
+
+    item = {"txhash": txhash, "time_last_seen": time_last_seen, "time_first_seen": time_first_seen, "gas_limit": gas_limit, "gas_price":gas_price, "max_gas_fee": max_fee }
+
+    return item
+####################### Methods #################################
+
 # get the list of transactions from db processed
 db_connection =  DB()
 db = db_connection.mongo_client["transactions"]
@@ -153,7 +153,7 @@ for row in doc_mined:
 doc_mined.close()
 
 # extract transaction ids from the collections and remove duplicate transaction hashes
-print("start extract transaction ids")
+print("extract transaction ids")
 tx_list = []
 for row in doc:
     hash = row['txhash']
