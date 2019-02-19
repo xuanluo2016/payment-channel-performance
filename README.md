@@ -49,8 +49,8 @@ $ docker-compose -f docker-compose.kafka.yml exec kafka-console-consumer --boots
 Topics:
 
 - `queuing.transactions`: raw generated transactions
-- `streaming.transactions.mined`: legit transactions
-- `streaming.transactions.unmined`: suspicious transactions
+- `streaming.transactions.mined`: transactions have been mined in Ethereum
+- `streaming.transactions.unmined`: pending transactions
 
 Example transaction message:
 
