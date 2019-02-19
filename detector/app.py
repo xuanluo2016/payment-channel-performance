@@ -30,4 +30,4 @@ if __name__ == '__main__':
         transaction: dict = message.value
         topic = FRAUD_TOPIC if is_suspicious(transaction) else LEGIT_TOPIC
         producer.send(topic, value=transaction)
-        print(topic, transaction)  # DEBUG
+        # print(topic, transaction)  # DEBUG

@@ -6,6 +6,17 @@ from string import ascii_letters, digits
 account_chars: str = digits + ascii_letters
 
 
+
+def create_transaction() -> dict:
+    """Return the list of pending transactions."""
+    return {
+        'source': _random_account_id(),
+        'target': _random_account_id(),
+        'amount': _random_amount(),
+        # Keep it simple: it's all euros
+        'currency': 'EUR',
+    }
+
 def _random_account_id() -> str:
     """Return a random account number made of 12 characters."""
     return ''.join(choices(account_chars, k=12))
