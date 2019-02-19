@@ -1,11 +1,10 @@
-<<<<<<< HEAD
-# Kafka Fraud Detector
+# Kafka Ethereum Transaction Time and Gas Cost Analyzer
 
 [![Kafka](https://img.shields.io/badge/streaming_platform-kafka-black.svg?style=flat-square)](https://kafka.apache.org)
 [![Docker Images](https://img.shields.io/badge/docker_images-confluent-orange.svg?style=flat-square)](https://github.com/confluentinc/cp-docker-images)
 [![Python](https://img.shields.io/badge/python-3.5+-blue.svg?style=flat-square)](https://www.python.org)
 
-This is the supporting repository for my blog post: [Building A Streaming Fraud Detection System With Kafka And Python](https://blog.florimondmanca.com/building-a-streaming-fraud-detection-system-with-kafka-and-python).
+<!--This is the supporting repository for my blog post: [Building A Streaming Fraud Detection System With Kafka And Python](https://blog.florimondmanca.com/building-a-streaming-fraud-detection-system-with-kafka-and-python).-->
 
 ## Install
 
@@ -50,8 +49,8 @@ $ docker-compose -f docker-compose.kafka.yml exec kafka-console-consumer --boots
 Topics:
 
 - `queuing.transactions`: raw generated transactions
-- `streaming.transactions.legit`: legit transactions
-- `streaming.transactions.fraud`: suspicious transactions
+- `streaming.transactions.mined`: transactions have been mined in Ethereum
+- `streaming.transactions.unmined`: pending transactions
 
 Example transaction message:
 
@@ -78,56 +77,3 @@ To remove the Docker network:
 ```bash
 $ docker network rm kafka-network
 ```
-=======
-# Data analysis of Ethereum transaction waiting time
-
-This is a system model to explore the relationship between the number of pending transactions, gas price and estimated waiting time in live Ethereum network.  The implementation consists of three steps:
-
-### Data collection
-```
-python data_crawl.py
-```
-### Data Modelling
-###### Data Visualization
-
-
-### Application of the data model
-
-
-
-### Setup
-Clone the repo and run `npm install`. You will need truffle installed globally
-
-### Compatible versions:
-```
-web3: 1.0.0-beta.37
-npm: 6.6
-nodejs: 10.15.0
-```
-### Install dependent packages
-```
-npm i web3
-npm i web-utils
-npm i sleep
-npm i await-transaction-mined
-npm i truffle-assertions
-npm i truffle-test-utils
-npm i random-number
-
-```
-
-
-### Compile & migrate
-```
-truffle compile
-truffle migrate
-```
-
-### Run tests
-Make sure you have testrpc running and listening on port 8545
-```
-truffle test
-```
-
-
->>>>>>> 827798a28d2d6cf3bc90ef77653a5ac9c7bb075e
