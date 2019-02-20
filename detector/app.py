@@ -13,7 +13,7 @@ FRAUD_TOPIC = os.environ.get('FRAUD_TOPIC')
 
 def is_suspicious(transaction: dict) -> bool:
     """Determine whether a transaction is suspicious."""
-    return transaction['amount'] >= 900
+    return len(transaction) >= 50
 
 
 if __name__ == '__main__':
@@ -30,4 +30,4 @@ if __name__ == '__main__':
         transaction: dict = message.value
         topic = FRAUD_TOPIC if is_suspicious(transaction) else LEGIT_TOPIC
         producer.send(topic, value=transaction)
-        # print(topic, transaction)  # DEBUG
+        print(topic, transaction)  # DEBUG

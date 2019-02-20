@@ -2,6 +2,7 @@
 
 import os
 from time import sleep
+from datetime import datetime
 import json
 
 from kafka import KafkaProducer
@@ -14,19 +15,17 @@ except ImportError:
     import _thread as thread
 import time
 
-from datetime import datetime
-
-
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 TRANSACTIONS_PER_SECOND = float(os.environ.get('TRANSACTIONS_PER_SECOND'))
-SLEEP_TIME = 1 / TRANSACTIONS_PER_SECOND
-print('sleep_time is: ' + str(SLEEP_TIME))
+SLEEP_TIME = 1 / TRANSACTIONS_PER_SECOND 
+REQUEST_INTERVAL =  float(os.environ.get('REQUEST_INTERVAL')) 
+
 request = []
+producer = None
 
-
-# return substr between two substrings in a string
-# return '' if the input is invalid or could not find the substr; else return substr
+# Return substr between two substrings in a string
+# Return '' if the input is invalid or could not find the substr; else return substr
 def get_substr(str, substr1, substr2) -> str:
   if(str == None):
       return ''
@@ -39,21 +38,34 @@ def get_substr(str, substr1, substr2) -> str:
   else:
     return str[left+len(substr1):right]
 
+def on_open(ws):
+    def run(*args):
+        for i in range(3):
+            time.sleep(REQUEST_INTERVAL)
+            request = []
+            print("------------------------------open---------------------------------")
+            ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
+    thread.start_new_thread(run, ())
+
+
 def on_message(ws, message):
     print('----------------------------message------------------')
-    print(message)
     if (len(request) != 0):
-        #print('asking for filter change')
+        # Send the received message to kafka
+        transaction: dict = message
+        producer.send(TRANSACTIONS_TOPIC, value=transaction)
+
+        # Asking for filter change
         query = {"data": message, "time": datetime.now(), "seconds":''}
         ws.send(request[0])
-        sleep(SLEEP_TIME)
+        sleep(REQUEST_INTERVAL)
     else:
-        # print('ask for the filter id')
+        # Ask for the filter id
         substr1 = '"result":'
         substr2 = '}'
         id = get_substr(message, substr1, substr2)
 
-        # send request to get pending transactions
+        # Send request to get pending transactions
         str1 = '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":['
         str2 = '],"id":1}'
         request.append(str1 + id + str2)
@@ -66,17 +78,6 @@ def on_error(ws, error):
 def on_close(ws):
     print("### closed ###")
 
-def on_open(ws):
-    def run(*args):
-        for i in range(3):
-            time.sleep(1)
-            request = []
-            print("------------------------------open---------------------------------")
-            ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
-        # time.sleep(1)
-        # ws.close()
-        print("thread terminating...")
-    thread.start_new_thread(run, ())
 
 if __name__ == '__main__':
     producer = KafkaProducer(
@@ -84,20 +85,28 @@ if __name__ == '__main__':
         # Encode all values as JSON
         value_serializer=lambda value: json.dumps(value).encode(),
     )
+            
+    # print("start websocket")
+    # websocket.enableTrace(False)
+    # ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
+    #                                 on_message = on_message,
+    #                                 on_error = on_error,
+    #                                 on_close = on_close)
+    # ws.on_open = on_open
+    # ws.run_forever()
 
     while True:
-        try: 
+        try:
+            print("start websocket")
             websocket.enableTrace(False)
             ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
-                                        on_message = on_message,
-                                        on_error = on_error,
-                                        on_close = on_close)
+                                            on_message = on_message,
+                                            on_error = on_error,
+                                            on_close = on_close)
             ws.on_open = on_open
             ws.run_forever()
+            # sleep(REQUEST_INTERVAL)
+            print("end of socket")
 
-            transaction: dict = create_random_transaction()
-            producer.send(TRANSACTIONS_TOPIC, value=transaction)
-            # print(transaction)  # DEBUG
-            sleep(SLEEP_TIME)
         except:
             pass
