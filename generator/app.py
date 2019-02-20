@@ -9,6 +9,7 @@ from kafka import KafkaProducer
 from transactions import create_random_transaction
 
 import websocket
+
 try:
     import thread
 except ImportError:
@@ -45,8 +46,8 @@ def on_open(ws):
             request = []
             print("------------------------------open---------------------------------")
             ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
-    thread.start_new_thread(run, ())
-
+    # thread.start_new_thread(run, ())
+    ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
 
 def on_message(ws, message):
     print('----------------------------message------------------')
@@ -86,27 +87,27 @@ if __name__ == '__main__':
         value_serializer=lambda value: json.dumps(value).encode(),
     )
             
-    # print("start websocket")
-    # websocket.enableTrace(False)
-    # ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
-    #                                 on_message = on_message,
-    #                                 on_error = on_error,
-    #                                 on_close = on_close)
-    # ws.on_open = on_open
-    # ws.run_forever()
+    print("start websocket")
+    websocket.enableTrace(False)
+    ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
+                                    on_message = on_message,
+                                    on_error = on_error,
+                                    on_close = on_close)
+    ws.on_open = on_open
+    ws.run_forever()
 
     while True:
         try:
-            print("start websocket")
-            websocket.enableTrace(False)
-            ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
-                                            on_message = on_message,
-                                            on_error = on_error,
-                                            on_close = on_close)
-            ws.on_open = on_open
-            ws.run_forever()
-            # sleep(REQUEST_INTERVAL)
-            print("end of socket")
+            sleep(SLEEP_TIME)
+            # print("start websocket")
+            # websocket.enableTrace(False)
+            # ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
+            #                                 on_message = on_message,
+            #                                 on_error = on_error,
+            #                                 on_close = on_close)
+            # ws.on_open = on_open
+            # ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+            # print("end of socket")
 
         except:
             pass
