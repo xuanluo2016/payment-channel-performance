@@ -46,7 +46,6 @@ def publish_message(message):
         if('result' in dict_message):
             result = dict_message['result']
             if(len(result) > 0):
-                print('----------------------------publish  message----------------------')
                 data= json.dumps(result)
                 results = {"data": data, "time": str(datetime.now()), "seconds": '' }
                 transaction: dict = results
@@ -66,7 +65,6 @@ def on_open(ws):
         for i in range(3):
             time.sleep(REQUEST_INTERVAL)
             request = []
-            print("------------------------------open---------------------------------")
             ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
     # thread.start_new_thread(run, ())
     request = []
@@ -122,15 +120,5 @@ if __name__ == '__main__':
     while True:
         try:
             sleep(SLEEP_TIME)
-            # print("start websocket")
-            # websocket.enableTrace(False)
-            # ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
-            #                                 on_message = on_message,
-            #                                 on_error = on_error,
-            #                                 on_close = on_close)
-            # ws.on_open = on_open
-            # ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
-            # print("end of socket")
-
         except:
             pass
