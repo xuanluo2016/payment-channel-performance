@@ -39,6 +39,28 @@ def get_substr(str, substr1, substr2) -> str:
   else:
     return str[left+len(substr1):right]
 
+def publish_message(message):
+    """Extract transaction hashes and related timestamp from raw websocket message."""
+    try: 
+        dict_message = json.loads(message)
+        if('result' in dict_message):
+            result = dict_message['result']
+            if(len(result) > 0):
+                print('----------------------------publish  message----------------------')
+                data= json.dumps(result)
+                results = {"data": data, "time": str(datetime.now()), "seconds": '' }
+                transaction: dict = results
+                producer.send(TRANSACTIONS_TOPIC, value=transaction)
+    
+    except Exception as e:
+        pass
+
+def is_required_data(message) -> bool:
+    if('result' in message):
+        return True
+    else:
+        return False
+
 def on_open(ws):
     def run(*args):
         for i in range(3):
@@ -47,18 +69,19 @@ def on_open(ws):
             print("------------------------------open---------------------------------")
             ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
     # thread.start_new_thread(run, ())
+    request = []
     ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
 
 def on_message(ws, message):
     print('----------------------------message------------------')
     if (len(request) != 0):
         # Send the received message to kafka
-        transaction: dict = message
-        producer.send(TRANSACTIONS_TOPIC, value=transaction)
+        publish_message(message)
 
         # Asking for filter change
-        query = {"data": message, "time": datetime.now(), "seconds":''}
         ws.send(request[0])
+
+        # Sleep for some time before sending next websocket request
         sleep(REQUEST_INTERVAL)
     else:
         # Ask for the filter id
