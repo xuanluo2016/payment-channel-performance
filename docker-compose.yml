@@ -6,7 +6,7 @@ services:
     build: ./generator
     environment:
       KAFKA_BROKER_URL: broker:9092
-      TRANSACTIONS_TOPIC: queueing.transactions
+      RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
       TRANSACTIONS_PER_SECOND: 1000
       REQUEST_INTERVAL: 1
 
@@ -14,9 +14,9 @@ services:
     build: ./detector
     environment:
       KAFKA_BROKER_URL: broker:9092
-      TRANSACTIONS_TOPIC: queueing.transactions
-      LEGIT_TOPIC: streaming.transactions.legit
-      FRAUD_TOPIC: streaming.transactions.fraud
+      RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
+      LEGIT_TOPIC: streaming.raw.transactions.legit
+      FRAUD_TOPIC: streaming.raw.transactions.fraud
 
 networks:
   default:

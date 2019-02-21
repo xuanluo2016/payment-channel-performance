@@ -16,7 +16,7 @@ except ImportError:
     import _thread as thread
 import time
 
-TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
+RAW_TRANSACTIONS_TOPIC = os.environ.get('RAW_TRANSACTIONS_TOPIC')
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 TRANSACTIONS_PER_SECOND = float(os.environ.get('TRANSACTIONS_PER_SECOND'))
 SLEEP_TIME = 1 / TRANSACTIONS_PER_SECOND 
@@ -49,7 +49,7 @@ def publish_message(message):
                 data= json.dumps(result)
                 results = {"data": data, "time": str(datetime.now()), "seconds": '' }
                 transaction: dict = results
-                producer.send(TRANSACTIONS_TOPIC, value=transaction)
+                producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
     
     except Exception as e:
         pass
