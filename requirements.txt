@@ -10,3 +10,5 @@ websocket
 websocket-client
 asyncio
 pymongo
+confluent-kafka
+confluent-kafka[avro]

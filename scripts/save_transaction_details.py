@@ -88,7 +88,7 @@ def get_mined_transaction_details(parser):
     path = '//*[@id="ContentPlaceHolder1_spanGasLimit"]/text()'
     gas_limit = get_transaction_detail(parser, path)
 
-    path = '//*[@id="ContentPlaceHolder1_spanGasPrice"]/text()[2]'
+    path = '//*[@id="ContentPlaceHolder1_spanGasPrice"]/text()'
     gas_price = get_transaction_detail(parser, path)
 
     path = '//*[@id="ContentPlaceHolder1_spanGasUsedByTxn"]/text()'
@@ -112,7 +112,7 @@ def get_unmined_transaction_details(parser):
     path = '//*[@id="ContentPlaceHolder1_spanGasLimit"]/text()'
     gas_limit = get_transaction_detail(parser, path) 
 
-    path = '//*[@id="ContentPlaceHolder1_spanGasPrice"]/text()[2]'
+    path = '//*[@id="ContentPlaceHolder1_spanGasPrice"]/text()'
     gas_price = get_transaction_detail(parser, path)
 
     path = '//*[@id="ContentPlaceHolder1_spanTxFee"]/text()'
