@@ -61,6 +61,8 @@ def is_required_data(message) -> bool:
         return False
 
 def on_open(ws):
+    print('----------------------------open------------------')
+
     def run(*args):
         for i in range(3):
             time.sleep(REQUEST_INTERVAL)
@@ -71,7 +73,7 @@ def on_open(ws):
     ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
 
 def on_message(ws, message):
-    print('----------------------------message------------------')
+    # print('----------------------------message------------------')
     if (len(request) != 0):
         # Send the received message to kafka
         publish_message(message)

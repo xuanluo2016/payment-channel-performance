@@ -2,6 +2,8 @@
 
 import json
 import os
+from time import sleep
+
 
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -30,3 +32,4 @@ if __name__ == '__main__':
                 topic = TRANSACTIONS_TOPIC
                 producer.send(topic, value=transaction)
                 print(topic, transaction)  # DEBUG
+                sleep(1)

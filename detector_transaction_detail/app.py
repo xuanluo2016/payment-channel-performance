@@ -20,11 +20,12 @@ if __name__ == '__main__':
         value_serializer=lambda value: json.dumps(value).encode(),
     )
     for message in consumer:
+        print('get transaction details')
         transaction: dict = message.value
         topic = TRANSACTIONS_DETAILS_TOPIC
         producer.send(topic, value=transaction)
         print(topic, transaction)  # DEBUG
-        
+
         # if('data' in message.value):
         #     value = message.value
         #     time = value['time']

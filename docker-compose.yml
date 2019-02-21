@@ -21,7 +21,7 @@ services:
     build: ./detector_transaction_detail
     environment:
       KAFKA_BROKER_URL: broker:9092
-      TRANSACTIONS_TOPIC: queueing.transactions
+      TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_DETAILS_TOPIC: streaming.transactions.details
 
 networks:
