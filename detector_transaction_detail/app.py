@@ -29,20 +29,8 @@ if __name__ == '__main__':
         
         # get transaction details
         if('txhash' in transaction):
-            print(transaction['txhash'])
             (item, is_mined) = parse(source_url, transaction['txhash'])
             topic = TRANSACTIONS_DETAILS_TOPIC
             transaction: dict = item
             producer.send(topic, value=transaction)
             print(topic, transaction)  # DEBUG
-
-            # if('data' in message.value):
-            #     value = message.value
-            #     time = value['time']
-            #     seconds = value['seconds']
-            #     data = json.loads(value['data'])
-            #     for row in data: 
-            #         transaction: dict = {'txhash': row, 'time': time, 'seconds': seconds}
-            #         topic = TRANSACTIONS_TOPIC
-            #         producer.send(topic, value=transaction)
-            #         print(topic, transaction)  # DEBUG
