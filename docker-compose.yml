@@ -23,7 +23,7 @@ services:
       KAFKA_BROKER_URL: broker:9092
       TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_DETAILS_TOPIC: streaming.transactions.details
-
+      DATASOURCE: 'https://etherscan.io/tx/'
 networks:
   default:
     external:
