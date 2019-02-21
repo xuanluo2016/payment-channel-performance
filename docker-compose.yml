@@ -15,6 +15,7 @@ services:
     environment:
       KAFKA_BROKER_URL: broker:9092
       RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
+      TRANSACTIONS_TOPIC: streaming.transactions
       LEGIT_TOPIC: streaming.raw.transactions.legit
       FRAUD_TOPIC: streaming.raw.transactions.fraud
 
