@@ -13,8 +13,7 @@ FRAUD_TOPIC = os.environ.get('FRAUD_TOPIC')
 
 def is_suspicious(transaction: dict) -> bool:
     """Determine whether a transaction is suspicious."""
-    return len(transaction) >= 50
-
+    return len(transaction) >= 50   
 
 if __name__ == '__main__':
     consumer = KafkaConsumer(
@@ -27,7 +26,13 @@ if __name__ == '__main__':
         value_serializer=lambda value: json.dumps(value).encode(),
     )
     for message in consumer:
-        transaction: dict = message.value
-        topic = FRAUD_TOPIC if is_suspicious(transaction) else LEGIT_TOPIC
-        producer.send(topic, value=transaction)
-        print(topic, transaction)  # DEBUG
+        if('data' in message.value):
+            value = message.value
+            time = value['time']
+            seconds = value['seconds']
+            data = json.loads(value['data'])
+            for row in data: 
+                transaction: dict = {'txhash': row, 'time': time, 'seconds': seconds}
+                topic = FRAUD_TOPIC if is_suspicious(transaction) else LEGIT_TOPIC
+                producer.send(topic, value=transaction)
+                print(topic, transaction)  # DEBUG
