@@ -24,13 +24,15 @@ if __name__ == '__main__':
 
     source_url = 'https://etherscan.io/tx/'
     for message in consumer:
-        print('get transaction details')
         transaction: dict = message.value
         
         # get transaction details
         if('txhash' in transaction):
             (item, is_mined) = parse(source_url, transaction['txhash'])
-            topic = TRANSACTIONS_DETAILS_TOPIC
-            transaction: dict = item
-            producer.send(topic, value=transaction)
-            print(topic, transaction)  # DEBUG
+            if(is_mined):                
+                topic = TRANSACTIONS_DETAILS_TOPIC
+                transaction: dict = item
+                producer.send(topic, value=transaction)
+                print(topic, transaction)  # DEBUG
+            else:
+                print('unmined')
