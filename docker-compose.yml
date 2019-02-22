@@ -28,10 +28,17 @@ services:
   receiver_start_time:
     build: ./receiver_start_time
     environment:
-      KAFKA_BROKER_URL: broker:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_TOPIC: streaming.transactions
-      TRANSACTIONS_DETAILS_TOPIC: streaming.transactions.details
-
+  
+  Mongodb:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: transactions
+      
 networks:
   default:
     external:

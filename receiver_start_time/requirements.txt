@@ -1,4 +1,2 @@
-# numpy
-# p4j
 pyspark
-findspark
+pymongo
