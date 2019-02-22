@@ -1,4 +1,4 @@
-Numpy
-p4j
+# numpy
+# p4j
 pyspark
 findspark

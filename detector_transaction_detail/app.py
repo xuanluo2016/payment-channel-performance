@@ -33,6 +33,7 @@ if __name__ == '__main__':
                 topic = TRANSACTIONS_DETAILS_TOPIC
                 transaction: dict = item
                 producer.send(topic, value=transaction)
-                print(topic, transaction)  # DEBUG
+                # print(topic, transaction)  # DEBUG
             else:
-                print('unmined')
+                pass
+                # print('unmined')
