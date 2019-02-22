@@ -1,15 +1,22 @@
 import os
 import json
-import pymongo
 
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
-mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = mongo_client["transactions"]
-col = db["start_time"]
-col.find({}, no_cursor_timeout=True).limit(30)
+import pymongo
+from lib.db import DB
+
+
+def processRecord(record):
+        print("record")
+        print(record) 
+
+# mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
+# db = mongo_client["transactions"]
+# col = db["start_time"]
+# col.find({}, no_cursor_timeout=True).limit(30)
 
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
@@ -33,8 +40,23 @@ ssc = StreamingContext(sc,batch_interval)
 kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming", {TRANSACTIONS_TOPIC:1})
 
 lines = kafkaStream.map(lambda x: x[1])
+
+lines.foreachRDD(processRecord)
+
 lines.pprint()
 
+# Check if the txhash exists or not in the end_time table
+# if yes, send streaming data to query tx details and remove related record in the end_time db
+# else, save data in the start_time db
+
+# save data to mongodb
+db_connection =  DB()
+db = db_connection.mongo_client["transactions"]
+col = db["start_time"]
+
+
+
+# start ssc
 ssc.start()
 ssc.awaitTermination()
 
