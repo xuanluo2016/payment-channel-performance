@@ -9,9 +9,22 @@ import pymongo
 from lib.db import DB
 
 
-def processRecord(record):
-        print("record")
-        print(record) 
+
+def pprint2(lines, num=1):
+    """
+    Print the first num elements of each RDD generated in this DStream.
+
+    @param num: the number of elements from the first will be printed.
+    """
+    def takeAndPrint(rdd):
+        taken = rdd.take(num + 1)  
+        for record in taken[:num]:
+            print(record)
+        if len(taken) > num:
+            print("...")
+        print("")
+
+    lines.foreachRDD(takeAndPrint)
 
 # mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 # db = mongo_client["transactions"]
@@ -29,8 +42,11 @@ conf = SparkConf().setAppName("PythonSparkStreamingKafkaApp")
 # Create a SparkContext using the configuration
 sc = SparkContext(conf=conf)
 
+# Set log level
+sc.setLogLevel("ERROR")
+
 # Set the batch interval in seconds
-batch_interval = 10
+batch_interval = 2
 
 # Create the streaming contect objects
 ssc = StreamingContext(sc,batch_interval)
@@ -41,9 +57,7 @@ kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-strea
 
 lines = kafkaStream.map(lambda x: x[1])
 
-lines.foreachRDD(processRecord)
-
-lines.pprint()
+pprint2(lines)
 
 # Check if the txhash exists or not in the end_time table
 # if yes, send streaming data to query tx details and remove related record in the end_time db
