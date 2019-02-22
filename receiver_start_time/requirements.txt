@@ -1,3 +1,4 @@
-findspark
+Numpy
+p4j
 pyspark
-
+findspark
