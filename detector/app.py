@@ -31,5 +31,5 @@ if __name__ == '__main__':
                 transaction: dict = {'txhash': row, 'time': time, 'seconds': seconds}
                 topic = TRANSACTIONS_TOPIC
                 producer.send(topic, value=transaction)
-                print(topic, transaction)  # DEBUG
+                # print(topic, transaction)  # DEBUG
                 sleep(1)

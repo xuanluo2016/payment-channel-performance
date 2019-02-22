@@ -28,7 +28,7 @@ services:
   receiver_start_time:
     build: ./receiver_start_time
     environment:
-      KAFKA_BROKER_URL: localhost:9092
+      KAFKA_BROKER_URL: broker:9092
       TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_DETAILS_TOPIC: streaming.transactions.details
 

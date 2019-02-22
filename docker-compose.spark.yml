@@ -3,7 +3,7 @@ version: '3'
 services:
 
   master:
-    image: gettyimages/spark
+    image: mesosphere/spark
     command: bin/spark-class org.apache.spark.deploy.master.Master -h master
     hostname: master
     environment:
@@ -29,7 +29,7 @@ services:
       - ./data:/data
 
   worker1:
-    image: gettyimages/spark
+    image: mesosphere/spark
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
     hostname: worker1
     environment:
@@ -56,7 +56,7 @@ services:
 
 
   worker2:
-    image: gettyimages/spark
+    image: mesosphere/spark
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
     hostname: worker2
     environment:
@@ -83,7 +83,7 @@ services:
 
 
   worker3:
-    image: gettyimages/spark
+    image: mesosphere/spark
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
     hostname: worker3
     environment:

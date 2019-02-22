@@ -6,20 +6,16 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 import json
 
+KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 TRANSACTIONS_DETAILS_TOPIC = os.environ.get('TRANSACTIONSTRANSACTIONS_DETAILS_TOPIC_TOPIC')
 
-# Create a local StreamingContext
-sc = SparkContext("local[2]","PythonSparkStreamingKafka")
-
-# Set the batch interval in seconds
-batch_interval = 10
-
-# Create the streaming contect objects
-ssc = StreamingContext(sc,batch_interval)
-
-# Create the kafka connection object
-kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
-
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka_2.10:1.6.0 pyspark-shell'
+sc = SparkContext(appName="PythonSparkStreamingKafka")
+sc.setLogLevel("WARN")
+ssc = StreamingContext(sc,60)
+print('ssc =================== {} {}')
+kafkaStream = KafkaUtils.createStream(ssc,KAFKA_BROKER_URL, 'spark-streaming', {TRANSACTIONS_DETAILS_TOPIC:1})
+print('contexts =================== {} {}')
 lines = kafkaStream.map(lambda x: x[1])
 lines.pprint()
 

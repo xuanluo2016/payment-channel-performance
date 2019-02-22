@@ -1,4 +1,3 @@
 findspark
 pyspark
-pyspark.streaming 
-pyspark.streaming.kafka
+
