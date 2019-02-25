@@ -25,19 +25,22 @@ services:
       TRANSACTIONS_DETAILS_TOPIC: streaming.transactions.details
       DATASOURCE: 'https://etherscan.io/tx/'
 
-  receiver_start_time:
-    build: ./receiver_start_time
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      TRANSACTIONS_TOPIC: streaming.transactions
-  
-  Mongodb:
+  mongodb:
     image: mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
       MONGO_INITDB_DATABASE: transactions
+
+
+  receiver_start_time:
+    build: ./receiver_start_time
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_TOPIC: streaming.transactions
+    depends_on:
+      - mongodb
       
 networks:
   default:

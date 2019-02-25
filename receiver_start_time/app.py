@@ -6,11 +6,12 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
 import pymongo
+from pymongo.errors import BulkWriteError
 from lib.db import DB
 
 
 
-def pprint2(lines, col,num=10000):
+def pprint2(lines, col_start_time,col_end_time,num=100000):
     """
     Print the first num elements of each RDD generated in this DStream.
 
@@ -18,23 +19,36 @@ def pprint2(lines, col,num=10000):
     """
     def takeAndPrint(rdd):
         taken = rdd.take(num + 1) 
-        try: 
-            print("===============================")
-            for record in taken[:num]:
-                # print(type(record))
-                print("***********************************")
+        for record in taken[:num]:
+            print(record)
+            process_record(col_start_time,col_end_time, record)
 
-                col.insert(json.loads(record))
-                # print(col.count())
-                print(record)
             if len(taken) > num:
                 print("...")
-            print("")
-        except Exception as e:
-            print(e.message)
-            pass
+                print("")
 
     lines.foreachRDD(takeAndPrint)
+
+def process_record(col_start_time,col_end_time, record):
+    """
+    Check if the txhash exists or not in the end_time table
+    if yes, send streaming data to query tx details and remove related record in the end_time db
+    else, save data in the start_time db
+    """
+    if('txhash' in record): 
+        record = json.loads(record)
+        doc = col_end_time.find({"txhash": record['txhash']} )
+        if(doc.count() >0):
+            # Send tx, start_time, end_time for further processing
+            for row in doc:
+                pass
+        else:
+            try: 
+                # Insert the item to start_time db, ignore the item if duplicate
+                col_start_time.insert(record)
+            except:
+                pass
+    return
 
 # mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 # db = mongo_client["transactions"]
@@ -67,20 +81,18 @@ kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-strea
 
 lines = kafkaStream.map(lambda x: x[1])
 
-
-# Check if the txhash exists or not in the end_time table
-# if yes, send streaming data to query tx details and remove related record in the end_time db
-# else, save data in the start_time db
-
-# save data to mongodb
+# connect to mongodb
 db_connection =  DB()
 db = db_connection.mongo_client["transactions"]
-col = db["start_time"]
+
+col_start_time = db["start_time"]
+col_start_time.create_index([('txhash', pymongo.ASCENDING)], unique = True)
+
+col_end_time = db["end_time"]
+col_end_time.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 
 # insert data to mongo db
-pprint2(lines,col)
-
-
+pprint2(lines,col_start_time,col_end_time)
 
 # start ssc
 ssc.start()
