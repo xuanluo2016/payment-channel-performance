@@ -17,13 +17,28 @@ services:
       RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
       TRANSACTIONS_TOPIC: streaming.transactions
   
-  detector_transaction_detail:
-    build: ./detector_transaction_detail
+  # detector_transaction_detail:
+  #   build: ./detector_transaction_detail
+  #   environment:
+  #     KAFKA_BROKER_URL: broker:9092
+  #     TRANSACTIONS_TOPIC: streaming.transactions
+  #     TRANSACTIONS_DETAILS_TOPIC: streaming.transactions.details
+  #     DATASOURCE: 'https://etherscan.io/tx/'
+
+  generator_block:
+    build: ./generator_block
     environment:
       KAFKA_BROKER_URL: broker:9092
-      TRANSACTIONS_TOPIC: streaming.transactions
-      TRANSACTIONS_DETAILS_TOPIC: streaming.transactions.details
-      DATASOURCE: 'https://etherscan.io/tx/'
+      RAW_BLOCKS_TOPIC: queueing.raw.blocks
+      TRANSACTIONS_PER_SECOND: 1000
+      REQUEST_INTERVAL: 5
+  
+  detector_block:
+    build: ./detector_block
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+      RAW_BLOCKS_TOPIC: queueing.raw.blocks
+      TRANSACTIONS_BLOCKTIME_TOPIC: streaming.transactions.blocktime
 
   mongodb:
     image: mongo

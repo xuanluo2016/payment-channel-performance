@@ -1,22 +1,14 @@
 """Produce fake transactions into a Kafka topic."""
 
 import os
-from time import sleep
-from datetime import datetime
 import json
-
-from kafka import KafkaProducer
-from transactions import create_random_transaction
-
 import websocket
 
-try:
-    import thread
-except ImportError:
-    import _thread as thread
-import time
+from datetime import datetime
+from time import sleep
+from kafka import KafkaProducer
 
-RAW_TRANSACTIONS_TOPIC = os.environ.get('RAW_TRANSACTIONS_TOPIC')
+RAW_BLOCKS_TOPIC = os.environ.get('RAW_BLOCKS_TOPIC')
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 TRANSACTIONS_PER_SECOND = float(os.environ.get('TRANSACTIONS_PER_SECOND'))
 SLEEP_TIME = 1 / TRANSACTIONS_PER_SECOND 
@@ -40,17 +32,19 @@ def get_substr(str, substr1, substr2) -> str:
     return str[left+len(substr1):right]
 
 def publish_message(message):
-    """Extract transaction hashes and related timestamp from raw websocket message."""
+    """Extract block hashes and related timestamp from raw websocket message."""
     try: 
         dict_message = json.loads(message)
+        print('==================================x')
+
         if('result' in dict_message):
             result = dict_message['result']
             if(len(result) > 0):
                 data= json.dumps(result)
                 results = {"data": data, "time": str(datetime.now()), "seconds": '' }
-                transaction: dict = results
-                producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
-    
+                block: dict = results
+                print(block)
+                producer.send(RAW_BLOCKS_TOPIC, value=block)
     except Exception as e:
         pass
 
@@ -65,13 +59,17 @@ def on_open(ws):
         for i in range(3):
             time.sleep(REQUEST_INTERVAL)
             request = []
-            ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
+            ws.send('{"jsonrpc":"2.0","method":"eth_newBlockFilter","params":[],"id":1}')
     # thread.start_new_thread(run, ())
     request = []
-    ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
+    ws.send('{"jsonrpc":"2.0","method":"eth_newBlockFilter","params":[],"id":1}')
 
 def on_message(ws, message):
+    print('=============on_message=====================x')
+
     if (len(request) != 0):
+        print('=============publish_message=====================x')
+
         # Send the received message to kafka
         publish_message(message)
 
@@ -107,9 +105,9 @@ if __name__ == '__main__':
         value_serializer=lambda value: json.dumps(value).encode(),
     )
             
-    print("start websocket")
-    websocket.enableTrace(False)
-    ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
+    print("start websocket in block generator")
+    websocket.enableTrace(True)
+    ws = websocket.WebSocketApp("wss://mainnet.infura.io/_ws",
                                     on_message = on_message,
                                     on_error = on_error,
                                     on_close = on_close)
