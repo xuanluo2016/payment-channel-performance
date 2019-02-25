@@ -21,11 +21,11 @@ def pprint2(lines, col,num=10000):
         try: 
             print("===============================")
             for record in taken[:num]:
-                print(type(record))
+                # print(type(record))
                 print("***********************************")
 
-                # col.insert(json.loads(record))
-                print(col.count())
+                col.insert(json.loads(record))
+                # print(col.count())
                 print(record)
             if len(taken) > num:
                 print("...")
