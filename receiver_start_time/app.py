@@ -10,19 +10,29 @@ from lib.db import DB
 
 
 
-def pprint2(lines, num=1):
+def pprint2(lines, col,num=10000):
     """
     Print the first num elements of each RDD generated in this DStream.
 
     @param num: the number of elements from the first will be printed.
     """
     def takeAndPrint(rdd):
-        taken = rdd.take(num + 1)  
-        for record in taken[:num]:
-            print(record)
-        if len(taken) > num:
-            print("...")
-        print("")
+        taken = rdd.take(num + 1) 
+        try: 
+            print("===============================")
+            for record in taken[:num]:
+                print(type(record))
+                print("***********************************")
+
+                # col.insert(json.loads(record))
+                print(col.count())
+                print(record)
+            if len(taken) > num:
+                print("...")
+            print("")
+        except Exception as e:
+            print(e.message)
+            pass
 
     lines.foreachRDD(takeAndPrint)
 
@@ -57,7 +67,6 @@ kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-strea
 
 lines = kafkaStream.map(lambda x: x[1])
 
-pprint2(lines)
 
 # Check if the txhash exists or not in the end_time table
 # if yes, send streaming data to query tx details and remove related record in the end_time db
@@ -67,6 +76,9 @@ pprint2(lines)
 db_connection =  DB()
 db = db_connection.mongo_client["transactions"]
 col = db["start_time"]
+
+# insert data to mongo db
+pprint2(lines,col)
 
 
 

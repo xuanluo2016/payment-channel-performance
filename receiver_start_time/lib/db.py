@@ -7,8 +7,9 @@ class DB():
    def __init__(self):
       self.connect()
 
-   def connect(self,url = "mongodb://localhost:27017/"):
-      self.mongo_client = pymongo.MongoClient(url)
+#    def connect(self,url = "mongodb://root:root@localhost:27017/?authSource=admin&authMechanism=SCRAM-SHA-256"):
+   def connect(self,url = "mongodb://myUserAdmin:abc123@mongodb:27017/?authSource=admin&authMechanism=SCRAM-SHA-256"):
+       self.mongo_client = pymongo.MongoClient(url)
       #mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 
    def close(self):
