@@ -21,9 +21,12 @@ KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 TRANSACTIONS_PER_SECOND = float(os.environ.get('TRANSACTIONS_PER_SECOND'))
 SLEEP_TIME = 1 / TRANSACTIONS_PER_SECOND 
 REQUEST_INTERVAL =  float(os.environ.get('REQUEST_INTERVAL')) 
+SOURCE_URL = os.environ.get('SOURCE_URL')
+
 
 request = []
 producer = None
+
 
 # Return substr between two substrings in a string
 # Return '' if the input is invalid or could not find the substr; else return substr
@@ -110,17 +113,21 @@ if __name__ == '__main__':
         value_serializer=lambda value: json.dumps(value).encode(),
     )
             
-    print("start websocket")
-    websocket.enableTrace(False)
-    ws = websocket.WebSocketApp("wss://mainnet.infura.io/ws",
-                                    on_message = on_message,
-                                    on_error = on_error,
-                                    on_close = on_close)
-    ws.on_open = on_open
-    ws.run_forever()
+    DEBUG = True
 
     while True:
         try:
+            print("start websocket")
+            websocket.enableTrace(False)
+
+            ws = websocket.WebSocketApp(SOURCE_URL, on_message = on_message, on_error = on_error, on_close = on_close)
+            ws.on_open = on_open
+            ws.run_forever()
             sleep(SLEEP_TIME)
-        except:
+            
+        except Exception as e:
+            print("#######################error in generator############################")
+            print(e.message)
+            
+        finally:
             pass

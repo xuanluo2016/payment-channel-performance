@@ -9,7 +9,7 @@ services:
       RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
       TRANSACTIONS_PER_SECOND: 1000
       REQUEST_INTERVAL: 2
-      SOURCE_URL: wss://mainnet.infura.io/ws
+      SOURCE_URL: wss://ropsten.infura.io/ws
 
   detector:
     build: ./detector
@@ -33,7 +33,7 @@ services:
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_PER_SECOND: 1000
       REQUEST_INTERVAL: 5
-      SOURCE_URL: wss://mainnet.infura.io/ws
+      SOURCE_URL: wss://ropsten.infura.io/ws
 
   detector_block:
     build: ./detector_block
@@ -48,7 +48,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: transactions
+      MONGO_INITDB_DATABASE: test_transactions
 
 
   receiver_start_time:

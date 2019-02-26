@@ -9,6 +9,7 @@ import pymongo
 from pymongo.errors import BulkWriteError
 from lib.db import DB
 
+MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 
 
 def pprint2(lines, col_start_time,col_end_time,num=100000):
@@ -83,7 +84,7 @@ lines = kafkaStream.map(lambda x: x[1])
 
 # connect to mongodb
 db_connection =  DB()
-db = db_connection.mongo_client["transactions"]
+db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
 
 col_start_time = db["start_time"]
 col_start_time.create_index([('txhash', pymongo.ASCENDING)], unique = True)

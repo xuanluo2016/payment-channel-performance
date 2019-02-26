@@ -13,6 +13,7 @@ KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 TRANSACTIONS_PER_SECOND = float(os.environ.get('TRANSACTIONS_PER_SECOND'))
 SLEEP_TIME = 1 / TRANSACTIONS_PER_SECOND 
 REQUEST_INTERVAL =  float(os.environ.get('REQUEST_INTERVAL')) 
+SOURCE_URL = os.environ.get('SOURCE_URL')
 
 request = []
 producer = None
@@ -35,8 +36,6 @@ def publish_message(message):
     """Extract block hashes and related timestamp from raw websocket message."""
     try: 
         dict_message = json.loads(message)
-        print('==================================x')
-
         if('result' in dict_message):
             result = dict_message['result']
             if(len(result) > 0):
@@ -65,11 +64,8 @@ def on_open(ws):
     ws.send('{"jsonrpc":"2.0","method":"eth_newBlockFilter","params":[],"id":1}')
 
 def on_message(ws, message):
-    print('=============on_message=====================x')
 
     if (len(request) != 0):
-        print('=============publish_message=====================x')
-
         # Send the received message to kafka
         publish_message(message)
 
@@ -104,18 +100,23 @@ if __name__ == '__main__':
         # Encode all values as JSON
         value_serializer=lambda value: json.dumps(value).encode(),
     )
-            
-    print("start websocket in block generator")
-    websocket.enableTrace(True)
-    ws = websocket.WebSocketApp("wss://mainnet.infura.io/_ws",
-                                    on_message = on_message,
-                                    on_error = on_error,
-                                    on_close = on_close)
-    ws.on_open = on_open
-    ws.run_forever()
+    
+    DEBUG = True
 
     while True:
         try:
+            print("start websocket")
+            websocket.enableTrace(False)
+
+            ws = websocket.WebSocketApp(SOURCE_URL, on_message = on_message, on_error = on_error, on_close = on_close)
+            ws.on_open = on_open
+            ws.run_forever()
             sleep(SLEEP_TIME)
-        except:
+            
+        except Exception as e:
+            print("#######################error in generator############################")
+            print(e.message)
+            
+        finally:
             pass
+
