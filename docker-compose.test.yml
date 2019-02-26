@@ -32,7 +32,7 @@ services:
       KAFKA_BROKER_URL: broker:9092
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 5
+      REQUEST_INTERVAL: 15
       SOURCE_URL: wss://ropsten.infura.io/ws
 
   detector_block:
@@ -56,6 +56,16 @@ services:
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_TOPIC: streaming.transactions
+      MONGO_INITDB_DATABASE: test_transactions
+    depends_on:
+      - mongodb
+    
+  receiver_end_time:
+    build: ./receiver_end_time
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_BLOCKTIME_TOPIC: streaming.transactions.blocktime
+      MONGO_INITDB_DATABASE: test_transactions
     depends_on:
       - mongodb
       
