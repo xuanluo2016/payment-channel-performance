@@ -56,7 +56,7 @@ services:
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_TOPIC: streaming.transactions
-      MONGO_INITDB_DATABASE: test_transactions
+      MONGO_INITDB_DATABASE: transactions
     depends_on:
       - mongodb
     
@@ -65,7 +65,7 @@ services:
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_BLOCKTIME_TOPIC: streaming.transactions.blocktime
-      MONGO_INITDB_DATABASE: test_transactions
+      MONGO_INITDB_DATABASE: transactions
     depends_on:
       - mongodb
       
