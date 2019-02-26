@@ -64,7 +64,7 @@ KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
 
 
-Create a basic configuration
+# Create a basic configuration
 conf = SparkConf().setAppName("PythonSparkStreamingKafkaApp")
 
 # conf = (SparkConf()
