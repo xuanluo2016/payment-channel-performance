@@ -59,10 +59,12 @@ def process_record(col_start_time,col_end_time, record):
 TRANSACTIONS_BLOCKTIME_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
 
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
 # Create a basic configuration
-conf = SparkConf().setAppName("PythonSparkStreamingKafkaApp_EndTime")
+# conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp").setMaster("spark://master:7077")
+conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp")
+
 
 # Create a SparkContext using the configuration
 sc = SparkContext(conf=conf)
