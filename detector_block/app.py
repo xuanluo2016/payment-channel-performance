@@ -10,6 +10,7 @@ from get_transactions_from_block import get_transactions_from_block
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 RAW_BLOCKS_TOPIC = os.environ.get('RAW_BLOCKS_TOPIC')
 TRANSACTIONS_BLOCKTIME_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
+SOURCE_BLOCKDETAILS_URL = os.environ.get('SOURCE_BLOCKDETAILS_URL')
 
 if __name__ == '__main__':
     consumer = KafkaConsumer(
@@ -36,7 +37,7 @@ if __name__ == '__main__':
                 query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["'
                 query += row
                 query += '",false],"id":1}'
-                block_details = get_transactions_from_block(query)
+                block_details = get_transactions_from_block(SOURCE_BLOCKDETAILS_URL, query)
 
                 if('timstamp' in block_details):
                     endtime = block_details['timestamp']
