@@ -39,12 +39,17 @@ def publish_message(message):
         if('result' in dict_message):
             result = dict_message['result']
             if(len(result) > 0):
-                data= json.dumps(result)
-                results = {"data": data, "time": str(datetime.now()), "seconds": '' }
-                block: dict = results
-                print(block)
-                producer.send(RAW_BLOCKS_TOPIC, value=block)
+                blocks= json.dumps(result)
+                for blockhash in blocks: 
+                    transaction: dict = {"blockhash": block, "time": str(datetime.now()), "seconds": '' }
+                    topic = RAW_BLOCKS_TOPIC
+                    producer.send(topic, value=transaction)
+                    print(topic, transaction)  # DEBUG
+
     except Exception as e:
+        print("#######################error in publish_message of generator_block ############################")
+        print(e.message)
+    finally: 
         pass
 
 def is_required_data(message) -> bool:

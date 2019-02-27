@@ -10,6 +10,10 @@ from pymongo.errors import BulkWriteError
 from lib.db import DB
 
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
+topic = os.environ.get('TRANSACTIONS_TOPIC')
+KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
+
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
 
 def pprint2(lines, col_start_time,col_end_time,num=100000):
@@ -56,10 +60,6 @@ def process_record(col_start_time,col_end_time, record):
 # col = db["start_time"]
 # col.find({}, no_cursor_timeout=True).limit(30)
 
-TRANSACTIONS_BLOCKTIME_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
-KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
-
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
 # Create a basic configuration
 # conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp").setMaster("spark://master:7077")
@@ -80,7 +80,7 @@ ssc = StreamingContext(sc,batch_interval)
 
 # Create the kafka connection object
 # kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
-kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming", {TRANSACTIONS_BLOCKTIME_TOPIC:1})
+kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming", {topic:1})
 
 lines = kafkaStream.map(lambda x: x[1])
 

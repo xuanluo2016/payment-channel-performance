@@ -28,7 +28,7 @@ if __name__ == '__main__':
             seconds = value['seconds']
             data = json.loads(value['data'])
             for row in data: 
-                transaction: dict = {'txhash': row, 'time': time, 'seconds': seconds}
+                transaction: dict = {'txhash': row, 'starttime': time, 'seconds': seconds}
                 topic = TRANSACTIONS_TOPIC
                 producer.send(topic, value=transaction)
                 # print(topic, transaction)  # DEBUG

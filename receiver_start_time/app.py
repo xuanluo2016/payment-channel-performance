@@ -9,7 +9,14 @@ import pymongo
 from pymongo.errors import BulkWriteError
 from lib.db import DB
 
+from get_transaction_details import parse
+
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
+TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
+KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
+
+# os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
 
 
 def pprint2(lines, col_start_time,col_end_time,num=100000):
@@ -38,30 +45,29 @@ def process_record(col_start_time,col_end_time, record):
     """
     if('txhash' in record): 
         record = json.loads(record)
-        doc = col_end_time.find({"txhash": record['txhash']} )
-        if(doc.count() >0):
-            # Send tx, start_time, end_time for further processing
-            for row in doc:
-                pass
+        # if starttime 
+        if('starttime' in record): 
+            doc = col_end_time.find({"txhash": record['txhash']} )
+            if(doc.count() >0):
+                # Send tx, start_time, end_time for further processing
+                for row in doc:
+                    source_url = 'https://etherscan.io/tx/' 
+                    (item, is_mined) = parse(source_url, row['txhash'])
+                    print(item) # Debug
+            else:
+                try: 
+                    # Insert the item to start_time db, ignore the item if duplicate
+                    col_start_time.insert(record)
+                except:
+                    pass
         else:
-            try: 
-                # Insert the item to start_time db, ignore the item if duplicate
-                col_start_time.insert(record)
-            except:
-                pass
-    return
+             pass
 
 # mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 # db = mongo_client["transactions"]
 # col = db["start_time"]
 # col.find({}, no_cursor_timeout=True).limit(30)
 
-TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
-KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
-
-# os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
-
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
 
 
 # Create a basic configuration

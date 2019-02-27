@@ -41,6 +41,7 @@ services:
       KAFKA_BROKER_URL: broker:9092
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_BLOCKTIME_TOPIC: streaming.transactions.blocktime
+      SOURCE_BLOCKDETAILS_URL: wss://mainnet.infura.io/ws/4a6762bdc2e34b08b84a3b14f337093b
 
   mongodb:
     image: mongo
