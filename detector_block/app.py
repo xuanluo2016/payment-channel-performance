@@ -33,10 +33,9 @@ if __name__ == '__main__':
 
             for row in data:
                 # get transactoin hash of the block
-                query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ['
+                query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["'
                 query += row
-                query += ',false],"id":1}'
-                {"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["0x606bd66577dc192c96a18866ffad046a472f17615a6c150e6e739c66a6aa99ee",false],"id":1}
+                query += '",false],"id":1}'
                 block_details = get_transactions_from_block(query)
 
                 if('timstamp' in block_details):
