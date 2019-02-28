@@ -115,8 +115,6 @@ pprint2(lines,col_start_time,col_end_time,col_summary)
 ssc.start()
 ssc.awaitTermination()
 
-print("everthing is good")
-
 def decoder(msg):
     baseMessage = json.loads(zlib.decompress(msg[4:]))
     message = {"headers": baseMessage["headers"],
