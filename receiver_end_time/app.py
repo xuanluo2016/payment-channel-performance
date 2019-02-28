@@ -10,13 +10,13 @@ from pymongo.errors import BulkWriteError
 from lib.db import DB
 
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
-topic = os.environ.get('TRANSACTIONS_TOPIC')
+TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
 
-def pprint2(lines, col_start_time,col_end_time,num=100000):
+def pprint2(lines, col_start_time,col_end_time,col_summary, num=100000):
     """
     Print the first num elements of each RDD generated in this DStream.
 
@@ -24,17 +24,15 @@ def pprint2(lines, col_start_time,col_end_time,num=100000):
     """
     def takeAndPrint(rdd):
         taken = rdd.take(num + 1) 
-        for record in taken[:num]:
-            print('record in receiver end time: ' + str(record))
+        for record in taken[:num]:            
             process_record(col_start_time,col_end_time, record)
-
             if len(taken) > num:
                 print("...")
                 print("")
 
     lines.foreachRDD(takeAndPrint)
 
-def process_record(col_start_time,col_end_time, record):
+def process_record(col_start_time,col_end_time,col_summary,record):
     """
     Check if the txhash exists or not in the end_time table
     if yes, send streaming data to query tx details and remove related record in the end_time db
@@ -43,16 +41,23 @@ def process_record(col_start_time,col_end_time, record):
     if('txhash' in record): 
         record = json.loads(record)
         doc = col_start_time.find({"txhash": record['txhash']} )
-        if(doc.count() >0):
-            # Send tx, start_time, end_time for further processing
-            for row in doc:
-                pass
-        else:
-            try: 
-                # Insert the item to start_time db, ignore the item if duplicate
-                col_end_time.insert(record)
-            except:
-                pass
+        try: 
+            if(doc.count() >0):
+                # Send tx, start_time, end_time for further processing
+                for row in doc:
+                    source_url = 'https://etherscan.io/tx/' 
+                    (item, is_mined) = parse(source_url, row['txhash'])
+                    if(is_mined):
+                        col_summary.insert(item)        
+            else:
+                try: 
+                    # Insert the item to start_time db, ignore the item if duplicate
+                    col_end_time.insert(record)
+                except:
+                    pass
+        except:
+            pass
+            
     return
 
 # mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -80,7 +85,7 @@ ssc = StreamingContext(sc,batch_interval)
 
 # Create the kafka connection object
 # kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
-kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming", {topic:1})
+kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-blocktime", {TRANSACTIONS_TOPIC:1})
 
 lines = kafkaStream.map(lambda x: x[1])
 
@@ -94,8 +99,11 @@ col_start_time.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 col_end_time = db["end_time"]
 col_end_time.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 
+col_summary = db["summary"]
+col_summary.create_index([('txhash', pymongo.ASCENDING)], unique = True)
+
 # insert data to mongo db
-pprint2(lines,col_start_time,col_end_time)
+pprint2(lines,col_start_time,col_end_time,col_summary)
 
 # start ssc
 ssc.start()

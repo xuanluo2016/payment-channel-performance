@@ -9,7 +9,7 @@ from get_transactions_from_block import get_transactions_from_block
 
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 RAW_BLOCKS_TOPIC = os.environ.get('RAW_BLOCKS_TOPIC')
-TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
+TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
 SOURCE_BLOCKDETAILS_URL = os.environ.get('SOURCE_BLOCKDETAILS_URL')
 
 if __name__ == '__main__':
