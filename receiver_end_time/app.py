@@ -25,7 +25,7 @@ def pprint2(lines, col_start_time,col_end_time,col_summary, num=100000):
     def takeAndPrint(rdd):
         taken = rdd.take(num + 1) 
         for record in taken[:num]:            
-            process_record(col_start_time,col_end_time, record)
+            process_record(col_start_time,col_end_time, col_summary, record)
             if len(taken) > num:
                 print("...")
                 print("")
