@@ -37,20 +37,41 @@ def publish_message(message):
     try: 
         dict_message = json.loads(message)
         if('result' in dict_message):
-            result = dict_message['result']
-            if(len(result) > 0):
-                blocks= json.dumps(result)
-                for blockhash in blocks: 
-                    transaction: dict = {"blockhash": block, "time": str(datetime.now()), "seconds": '' }
-                    topic = RAW_BLOCKS_TOPIC
-                    producer.send(topic, value=transaction)
-                    print(topic, transaction)  # DEBUG
-
+            blocks = dict_message['result']
+            print(type(blocks))
+            for blockhash in blocks:
+                transaction:dict = {"blockhash": blockhash}
+                topic = RAW_BLOCKS_TOPIC
+                producer.send(topic, value=transaction)
+                print(topic, transaction)  # DEBUG
     except Exception as e:
-        print("#######################error in publish_message of generator_block ############################")
-        print(e.message)
-    finally: 
         pass
+
+    # try: 
+    #     print("++++++++++++++++++++++++++++++++++++++")
+    #     print(message)
+    #     print("++++++++++++++++++++++++++++++++++++++")
+    #     # dict_message = json.loads(message)
+
+    #     dict_message = message        
+    #     if('result' in dict_message):
+    #         result = dict_message['result']
+    #         if(len(result) > 0):
+    #             blocks = json.dumps(result)
+    #             print("++++++++++++++++++++++++++++++++++++++")
+    #             print(blocks)
+    #             print("++++++++++++++++++++++++++++++++++++++")
+    #             for blockhash in blocks:
+    #                 transaction: dict = {'blockhash': blockhash}
+    #                 topic = RAW_BLOCKS_TOPIC
+    #                 producer.send(topic, value=transaction)
+    #                 print(topic, transaction)  # DEBUG
+
+    # except Exception as e:
+    #     print("#######################error in publish_message of generator_block ############################")
+    #     print(e.message)
+    # finally: 
+    #     pass
 
 def is_required_data(message) -> bool:
     if('result' in message):

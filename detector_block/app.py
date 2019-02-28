@@ -23,27 +23,31 @@ if __name__ == '__main__':
         value_serializer=lambda value: json.dumps(value).encode(),
     )
     for message in consumer:
-        if('blockhash' in message.value):
-            print("========================================")
-            print(message.value)
-            print("========================================")
+        try: 
+            if('blockhash' in message.value):
+                print("========================================")
+                print(message.value)
+                print("========================================")
 
-            value = message.value
-            time = value['time']
-            seconds = value['seconds']
-            blockhash = json.loads(value['blockhash'])
+                value = message.value            
+                blockhash = value['blockhash']
 
-            # Get transactoin hashes and blocktime of the block
-            query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["'
-            query += row
-            query += '",false],"id":1}'
-            block_details = get_transactions_from_block(SOURCE_BLOCKDETAILS_URL, query)
+                # Get transactoin hashes and blocktime of the block
+                query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["'
+                query += blockhash
+                query += '",false],"id":1}'
+                block_details = get_transactions_from_block(SOURCE_BLOCKDETAILS_URL, query)
 
-            if('timstamp' in block_details):
-                endtime = block_details['timestamp']
-                transactions =  block_details['transactions']
-                for txhash in transactions:
-                    transaction: dict = {'txhash': txhash, 'blocktime': timestamp, 'seconds': seconds}
-                    topic = TRANSACTIONS_TOPIC
-                    producer.send(topic, value=transaction)
-                    print(topic, transaction)  # DEBUG
+                if('timstamp' in block_details):
+                    endtime = block_details['timestamp']
+                    transactions =  block_details['transactions']
+                    for txhash in transactions:
+                        transaction: dict = {'txhash': txhash, 'blocktime': timestamp, 'seconds': seconds}
+                        topic = TRANSACTIONS_TOPIC
+                        producer.send(topic, value=transaction)
+                        print(topic, transaction)  # DEBUG
+        except Exception as e:
+            print(e.message)
+        
+        finally:
+            pass
