@@ -30,6 +30,9 @@ services:
     build: ./generator_block
     environment:
       KAFKA_BROKER_URL: broker:9092
+      KAFKA_LOG4J_LOGGERS : kafka.controller=WARN, kafka.foo.bar=DEBUG  
+      KAFKA_LOG4J_ROOT_LOGLEVEL : WARN 
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR 
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_PER_SECOND: 1000
       REQUEST_INTERVAL: 10

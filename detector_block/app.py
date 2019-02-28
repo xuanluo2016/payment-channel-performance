@@ -25,10 +25,6 @@ if __name__ == '__main__':
     for message in consumer:
         try: 
             if('blockhash' in message.value):
-                print("========================================")
-                print(message.value)
-                print("========================================")
-
                 value = message.value            
                 blockhash = value['blockhash']
 
@@ -37,15 +33,21 @@ if __name__ == '__main__':
                 query += blockhash
                 query += '",false],"id":1}'
                 block_details = get_transactions_from_block(SOURCE_BLOCKDETAILS_URL, query)
+                block_details = json.loads(block_details)
+                result = block_details['result']
+                # result = json.loads(result)
+                # for key, value in block_details.items() :
+                #     print (key, value)
+                transactions = result['transactions']
+                endtime = result['timestamp']
+                print(transactions)
 
-                if('timstamp' in block_details):
-                    endtime = block_details['timestamp']
-                    transactions =  block_details['transactions']
-                    for txhash in transactions:
-                        transaction: dict = {'txhash': txhash, 'blocktime': timestamp, 'seconds': seconds}
-                        topic = TRANSACTIONS_TOPIC
-                        producer.send(topic, value=transaction)
-                        print(topic, transaction)  # DEBUG
+                for txhash in transactions:
+                    transaction: dict = {'txhash': txhash, 'blocktime': endtime}
+                    topic = TRANSACTIONS_TOPIC
+                    producer.send(topic, value=transaction)
+                    print(topic, transaction)  # DEBUG
+
         except Exception as e:
             print(e.message)
         
