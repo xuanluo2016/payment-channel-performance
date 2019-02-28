@@ -9,6 +9,8 @@ import pymongo
 from pymongo.errors import BulkWriteError
 from lib.db import DB
 
+from get_transaction_details import parse
+
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
@@ -16,21 +18,28 @@ KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
 
-def pprint2(lines, col_start_time,col_end_time,col_summary, num=100000):
+def pprint2(lines, col_start_time,col_end_time,col_summary, num=10):
     """
     Print the first num elements of each RDD generated in this DStream.
 
     @param num: the number of elements from the first will be printed.
     """
+    # def takeAndPrint(rdd):
+    #     taken = rdd.take(num + 1) 
+    #     for record in taken[:num]:            
+    #         process_record(col_start_time,col_end_time, col_summary, record)
+    #         if len(taken) > num:
+    #             print("...")
+    #             print("")
+
     def takeAndPrint(rdd):
-        taken = rdd.take(num + 1) 
-        for record in taken[:num]:            
+        collect = rdd.collect() 
+        for record in collect:            
             process_record(col_start_time,col_end_time, col_summary, record)
-            if len(taken) > num:
-                print("...")
-                print("")
 
     lines.foreachRDD(takeAndPrint)
+
+    # lines.foreachRDD(takeAndPrint)
 
 def process_record(col_start_time,col_end_time,col_summary,record):
     """
@@ -38,17 +47,21 @@ def process_record(col_start_time,col_end_time,col_summary,record):
     if yes, send streaming data to query tx details and remove related record in the end_time db
     else, save data in the start_time db
     """
+    record = json.loads(record)
+
     if('txhash' in record): 
-        record = json.loads(record)
         doc = col_start_time.find({"txhash": record['txhash']} )
         try: 
             if(doc.count() >0):
+                print("find record in start_time")
                 # Send tx, start_time, end_time for further processing
                 for row in doc:
+                    row = json.loads(row)
                     source_url = 'https://etherscan.io/tx/' 
                     (item, is_mined) = parse(source_url, row['txhash'])
                     if(is_mined):
-                        col_summary.insert(item)        
+                        col_summary.insert(item)
+                    print(item) # Debug      
             else:
                 try: 
                     # Insert the item to start_time db, ignore the item if duplicate

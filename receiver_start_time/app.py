@@ -43,14 +43,16 @@ def process_record(col_start_time,col_end_time,col_summary, record):
     if yes, send streaming data to query tx details and remove related record in the end_time db
     else, save data in the start_time db
     """
+    record = json.loads(record)
+
     if('txhash' in record): 
-        record = json.loads(record)
         if('starttime' in record): 
             doc = col_end_time.find({"txhash": record['txhash']} )
             if(doc.count() >0):
                 # Send tx, start_time, end_time for further processing
                 for row in doc:
-                    source_url = 'https://etherscan.io/tx/' 
+                    source_url = 'https://etherscan.io/tx/'
+                    row = json.loads(row)
                     (item, is_mined) = parse(source_url, row['txhash'])
                     if(is_mined): 
                         col_summary.insert(item)
