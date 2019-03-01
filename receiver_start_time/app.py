@@ -10,6 +10,7 @@ from pymongo.errors import BulkWriteError
 from lib.db import DB
 
 from get_transaction_details import parse
+from get_transaction_summary import get_summary
 
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
@@ -54,17 +55,23 @@ def process_record(col_start_time,col_end_time,col_summary,record):
     if('txhash' in record): 
         doc = col_end_time.find({"txhash": record['txhash']} )
         try: 
-            if(doc.count() >0):
-                print("find record in start_time")
+            if(doc.count() > 0):
+                for data in doc:
+                    end_time = data['blocktime']
+                print("find record in end_time")
                 # Send tx, start_time, end_time for further processing
 
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
                     print('mined')
-                    col_summary.insert(item)
+                    print(item)
+                    print(record['txhash'])
+                    print(record['starttime'])
+                    print(end_time)
+                    row = get_summary(item, record['txhash'], record['starttime'],end_time )
+                    col_summary.insert(row)
                     print(item) # Debug      
             else:
-                print("insert into end_time")
                 # Insert the item to start_time db, ignore the item if duplicate
                 col_start_time.insert(record)
         except:

@@ -2,3 +2,5 @@ pyspark
 pymongo
 requests
 lxml
+datetime
+python-dateutil
