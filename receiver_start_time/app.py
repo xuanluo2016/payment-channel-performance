@@ -14,30 +14,36 @@ from get_transaction_details import parse
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
+URL = os.environ.get('URL')
 
 # os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
 
 
-def pprint2(lines, col_start_time,col_end_time,col_summary, num=100000):
+def pprint2(lines, col_start_time,col_end_time,col_summary, num=10):
     """
     Print the first num elements of each RDD generated in this DStream.
 
     @param num: the number of elements from the first will be printed.
     """
-    def takeAndPrint(rdd):
-        taken = rdd.take(num + 1) 
-        for record in taken[:num]:
-            # print(record)
-            process_record(col_start_time,col_end_time,col_summary, record)
+    # def takeAndPrint(rdd):
+    #     taken = rdd.take(num + 1) 
+    #     for record in taken[:num]:            
+    #         process_record(col_start_time,col_end_time, col_summary, record)
+    #         if len(taken) > num:
+    #             print("...")
+    #             print("")
 
-            if len(taken) > num:
-                print("...")
-                print("")
+    def takeAndPrint(rdd):
+        collect = rdd.collect() 
+        for record in collect:            
+            process_record(col_start_time,col_end_time, col_summary, record)
 
     lines.foreachRDD(takeAndPrint)
 
-def process_record(col_start_time,col_end_time,col_summary, record):
+    # lines.foreachRDD(takeAndPrint)
+
+def process_record(col_start_time,col_end_time,col_summary,record):
     """
     Check if the txhash exists or not in the end_time table
     if yes, send streaming data to query tx details and remove related record in the end_time db
@@ -46,23 +52,28 @@ def process_record(col_start_time,col_end_time,col_summary, record):
     record = json.loads(record)
 
     if('txhash' in record): 
-        if('starttime' in record): 
-            doc = col_end_time.find({"txhash": record['txhash']} )
+        doc = col_end_time.find({"txhash": record['txhash']} )
+        try: 
             if(doc.count() >0):
+                print("find record in start_time")
                 # Send tx, start_time, end_time for further processing
-                for row in doc:
-                    source_url = 'https://etherscan.io/tx/'
-                    row = json.loads(row)
-                    (item, is_mined) = parse(source_url, row['txhash'])
-                    if(is_mined): 
-                        col_summary.insert(item)
-                    print(item) # Debug
+
+                (item, is_mined) = parse(URL, record['txhash'])
+                if(is_mined):
+                    print('mined')
+                    col_summary.insert(item)
+                    print(item) # Debug      
             else:
-                try: 
-                    # Insert the item to start_time db, ignore the item if duplicate
-                    col_start_time.insert(record)
-                except:
-                    pass
+                print("insert into end_time")
+                # Insert the item to start_time db, ignore the item if duplicate
+                col_start_time.insert(record)
+        except:
+            pass
+
+        finally:
+            pass
+            
+    return
 
 # mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 # db = mongo_client["transactions"]

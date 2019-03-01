@@ -14,6 +14,7 @@ from get_transaction_details import parse
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
+URL = os.environ.get('URL')
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
@@ -55,20 +56,20 @@ def process_record(col_start_time,col_end_time,col_summary,record):
             if(doc.count() >0):
                 print("find record in start_time")
                 # Send tx, start_time, end_time for further processing
-                for row in doc:
-                    row = json.loads(row)
-                    source_url = 'https://etherscan.io/tx/' 
-                    (item, is_mined) = parse(source_url, row['txhash'])
-                    if(is_mined):
-                        col_summary.insert(item)
+
+                (item, is_mined) = parse(URL, record['txhash'])
+                if(is_mined):
+                    print('mined')
+                    col_summary.insert(item)
                     print(item) # Debug      
             else:
-                try: 
-                    # Insert the item to start_time db, ignore the item if duplicate
-                    col_end_time.insert(record)
-                except:
-                    pass
+                print("insert into end_time")
+                # Insert the item to start_time db, ignore the item if duplicate
+                col_end_time.insert(record)
         except:
+            pass
+
+        finally:
             pass
             
     return
