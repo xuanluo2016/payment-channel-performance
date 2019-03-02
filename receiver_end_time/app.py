@@ -58,12 +58,12 @@ def process_record(col_start_time,col_end_time,col_summary,record):
                 print("find record in start_time")
                 # Send tx, start_time, end_time for further processing
                 for data in doc:
-                    start_time = data['starttime']
+                    start_time = data['seconds']
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
                     row = get_summary(item, record['txhash'], start_time,record['blocktime'] )
                     col_summary.insert(row)
-                    print(item) # Debug      
+                    print(row) # Debug      
             else:
                 print("insert into end_time")
                 # Insert the item to start_time db, ignore the item if duplicate

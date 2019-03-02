@@ -83,7 +83,7 @@ def get_summary(item, txhash, start_time, end_time):
         try:
             end_time = int(end_time, 16)
             # end_time = datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S')
-            end_time = datetime.utcfromtimestamp(end_time)
+            # end_time = datetime.utcfromtimestamp(end_time)
 
             print(start_time)
             print(end_time)
@@ -95,7 +95,7 @@ def get_summary(item, txhash, start_time, end_time):
             print(actual_cost)
             gas_price = get_gas_price(item)
 
-            item = {"txhash": txhash, "waitingtime": waiting_time, "actualcost": actual_cost, "gas_price":gas_price}        
-            return item
+            row = {"txhash": txhash, "waitingtime": waiting_time, "actualcost": actual_cost, "gas_price":gas_price}        
+            return row
         except:
             return None

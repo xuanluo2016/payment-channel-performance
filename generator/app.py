@@ -50,7 +50,7 @@ def publish_message(message):
             result = dict_message['result']
             if(len(result) > 0):
                 data= json.dumps(result)
-                results = {"data": data, "time": str(datetime.now()), "seconds": '' }
+                results = {"data": data, "time": str(datetime.now()), "seconds": time.time() }
                 transaction: dict = results
                 producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
     
