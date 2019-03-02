@@ -36,11 +36,13 @@ def publish_message(message):
     """Extract block hashes and related timestamp from raw websocket message."""
     try: 
         dict_message = json.loads(message)
+        #{"jsonrpc":"2.0","id":1,"result":["0x372521f455740308b4f9f131976480cb7217c9a869c1a69aac748f1083be97c2","0x08cde2da1228ee8d95e13ad1663f079d0c6c11072b0ea687d2c11aac5b8da6a2"]}
+
         if('result' in dict_message):
             blocks = dict_message['result']
             print(type(blocks))
-            for blockhash in blocks:
-                transaction:dict = {"blockhash": blockhash}
+            for blockhash in blocks:    
+                transaction:dict = {"blockhash": blockhash, }
                 topic = RAW_BLOCKS_TOPIC
                 producer.send(topic, value=transaction)
                 print(topic, transaction)  # DEBUG

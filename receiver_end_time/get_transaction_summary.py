@@ -76,19 +76,12 @@ def get_gas_price(item):
         return None
 
 def get_summary(item, txhash, start_time, end_time):
-    print(item)
-    print(txhash)
-
     if(start_time != None) and (end_time != None):
         try:
             end_time = int(end_time, 16)
+            print('end time:', datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S'))
             # end_time = datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S')
             # end_time = datetime.utcfromtimestamp(end_time)
-
-            print(start_time)
-            print(end_time)
-            print(type(start_time))
-            print(type(end_time))
             waiting_time = end_time - start_time
             print(waiting_time)
             actual_cost = get_transction_fee(item)

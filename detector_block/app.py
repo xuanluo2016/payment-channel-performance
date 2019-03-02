@@ -25,9 +25,9 @@ if __name__ == '__main__':
     for message in consumer:
         try: 
             if('blockhash' in message.value):
-                value = message.value            
-                blockhash = value['blockhash']
-
+                value = message.value
+                print(value)          
+                blockhash = value['blockhash']                
                 # Get transactoin hashes and blocktime of the block
                 query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["'
                 query += blockhash
@@ -41,9 +41,9 @@ if __name__ == '__main__':
                     #     print (key, value)
                     transactions = result['transactions']
                     endtime = result['timestamp']
-
+                    blocknumber = result['number']
                     for txhash in transactions:
-                        transaction: dict = {'txhash': txhash, 'blocktime': endtime}
+                        transaction: dict = {'txhash': txhash, 'blocktime': endtime,'blocknumber':blocknumber }
                         topic = TRANSACTIONS_TOPIC
                         producer.send(topic, value=transaction)
                         print(topic, transaction)  # DEBUG

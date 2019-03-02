@@ -59,6 +59,7 @@ def process_record(col_start_time,col_end_time,col_summary,record):
                 # Send tx, start_time, end_time for further processing
                 for data in doc:
                     start_time = data['seconds']
+                    print('start time', data['starttime'])
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
                     row = get_summary(item, record['txhash'], start_time,record['blocktime'] )
