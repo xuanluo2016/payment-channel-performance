@@ -81,7 +81,7 @@ def get_summary(item, txhash, start_time, end_time):
 
     if(start_time != None) and (end_time != None):
         try:
-            # end_time = int(end_time, 16)
+            end_time = int(end_time, 16)
             # end_time = datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S')
             # end_time = datetime.utcfromtimestamp(end_time)
 
