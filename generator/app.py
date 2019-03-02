@@ -1,20 +1,14 @@
 """Produce fake transactions into a Kafka topic."""
 
 import os
+import time
 from time import sleep
 from datetime import datetime
 import json
 
 from kafka import KafkaProducer
-from transactions import create_random_transaction
-
 import websocket
 
-try:
-    import thread
-except ImportError:
-    import _thread as thread
-import time
 
 RAW_TRANSACTIONS_TOPIC = os.environ.get('RAW_TRANSACTIONS_TOPIC')
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
@@ -23,10 +17,8 @@ SLEEP_TIME = 1 / TRANSACTIONS_PER_SECOND
 REQUEST_INTERVAL =  float(os.environ.get('REQUEST_INTERVAL')) 
 SOURCE_URL = os.environ.get('SOURCE_URL')
 
-
 request = []
 producer = None
-
 
 # Return substr between two substrings in a string
 # Return '' if the input is invalid or could not find the substr; else return substr
@@ -44,17 +36,27 @@ def get_substr(str, substr1, substr2) -> str:
 
 def publish_message(message):
     """Extract transaction hashes and related timestamp from raw websocket message."""
+    print('publish message')
+    timestamp = time.time()
+    timestamp_date = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    print(timestamp)
     try: 
         dict_message = json.loads(message)
         if('result' in dict_message):
             result = dict_message['result']
+            # for txhash in transactions:
+            #     transaction: dict = {"data": txhash, "time": timestamp_date, "seconds": timestamp }
+            #     producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
+            #     print(RAW_TRANSACTIONS_TOPIC,transaction) # DEBUG
             if(len(result) > 0):
                 data= json.dumps(result)
-                results = {"data": data, "time": str(datetime.now()), "seconds": time.time() }
+                results = {"data": data, "time": timestamp_date, "seconds": timestamp }
                 transaction: dict = results
                 producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
-    
+                print(RAW_TRANSACTIONS_TOPIC,transaction ) # DEBUG
     except Exception as e:
+        print(e)    
+    finally:
         pass
 
 def is_required_data(message) -> bool:
@@ -64,8 +66,6 @@ def is_required_data(message) -> bool:
         return False
 
 def on_open(ws):
-    print('----------------------------open------------------')
-
     def run(*args):
         for i in range(3):
             time.sleep(REQUEST_INTERVAL)
@@ -76,7 +76,6 @@ def on_open(ws):
     ws.send('{"jsonrpc":"2.0","method":"eth_newPendingTransactionFilter","params":[],"id":1}')
 
 def on_message(ws, message):
-    # print('----------------------------message------------------')
     if (len(request) != 0):
         # Send the received message to kafka
         publish_message(message)
@@ -113,7 +112,7 @@ if __name__ == '__main__':
         value_serializer=lambda value: json.dumps(value).encode(),
     )
             
-    DEBUG = True
+    # DEBUG = True
 
     while True:
         try:

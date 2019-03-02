@@ -37,7 +37,8 @@ def pprint2(lines, col_start_time,col_end_time,col_summary, num=10):
 
     def takeAndPrint(rdd):
         collect = rdd.collect() 
-        for record in collect:            
+        for record in collect:
+            print(record, 'debug')            
             process_record(col_start_time,col_end_time, col_summary, record)
 
     lines.foreachRDD(takeAndPrint)
@@ -72,6 +73,7 @@ def process_record(col_start_time,col_end_time,col_summary,record):
                     col_summary.insert(row)
                     print(item) # Debug      
             else:
+                print("insert into start_time")
                 # Insert the item to start_time db, ignore the item if duplicate
                 col_start_time.insert(record)
         except:
