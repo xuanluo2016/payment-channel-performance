@@ -80,7 +80,7 @@ def get_gas_price(item):
     except Exception as e:
         return None
 
-def get_summary(item, txhash, start_time, end_time):
+def get_summary(item, txhash, start_time, end_time, blocknumber):
     if(start_time != None) and (end_time != None):
         try:
             end_time = int(end_time, 16)
@@ -91,7 +91,7 @@ def get_summary(item, txhash, start_time, end_time):
             actual_cost = get_transction_fee(item)
             gas_price = get_gas_price(item)
 
-            row = {"txhash": txhash, "waiting_mined_time": waiting_mined_time, 'waiting_time': 0.0,"actual_cost": actual_cost, "gas_price":gas_price}        
+            row = {"txhash": txhash, "blocknumber": blocknumber,"waiting_time": 0.0,"actual_cost": actual_cost, "gas_price":gas_price, "waiting_mined_time": waiting_mined_time}        
             return row
         except:
             return None

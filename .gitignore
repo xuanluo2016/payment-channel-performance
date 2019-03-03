@@ -1,8 +1,4 @@
 env/
-<<<<<<< HEAD
-__pycache__/
-*.pyc
-=======
 .idea/
 data.json
 data.csv
@@ -11,4 +7,4 @@ node_modules/
 build/
 .vscode/
 package-lock.json
->>>>>>> 827798a28d2d6cf3bc90ef77653a5ac9c7bb075e
+*cache*

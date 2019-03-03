@@ -61,7 +61,7 @@ def process_record(col_start_time,col_end_time,col_summary,record):
                     print('start time', data['starttime'])
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
-                    row = get_summary(item, record['txhash'], start_time,record['blocktime'] )
+                    row = get_summary(item, record['txhash'], start_time,record['blocktime'], record['blocknumber'])
                     col_summary.insert(row)
                     print(row) # Debug      
             else:
