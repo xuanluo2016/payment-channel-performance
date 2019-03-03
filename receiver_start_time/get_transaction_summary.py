@@ -89,12 +89,8 @@ def get_summary(item, txhash, start_time, end_time, blocknumber):
             # end_time = datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S')
             # end_time = datetime.utcfromtimestamp(end_time)
             waiting_mined_time = end_time - start_time
-            print(waiting_mined_time)
             actual_cost = get_transction_fee(item)
-            print(actual_cost)
             gas_price = get_gas_price(item)
-            print(gas_price)
-
             row = {"txhash": txhash, "blocknumber": blocknumber, "blocktime": end_time,"waiting_time": 0.0,"actual_cost": actual_cost, "gas_price":gas_price, "waiting_mined_time": waiting_mined_time}        
             return row
         except:
