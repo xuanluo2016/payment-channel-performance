@@ -54,7 +54,6 @@ def process_record(col_block_time,col_summary,record):
     print(record)
     if('blocknumber' in record):
         try: 
-            print(block_time)
             block_time = int(record['blocktime'],16)
             print(type(block_time))
 
@@ -63,7 +62,7 @@ def process_record(col_block_time,col_summary,record):
             block_number = int(block_number, 16)
             print(block_number)
             print(type(block_number))
-            prev_blocknumber = blocknumber - NUMBER_OF_CONFIRMATIONS
+            prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS
             prev_blocknumber = hex(prev_blocknumber)
 
             # Find transactions which are 12 blocks ahead
