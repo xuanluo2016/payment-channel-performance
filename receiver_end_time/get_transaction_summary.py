@@ -91,7 +91,7 @@ def get_summary(item, txhash, start_time, end_time, blocknumber):
             actual_cost = get_transction_fee(item)
             gas_price = get_gas_price(item)
 
-            row = {"txhash": txhash, "blocknumber": blocknumber,"waiting_time": 0.0,"actual_cost": actual_cost, "gas_price":gas_price, "waiting_mined_time": waiting_mined_time}        
+            row = {"txhash": txhash, "blocknumber": blocknumber, "blocktime": end_time,"waiting_time": 0.0,"actual_cost": actual_cost, "gas_price":gas_price, "waiting_mined_time": waiting_mined_time}        
             return row
         except:
             return None
