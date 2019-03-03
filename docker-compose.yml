@@ -8,7 +8,7 @@ services:
       KAFKA_BROKER_URL: broker:9092
       RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 2
+      REQUEST_INTERVAL: 5
       SOURCE_URL: wss://mainnet.infura.io/ws
 
   detector:
@@ -30,9 +30,12 @@ services:
     build: ./generator_block
     environment:
       KAFKA_BROKER_URL: broker:9092
+      KAFKA_LOG4J_LOGGERS : kafka.controller=WARN, kafka.foo.bar=DEBUG  
+      KAFKA_LOG4J_ROOT_LOGLEVEL : WARN 
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR 
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 5
+      REQUEST_INTERVAL: 10
       SOURCE_URL: wss://mainnet.infura.io/ws
 
   detector_block:
@@ -40,7 +43,9 @@ services:
     environment:
       KAFKA_BROKER_URL: broker:9092
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
-      TRANSACTIONS_BLOCKTIME_TOPIC: streaming.transactions.blocktime
+      # TRANSACTIONS_TOPIC: streaming.transactions
+      TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
       SOURCE_BLOCKDETAILS_URL: wss://mainnet.infura.io/ws/4a6762bdc2e34b08b84a3b14f337093b
 
   mongodb:
@@ -58,6 +63,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_TOPIC: streaming.transactions
       MONGO_INITDB_DATABASE: transactions
+      URL: https://etherscan.io/tx/
     depends_on:
       - mongodb
     
@@ -65,10 +71,23 @@ services:
     build: ./receiver_end_time
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      TRANSACTIONS_BLOCKTIME_TOPIC: streaming.transactions.blocktime
+      # TRANSACTIONS_TOPIC: streaming.transactions
+      TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
       MONGO_INITDB_DATABASE: transactions
+      URL: https://etherscan.io/tx/
     depends_on:
-      - mongodb 
+      - mongodb
+
+  receiver_block_time:
+    build: ./receiver_block_time
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # TRANSACTIONS_TOPIC: streaming.transactions
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
+      MONGO_INITDB_DATABASE: transactions
+      NUMBER_OF_CONFIRMATIONS: 12
+    depends_on:
+      - mongodb    
       
 networks:
   default:
