@@ -15,14 +15,15 @@ from get_transaction_summary import get_summary
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCK_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
+NUMBER_OF_CONFIRMATIONS = int(os.environ.get('NUMBER_OF_CONFIRMATIONS'))
 
 print('start receiver block time')
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
 
-def pprint2(lines,col_block_time):
+def pprint2(lines,col_block_time,col_summary):
     """
-    Print the first num elements of each RDD generated in this DStream.
+    Print the first num elements oNUMBER_OF_CONFIRMATIONSf each RDD generated in this DStream.
 
     @param num: the number of elements from the first will be printed.
     """
@@ -37,13 +38,13 @@ def pprint2(lines,col_block_time):
     def takeAndPrint(rdd):
         collect = rdd.collect() 
         for record in collect:            
-            process_record(col_block_time, record)
+            process_record(col_block_time,col_summary,record)
 
     lines.foreachRDD(takeAndPrint)
 
     # lines.foreachRDD(takeAndPrint)
 
-def process_record(col_block_time,record):
+def process_record(col_block_time,col_summary,record):
     """
     Check if the txhash exists or not in the end_time table
     if yes, send streaming data to query tx details and remove related record in the end_time db
@@ -51,37 +52,43 @@ def process_record(col_block_time,record):
     """
     record = json.loads(record)
     print(record)
-    try: 
-        col_block_time.insert(record)
-    except Exception as e:
-        print(e)
-    finally:
-        pass
-    # if('txhash' in record): 
-    #     doc = col_start_time.find({"txhash": record['txhash']} )
-    #     try: 
-    #         if(doc.count() > 0):
-    #             # Send tx, start_time, end_time for further processing
-    #             for data in doc:
-    #                 start_time = data['seconds']
-    #                 print('start time', data['starttime'])
-    #             (item, is_mined) = parse(URL, record['txhash'])
-    #             if(is_mined):
-    #                 row = get_summary(item, record['txhash'], start_time,record['blocktime'], record['blocknumber'])
-    #                 col_summary.insert(row)
-    #                 print(row) # Debug      
-    #         else:
-    #             print("insert into end_time")
-    #             # Insert the item to start_time db, ignore the item if duplicate
-    #             col_end_time.insert(record)
-    #     except:
-    #         pass
+    if('blocknumber' in record):
+        try: 
+            print(block_time)
+            block_time = int(record['blocktime'],16)
+            print(type(block_time))
 
-    #     finally:
-    #         pass
-            
-    # return
-            
+            # Get the block number which is 12 blocks ahead
+            block_number = record['blocknumber']
+            block_number = int(block_number, 16)
+            print(block_number)
+            print(type(block_number))
+            prev_blocknumber = blocknumber - NUMBER_OF_CONFIRMATIONS
+            prev_blocknumber = hex(prev_blocknumber)
+
+            # Find transactions which are 12 blocks ahead
+            doc = col_summary.find({"blocknumber": prev_blocknumber} )
+
+            for row in doc:
+                prev_block_time = row['blocktime']
+                block_time_delta = block_time - prev_block_time
+                waiting_time = block_time_delta + row['waiting_time']
+                # query = '{_id: ' + row['_id'] + '}, {$set: {"waiting_time": ' + str(waiting_time) + '}}'
+                # print(query)
+                # result = col_summary.update(query)
+                post = {"waiting_time": waiting_time}
+                # col_summary.update_one({"_id":'ObjectId("5c7b78046fd11d5872ff4be3")'},  {"$set": post}) 
+                result = col_summary.update_one({"txhash":row['txhash']},  {"$set": post})  
+                print(result)
+                print(row['txhash'])      
+            # insert block_time and block_number to table block_time
+            col_block_time.insert(record)
+
+        except Exception as e:
+            print(e)
+        finally:
+            pass
+   
     return
 
 # mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -120,8 +127,10 @@ db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
 col_block_time = db["block_time"]
 col_block_time.create_index([('blocknumber', pymongo.ASCENDING)], unique = True)
 
+col_summary = db["summary"]
+
 # insert data to mongo db
-pprint2(lines,col_block_time)
+pprint2(lines,col_block_time,col_summary)
 
 # start ssc
 ssc.start()

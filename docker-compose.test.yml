@@ -85,6 +85,7 @@ services:
       # TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
       MONGO_INITDB_DATABASE: test_transactions
+      NUMBER_OF_CONFIRMATIONS: 12
     depends_on:
       - mongodb    
       
