@@ -1,5 +1,6 @@
 from datetime import datetime
-from dateutil import parser
+import re
+
 # the time lag between Etherscan server and local server
 TIMEZONE_DELTA = 0
 
@@ -57,6 +58,8 @@ def get_transction_fee(item):
         actual_cost = item['actual_cost']
         # remove special characters in actual_cost
         actual_cost = remove_redundant_characters2(actual_cost, '', 'Ether')
+        actual_cost = re.sub(' ','', actual_cost)
+        actual_cost = float(actual_cost)
         return actual_cost
     except Exception as e:
         return None
@@ -68,26 +71,31 @@ def get_gas_price(item):
     """
     try:
         gas_price = item['gas_price']
-        # remove special characters in actual_cost
-        gas_price = remove_redundant_characters2(actual_cost, '', 'Ether')
+        # remove special characters in gas_price
+        gas_price = remove_redundant_characters2(gas_price, '', 'Ether')
         gas_price = float(gas_price)
         gas_price = gas_price * 1000000000
         return gas_price
+
     except Exception as e:
         return None
 
-def get_summary(item, txhash, start_time, end_time):
-    print(item)
-    print(txhash)
-    print(start_time)
-    print(end_time)
+def get_summary(item, txhash, start_time, end_time, blocknumber):
     if(start_time != None) and (end_time != None):
-        end_time = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        waiting_time = end_time - start_time
-        print(waiting_time)
-        actual_cost = get_transction_fee(item)
-        print(actual_cost)
-        gas_price = get_gas_price(item)
+        try:
+            print("start111")
+            end_time = int(end_time, 16)
+            print('end time:', datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S'))
+            # end_time = datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S')
+            # end_time = datetime.utcfromtimestamp(end_time)
+            waiting_mined_time = end_time - start_time
+            print(waiting_mined_time)
+            actual_cost = get_transction_fee(item)
+            print(actual_cost)
+            gas_price = get_gas_price(item)
+            print(gas_price)
 
-        item = {"txhash": txhash, "waitingtime": waiting_time, "actualcost": actual_cost, "gas_price":gas_price}        
-        return item
+            row = {"txhash": txhash, "blocknumber": blocknumber, "blocktime": end_time,"waiting_time": 0.0,"actual_cost": actual_cost, "gas_price":gas_price, "waiting_mined_time": waiting_mined_time}        
+            return row
+        except:
+            return None

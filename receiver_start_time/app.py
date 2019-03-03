@@ -59,19 +59,17 @@ def process_record(col_start_time,col_end_time,col_summary,record):
             if(doc.count() > 0):
                 for data in doc:
                     end_time = data['blocktime']
-                print("find record in end_time")
-                # Send tx, start_time, end_time for further processing
-
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
                     print('mined')
-                    print(item)
-                    print(record['txhash'])
-                    print(record['starttime'])
-                    print(end_time)
-                    row = get_summary(item, record['txhash'], record['starttime'],end_time )
+                    # print(item)
+                    # print(record['txhash'])
+                    # print(record['seconds'])
+                    # print(end_time)
+                    # print(record['blocknumber'])
+                    row = get_summary(item, record['txhash'], record['seconds'], end_time,data['blocknumber'])
                     col_summary.insert(row)
-                    print(item) # Debug      
+                    print(row) # Debug      
             else:
                 print("insert into start_time")
                 # Insert the item to start_time db, ignore the item if duplicate
