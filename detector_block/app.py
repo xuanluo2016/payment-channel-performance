@@ -10,6 +10,7 @@ from get_transactions_from_block import get_transactions_from_block
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 RAW_BLOCKS_TOPIC = os.environ.get('RAW_BLOCKS_TOPIC')
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
+TRANSACTIONS_BLOCK_TOPIC = os.environ.get('TRANSACTIONS_BLOCK_TOPIC')
 SOURCE_BLOCKDETAILS_URL = os.environ.get('SOURCE_BLOCKDETAILS_URL')
 
 if __name__ == '__main__':
@@ -42,6 +43,12 @@ if __name__ == '__main__':
                     transactions = result['transactions']
                     endtime = result['timestamp']
                     blocknumber = result['number']
+                    
+                    # Send out topic about blocknumber and blocktime
+                    transaction_block : dict = {'blocktime': endtime,'blocknumber':blocknumber}
+                    producer.send(TRANSACTIONS_BLOCK_TOPIC, value=transaction_block)
+                    print(TRANSACTIONS_BLOCK_TOPIC, transaction_block)  # DEBUG
+
                     for txhash in transactions:
                         transaction: dict = {'txhash': txhash, 'blocktime': endtime,'blocknumber':blocknumber }
                         topic = TRANSACTIONS_TOPIC
