@@ -55,7 +55,6 @@ def process_record(col_start_time,col_end_time,col_summary,record):
         doc = col_start_time.find({"txhash": record['txhash']} )
         try: 
             if(doc.count() > 0):
-                print("find record in start_time")
                 # Send tx, start_time, end_time for further processing
                 for data in doc:
                     start_time = data['seconds']
