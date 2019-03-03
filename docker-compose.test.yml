@@ -45,7 +45,7 @@ services:
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       # TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
-      TRANSACTIONS_BLOCK_TOPIC: queueing.blocks
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
       SOURCE_BLOCKDETAILS_URL: wss://ropsten.infura.io/ws/4a6762bdc2e34b08b84a3b14f337093b
 
   mongodb:
@@ -77,6 +77,16 @@ services:
       URL: https://ropsten.etherscan.io/tx/
     depends_on:
       - mongodb
+
+  receiver_block_time:
+    build: ./receiver_block_time
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # TRANSACTIONS_TOPIC: streaming.transactions
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
+      MONGO_INITDB_DATABASE: test_transactions
+    depends_on:
+      - mongodb    
       
 networks:
   default:

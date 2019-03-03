@@ -68,7 +68,7 @@ services:
       TRANSACTIONS_BLOCKTIME_TOPIC: streaming.transactions.blocktime
       MONGO_INITDB_DATABASE: transactions
     depends_on:
-      - mongodb
+      - mongodb 
       
 networks:
   default:
