@@ -45,7 +45,7 @@ services:
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       # TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
-      TRANSACTIONS_BLOCK_TOPIC: streaming.blocks
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocks
       SOURCE_BLOCKDETAILS_URL: wss://ropsten.infura.io/ws/4a6762bdc2e34b08b84a3b14f337093b
 
   mongodb:
