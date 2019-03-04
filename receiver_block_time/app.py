@@ -108,7 +108,7 @@ sc = SparkContext(conf=conf)
 sc.setLogLevel("ERROR")
 
 # Set the batch interval in seconds
-batch_interval = 2
+batch_interval = 10
 
 # Create the streaming contect objects
 ssc = StreamingContext(sc,batch_interval)
