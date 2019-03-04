@@ -37,9 +37,9 @@ def parse_details(url):
             # for mined transactions, get TimeStamp, Actual Tx Cost, Gas Limit, Gas Price, Gas Used By Transaction
             item = get_mined_transaction_details(parser)
 
-        else:
-            # for unmined transactions, get Time Last Seen, Time First Seen, Gas Limit, Gas Price, Max Fee
-            item = get_unmined_transaction_details(parser)
+        # else:
+        #     # for unmined transactions, get Time Last Seen, Time First Seen, Gas Limit, Gas Price, Max Fee
+        #     item = get_unmined_transaction_details(parser)
         
         return (item, is_mined)
 
