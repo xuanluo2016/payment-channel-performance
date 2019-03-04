@@ -16,6 +16,7 @@ MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCKTIME_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
 URL = os.environ.get('URL')
+BATCH_INTERVAL = int(os.environ.get('BATCH_INTERVAL'))
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
@@ -84,11 +85,8 @@ sc = SparkContext(conf=conf)
 # Set log level
 sc.setLogLevel("ERROR")
 
-# Set the batch interval in seconds
-batch_interval = 2
-
 # Create the streaming contect objects
-ssc = StreamingContext(sc,batch_interval)
+ssc = StreamingContext(sc,BATCH_INTERVAL)
 
 # Create the kafka connection object
 # kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
