@@ -55,7 +55,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
       MONGO_INITDB_DATABASE: transactions
-
+    volumes:
+      - ./data/db:/data/db
 
   receiver_start_time:
     build: ./receiver_start_time
