@@ -84,7 +84,6 @@ def get_summary(item, txhash, start_time, end_time, blocknumber):
     if(start_time != None) and (end_time != None):
         try:
             end_time = int(end_time, 16)
-            print('end time:', datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S'))
             # end_time = datetime.utcfromtimestamp(end_time).strftime('%Y-%m-%d %H:%M:%S')
             # end_time = datetime.utcfromtimestamp(end_time)
             waiting_mined_time = end_time - start_time

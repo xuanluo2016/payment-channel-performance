@@ -26,14 +26,6 @@ def pprint2(lines, col_start_time,col_end_time,col_summary, num=10):
 
     @param num: the number of elements from the first will be printed.
     """
-    # def takeAndPrint(rdd):
-    #     taken = rdd.take(num + 1) 
-    #     for record in taken[:num]:            
-    #         process_record(col_start_time,col_end_time, col_summary, record)
-    #         if len(taken) > num:
-    #             print("...")
-    #             print("")
-
     def takeAndPrint(rdd):
         collect = rdd.collect() 
         for record in collect:            
@@ -41,7 +33,6 @@ def pprint2(lines, col_start_time,col_end_time,col_summary, num=10):
 
     lines.foreachRDD(takeAndPrint)
 
-    # lines.foreachRDD(takeAndPrint)
 
 def process_record(col_start_time,col_end_time,col_summary,record):
     """
@@ -58,7 +49,6 @@ def process_record(col_start_time,col_end_time,col_summary,record):
                 # Send tx, start_time, end_time for further processing
                 for data in doc:
                     start_time = data['seconds']
-                    print('start time', data['starttime'])
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
                     row = get_summary(item, record['txhash'], start_time,record['blocktime'], record['blocknumber'])
@@ -68,15 +58,14 @@ def process_record(col_start_time,col_end_time,col_summary,record):
                 print("insert into end_time")
                 # Insert the item to start_time db, ignore the item if duplicate
                 col_end_time.insert(record)
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
         finally:
             pass
             
     return
             
-    return
 
 # mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 # db = mongo_client["transactions"]
@@ -127,39 +116,3 @@ pprint2(lines,col_start_time,col_end_time,col_summary)
 ssc.start()
 ssc.awaitTermination()
 
-
-def decoder(msg):
-    baseMessage = json.loads(zlib.decompress(msg[4:]))
-    message = {"headers": baseMessage["headers"],
-               "data": b64decode(baseMessage["data"])}
-    return message
-
-
-lines = kafkaStream.map(lambda x: x[1])
-
-# connect to mongodb
-db_connection =  DB()
-db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
-
-col_start_time = db["start_time"]
-col_start_time.create_index([('txhash', pymongo.ASCENDING)], unique = True)
-
-col_end_time = db["end_time"]
-col_end_time.create_index([('txhash', pymongo.ASCENDING)], unique = True)
-
-col_summary = db["summary"]
-col_summary.create_index([('txhash', pymongo.ASCENDING)], unique = True)
-
-# insert data to mongo db
-pprint2(lines,col_start_time,col_end_time,col_summary)
-
-# start ssc
-ssc.start()
-ssc.awaitTermination()
-
-
-def decoder(msg):
-    baseMessage = json.loads(zlib.decompress(msg[4:]))
-    message = {"headers": baseMessage["headers"],
-               "data": b64decode(baseMessage["data"])}
-    return message
