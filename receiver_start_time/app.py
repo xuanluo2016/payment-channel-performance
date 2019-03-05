@@ -39,7 +39,6 @@ def pprint2(lines, col_start_time,col_end_time,col_summary, num=10):
     def takeAndPrint(rdd):
         collect = rdd.collect() 
         for record in collect:
-            print(record, 'debug')            
             process_record(col_start_time,col_end_time, col_summary, record)
 
     lines.foreachRDD(takeAndPrint)
@@ -55,15 +54,14 @@ def process_record(col_start_time,col_end_time,col_summary,record):
     record = json.loads(record)
 
     if('txhash' in record): 
-        doc = col_end_time.find({"txhash": record['txhash']} )
+        doc = col_end_time.find_one({"txhash": record['txhash']} )
         try: 
-            if(doc.count() > 0):
-                for data in doc:
-                    end_time = data['blocktime']
+            if(doc != None):
+                end_time = doc['blocktime']
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
                     print('mined')
-                    row = get_summary(item, record['txhash'], record['seconds'], end_time,data['blocknumber'])
+                    row = get_summary(item, record['txhash'], record['seconds'], end_time, doc['blocknumber'])
                     col_summary.insert(row)
                     print(row) # Debug      
             else:
