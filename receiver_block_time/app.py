@@ -55,31 +55,41 @@ def process_record(col_block_time,col_summary,record):
     if('blocknumber' in record):
         try: 
             block_time = int(record['blocktime'],16)
-            print(type(block_time))
 
             # Get the block number which is 12 blocks ahead
             block_number = record['blocknumber']
             block_number = int(block_number, 16)
-            print(block_number)
-            print(type(block_number))
             prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS
             prev_blocknumber = hex(prev_blocknumber)
 
-            # Find transactions which are 12 blocks ahead
-            doc = col_summary.find({"blocknumber": prev_blocknumber} )
+            # Get the delta of time for blocks
 
-            for row in doc:
-                prev_block_time = row['blocktime']
+            # Get the blocktime of previous block ahead of number of confirmations
+            doc = col_block_time.find_one({'blocknumber': prev_blocknumber})
+            if(doc != None):
+                prev_block_time = doc['blocktime']
                 block_time_delta = block_time - prev_block_time
-                waiting_time = block_time_delta + row['waiting_time']
-                # query = '{_id: ' + row['_id'] + '}, {$set: {"waiting_time": ' + str(waiting_time) + '}}'
-                # print(query)
-                # result = col_summary.update(query)
-                post = {"waiting_time": waiting_time}
-                # col_summary.update_one({"_id":'ObjectId("5c7b78046fd11d5872ff4be3")'},  {"$set": post}) 
-                result = col_summary.update_one({"txhash":row['txhash']},  {"$set": post})  
-                print(result)
-                print(row['txhash'])      
+            
+                #Update transactions which are 12 blocks earlier
+                post = {"time": block_time_delta}
+                col_summary.update_many({'blocknumber': prev_blocknumber},  {'$set': post}) 
+
+            # # Find transactions which are 12 blocks ahead
+            # doc = col_summary.find({"blocknumber": prev_blocknumber} )
+
+            # for row in doc:
+            #     prev_block_time = row['blocktime']
+            #     block_time_delta = block_time - prev_block_time
+            #     waiting_time = block_time_delta + row['waiting_time']
+            #     # query = '{_id: ' + row['_id'] + '}, {$set: {"waiting_time": ' + str(waiting_time) + '}}'
+            #     # print(query)
+            #     # result = col_summary.update(query)
+            #     post = {"waiting_time": waiting_time}
+            #     # col_summary.update_one({"_id":'ObjectId("5c7b78046fd11d5872ff4be3")'},  {"$set": post}) 
+            #     result = col_summary.update_one({"txhash":row['txhash']},  {"$set": post})  
+            #     print(result)
+            #     print(row['txhash']) 
+
             # insert block_time and block_number to table block_time
             col_block_time.insert(record)
 
