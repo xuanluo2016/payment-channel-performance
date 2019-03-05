@@ -36,12 +36,12 @@ def parse_details(url):
         if(is_mined):
             # for mined transactions, get TimeStamp, Actual Tx Cost, Gas Limit, Gas Price, Gas Used By Transaction
             item = get_mined_transaction_details(parser)
-
+            return (item, is_mined)
         # else:
         #     # for unmined transactions, get Time Last Seen, Time First Seen, Gas Limit, Gas Price, Max Fee
         #     item = get_unmined_transaction_details(parser)
         
-        return (item, is_mined)
+       
 
 
     except Exception as e:

@@ -9,7 +9,7 @@ def parse_all(source_url,tx_list):
     for tx in tx_list:
         # extract transction details
         url = source_url + str(tx)
-        item, ismined = parse_details(url)
+        item, is_mined = parse_details(url)
 
         if(DEBUG):
             print(item)
@@ -36,12 +36,11 @@ def parse_details(url):
         if(is_mined):
             # for mined transactions, get TimeStamp, Actual Tx Cost, Gas Limit, Gas Price, Gas Used By Transaction
             item = get_mined_transaction_details(parser)
-
+            return (item, is_mined)
         # else:
         #     # for unmined transactions, get Time Last Seen, Time First Seen, Gas Limit, Gas Price, Max Fee
         #     item = get_unmined_transaction_details(parser)
         
-        return (None, False)
 
 
     except Exception as e:
