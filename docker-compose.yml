@@ -8,7 +8,7 @@ services:
       KAFKA_BROKER_URL: broker:9092
       RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 5
+      REQUEST_INTERVAL: 2
       SOURCE_URL: wss://mainnet.infura.io/ws
 
   detector:
@@ -66,7 +66,7 @@ services:
       TRANSACTIONS_TOPIC: streaming.transactions
       MONGO_INITDB_DATABASE: transactions
       URL: https://etherscan.io/tx/
-      BATCH_INTERVAL: 2
+      BATCH_INTERVAL: 10
     depends_on:
       - mongodb
 
@@ -77,7 +77,7 @@ services:
       TRANSACTIONS_TOPIC: streaming.transactions
       MONGO_INITDB_DATABASE: transactions
       URL: https://etherscan.io/tx/
-      BATCH_INTERVAL: 2
+      BATCH_INTERVAL: 10
     depends_on:
       - mongodb  
 
