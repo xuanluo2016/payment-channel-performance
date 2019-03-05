@@ -44,14 +44,14 @@ def process_record(col_start_time,col_end_time,col_summary,record):
     record = json.loads(record)
 
     if('txhash' in record): 
-        doc = col_start_time.find({"txhash": record['txhash']} )
+        doc = col_start_time.find_one({"txhash": record['txhash']} )
         try: 
-            if(doc.count() > 0):
+            if(doc != None):
                 # Send tx, start_time, end_time for further processing
-                for data in doc:
-                    start_time = data['seconds']
+                start_time = doc['seconds']
                 (item, is_mined) = parse(URL, record['txhash'])
                 if(is_mined):
+                    print('mined')
                     row = get_summary(item, record['txhash'], start_time,record['blocktime'], record['blocknumber'])
                     col_summary.insert(row)
                     print(row) # Debug      
