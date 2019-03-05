@@ -68,9 +68,31 @@ services:
       BATCH_INTERVAL: 2
     depends_on:
       - mongodb
-    
+
+  receiver_start_time_2:
+    build: ./receiver_start_time_2
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_TOPIC: streaming.transactions
+      MONGO_INITDB_DATABASE: transactions
+      URL: https://etherscan.io/tx/
+      BATCH_INTERVAL: 2
+    depends_on:
+      - mongodb  
+
   receiver_end_time:
     build: ./receiver_end_time
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
+      MONGO_INITDB_DATABASE: transactions
+      URL: https://etherscan.io/tx/
+      BATCH_INTERVAL: 2      
+    depends_on:
+      - mongodb
+
+  receiver_end_time_2:
+    build: ./receiver_end_time_2
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions

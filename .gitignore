@@ -1,7 +1,6 @@
 env/
 .idea/
-data.json
-data.csv
+*data*
 test*.*
 node_modules/
 build/
