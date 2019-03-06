@@ -8,7 +8,7 @@ services:
       KAFKA_BROKER_URL: broker:9092
       RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 5
+      REQUEST_INTERVAL: 2
       SOURCE_URL: wss://ropsten.infura.io/ws
 
   detector:
@@ -35,7 +35,7 @@ services:
       KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR 
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 10
+      REQUEST_INTERVAL: 2
       SOURCE_URL: wss://ropsten.infura.io/ws
 
   detector_block:
@@ -50,12 +50,14 @@ services:
 
   mongodb:
     image: mongo
-    restart: always
+    ports:
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
       MONGO_INITDB_DATABASE: test_transactions
-
+    volumes:
+      - ./test/db:/test/db
 
   receiver_start_time:
     build: ./receiver_start_time
@@ -64,31 +66,76 @@ services:
       TRANSACTIONS_TOPIC: streaming.transactions
       MONGO_INITDB_DATABASE: test_transactions
       URL: https://ropsten.etherscan.io/tx/
+      BATCH_INTERVAL: 2
     depends_on:
       - mongodb
-    
+
+  # receiver_start_time_2:
+  #   build: ./receiver_start_time_2
+  #   environment:
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     TRANSACTIONS_TOPIC: streaming.transactions
+  #     MONGO_INITDB_DATABASE: transactions
+  #     URL: https://etherscan.io/tx/
+  #     BATCH_INTERVAL: 10
+  #   depends_on:
+  #     - mongodb  
+
   receiver_end_time:
     build: ./receiver_end_time
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
       MONGO_INITDB_DATABASE: test_transactions
       URL: https://ropsten.etherscan.io/tx/
+      BATCH_INTERVAL: 2      
     depends_on:
       - mongodb
+
+  # receiver_end_time_2:26589
+  #   build: ./receiver_e26589nd_time_2
+  #   environment:26589
+  #     KAFKA_ZOOKEEPER_C26589ONNECT: zookeeper:2181
+  #     TRANSACTIONS_BLOC26589KTIME_TOPIC: streaming.blocktime.transactions
+  #     MONGO_INITDB_DATA26589BASE: transactions
+  #     URL: https://etherscan.io/tx/
+  #     BATCH_INTERVAL: 2      
+  #   depends_on:
+  #     - mongodb
 
   receiver_block_time:
     build: ./receiver_block_time
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
       MONGO_INITDB_DATABASE: test_transactions
       NUMBER_OF_CONFIRMATIONS: 12
+      BATCH_INTERVAL: 5
     depends_on:
       - mongodb    
-      
+
+  receiver_block_time_2:
+    build: ./receiver_block_time_2
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
+      MONGO_INITDB_DATABASE: test_transactions
+      NUMBER_OF_CONFIRMATIONS: 12
+      BATCH_INTERVAL: 5   
+    depends_on:
+      - mongodb   
+  
+  # summary:
+  #   build: ./summary
+  #   environment: 
+  #     BATCH_INTERVAL: 100
+  #     MONGO_INITDB_DATABASE: transactions
+  #     NUMBER_OF_CONFIRMATIONS : 12
+  #     URL: https://etherscan.io/tx/
+     
+    depends_on:
+      - mongodb
+
 networks:
   default:
     external:
