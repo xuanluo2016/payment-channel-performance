@@ -56,7 +56,7 @@ if __name__ == '__main__':
                         print(topic, transaction)  # DEBUG
 
         except Exception as e:
-            print(e.message)
+            print(e)
         
         finally:
             pass
