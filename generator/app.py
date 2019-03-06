@@ -39,7 +39,7 @@ def publish_message(message):
     print('publish message')
     timestamp = time.time()
     timestamp_date = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-    print(timestamp)
+    # print(timestamp)
     try: 
         dict_message = json.loads(message)
         if('result' in dict_message):
@@ -53,7 +53,7 @@ def publish_message(message):
                 results = {"data": data, "time": timestamp_date, "seconds": timestamp }
                 transaction: dict = results
                 producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
-                print(RAW_TRANSACTIONS_TOPIC,transaction ) # DEBUG
+                # print(RAW_TRANSACTIONS_TOPIC,transaction ) # DEBUG
     except Exception as e:
         print(e)    
     finally:
@@ -126,7 +126,7 @@ if __name__ == '__main__':
             
         except Exception as e:
             print("#######################error in generator############################")
-            print(e.message)
+            print(e)
             
         finally:
             pass

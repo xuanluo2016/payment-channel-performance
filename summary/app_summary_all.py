@@ -26,10 +26,6 @@ dict_blocks = {} # int, int
 
 count = 0 
 
-# Find the latest blocknumber in block_time collection so far
-# Aggregate all transctions in summary collection with blocknumber at least 12 blocks less than the one in step 1
-# Set the waiting time for those who does not have been set yet
-
 while(True):
 
     try: 
@@ -45,7 +41,7 @@ while(True):
             start_time = doc['seconds']
 
             tx_hash = doc['txhash']
-            # print('txhash: ', tx_hash)
+            print('txhash: ', tx_hash)
 
             # Get end time
             # doc_end_time = col_end_time.find_one({'txhash': tx_hash, 'handled': {'$ne': True}})
@@ -91,11 +87,11 @@ while(True):
                             col_start_time.update_one({'txhash': tx_hash},  {'$set': post})
                             col_end_time.update_one({'txhash': tx_hash},  {'$set': post})
                             print("txhash", tx_hash)
-        sleep(BATCH_INTERVAL)
-        print(count)
     except Exception as e:
         print(e)
 
     finally:
         pass
     
+sleep(BATCH_INTERVAL)
+print(count)

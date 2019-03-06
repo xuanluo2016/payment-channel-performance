@@ -46,7 +46,7 @@ def parse_details(url):
 
     except Exception as e:
         print("err in parse_details")
-        print(e.message)
+        print(e)
 
     return None
 

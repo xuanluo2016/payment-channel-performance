@@ -40,7 +40,7 @@ def publish_message(message):
 
         if('result' in dict_message):
             blocks = dict_message['result']
-            print(type(blocks))
+            # print(type(blocks))
             for blockhash in blocks:    
                 transaction:dict = {"blockhash": blockhash, }
                 topic = RAW_BLOCKS_TOPIC
@@ -143,7 +143,7 @@ if __name__ == '__main__':
             
         except Exception as e:
             print("#######################error in generator############################")
-            print(e.message)
+            print(e)
             
         finally:
             pass

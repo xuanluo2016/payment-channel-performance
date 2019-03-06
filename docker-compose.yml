@@ -110,27 +110,28 @@ services:
       TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
       MONGO_INITDB_DATABASE: transactions
       NUMBER_OF_CONFIRMATIONS: 12
-      BATCH_INTERVAL: 10
+      BATCH_INTERVAL: 5
     depends_on:
       - mongodb    
 
-  # receiver_block_time_2:
-  #   build: ./receiver_block_time_2
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
-  #     MONGO_INITDB_DATABASE: transactions
-  #     NUMBER_OF_CONFIRMATIONS: 12
-  #     BATCH_INTERVAL: 20   
-  #   depends_on:
-  #     - mongodb   
-  summary:
-    build: ./summary
-    environment: 
-      BATCH_INTERVAL: 1
+  receiver_block_time_2:
+    build: ./receiver_block_time_2
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
       MONGO_INITDB_DATABASE: transactions
-      NUMBER_OF_CONFIRMATIONS : 12
-      URL: https://etherscan.io/tx/
+      NUMBER_OF_CONFIRMATIONS: 12
+      BATCH_INTERVAL: 5   
+    depends_on:
+      - mongodb   
+  
+  # summary:
+  #   build: ./summary
+  #   environment: 
+  #     BATCH_INTERVAL: 100
+  #     MONGO_INITDB_DATABASE: transactions
+  #     NUMBER_OF_CONFIRMATIONS : 12
+  #     URL: https://etherscan.io/tx/
      
     depends_on:
       - mongodb
