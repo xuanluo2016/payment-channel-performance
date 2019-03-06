@@ -110,7 +110,7 @@ services:
       TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
       MONGO_INITDB_DATABASE: transactions
       NUMBER_OF_CONFIRMATIONS: 12
-      BATCH_INTERVAL: 20   
+      BATCH_INTERVAL: 2
     depends_on:
       - mongodb    
 
@@ -124,7 +124,13 @@ services:
   #     BATCH_INTERVAL: 20   
   #   depends_on:
   #     - mongodb   
-
+  summary:
+    build: ./summary
+    environment: 
+      BATCH_INTERVAL: 1    
+    depends_on:
+      - mongodb
+      
 networks:
   default:
     external:

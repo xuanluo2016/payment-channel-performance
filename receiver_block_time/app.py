@@ -62,17 +62,20 @@ def process_record(col_block_time,col_summary,record):
             prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS
             prev_blocknumber = hex(prev_blocknumber)
 
-            # Get the delta of time for blocks
 
             # Get the blocktime of previous block ahead of number of confirmations
             doc = col_block_time.find_one({'blocknumber': prev_blocknumber})
             if(doc != None):
+                # Get the delta of time for blocks
+
                 prev_block_time = doc['blocktime']
+                prev_block_time = int(prev_block_time,16)
                 block_time_delta = block_time - prev_block_time
             
                 #Update transactions which are 12 blocks earlier
-                post = {"time": block_time_delta}
+                post = {"waiting_time": block_time_delta}
                 col_summary.update_many({'blocknumber': prev_blocknumber},  {'$set': post}) 
+                print('update summary table')
 
             # # Find transactions which are 12 blocks ahead
             # doc = col_summary.find({"blocknumber": prev_blocknumber} )
@@ -91,10 +94,12 @@ def process_record(col_block_time,col_summary,record):
             #     print(row['txhash']) 
 
             # insert block_time and block_number to table block_time
+            print('insert into block collection: ')
             col_block_time.insert(record)
 
         except Exception as e:
             print(e)
+            
         finally:
             pass
    
