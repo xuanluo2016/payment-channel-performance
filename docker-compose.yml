@@ -35,7 +35,7 @@ services:
       KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR 
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 10
+      REQUEST_INTERVAL: 2
       SOURCE_URL: wss://mainnet.infura.io/ws
 
   detector_block:
@@ -66,7 +66,7 @@ services:
       TRANSACTIONS_TOPIC: streaming.transactions
       MONGO_INITDB_DATABASE: transactions
       URL: https://etherscan.io/tx/
-      BATCH_INTERVAL: 10
+      BATCH_INTERVAL: 2
     depends_on:
       - mongodb
 
@@ -92,12 +92,12 @@ services:
     depends_on:
       - mongodb
 
-  # receiver_end_time_2:
-  #   build: ./receiver_end_time_2
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
-  #     MONGO_INITDB_DATABASE: transactions
+  # receiver_end_time_2:26589
+  #   build: ./receiver_e26589nd_time_2
+  #   environment:26589
+  #     KAFKA_ZOOKEEPER_C26589ONNECT: zookeeper:2181
+  #     TRANSACTIONS_BLOC26589KTIME_TOPIC: streaming.blocktime.transactions
+  #     MONGO_INITDB_DATA26589BASE: transactions
   #     URL: https://etherscan.io/tx/
   #     BATCH_INTERVAL: 2      
   #   depends_on:
