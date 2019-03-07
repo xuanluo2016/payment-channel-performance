@@ -138,14 +138,11 @@ services:
     depends_on:
       - mongodb   
   
-  # summary:
-  #   build: ./summary
-  #   environment: 
-  #     BATCH_INTERVAL: 100
-  #     MONGO_INITDB_DATABASE: transactions
-  #     NUMBER_OF_CONFIRMATIONS : 12
-  #     URL: https://etherscan.io/tx/
-     
+  summary:
+    build: ./summary
+    environment: 
+      BATCH_INTERVAL: 1000000
+      MONGO_INITDB_DATABASE: transactions     
     depends_on:
       - mongodb
 
