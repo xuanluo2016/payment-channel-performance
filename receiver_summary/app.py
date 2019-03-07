@@ -42,21 +42,29 @@ def process_record(col_summary,record):
     """
     record = json.loads(record)
     print('record: ', record)
-    
+    print('txhash', record['txhash'])
     if('txhash' in record):
-        (item, is_mined) = parse(URL, record['txhash'])
-        print('item: ', item)
-        if(is_mined):
-            (actual_cost, gas_price) = get_cost(item)
-            print('actual_cost: ', actual_cost)
-            print('gas_price: ', gas_price)
-    
-            if(actual_cost != None) and (gas_price != None):
-                # Update actual cost and gas price in summary collection
-                post = {"actual_cost": actual_cost, "gas_price":gas_price}
-                result = col_summary.update_one({'txhash': record['txhash']},  {'$set': post})
-                print('number of update in summary: ', result.modified_count) # Debug            
+        try: 
+            (item, is_mined) = parse(URL, record['txhash'])
+            print('item: ', item)
+            if(is_mined):
+                (actual_cost, gas_price) = get_cost(item)
+                print('actual_cost: ', actual_cost)
+                print('gas_price: ', gas_price)
+        
+                if(actual_cost != None) and (gas_price != None):
+                    # Update actual cost and gas price in summary collection
+                    post = {"actual_cost": actual_cost, "gas_price":gas_price}
+                    result = col_summary.update_one({'txhash': record['txhash']},  {'$set': post})
+                    print('number of update in summary: ', result.modified_count) # Debug            
+       
+        except Exception as e:
+            print(e)
 
+        finally:
+            pass
+
+            
 # Create a basic configuration
 conf = SparkConf().setAppName("PythonSparkStreamingKafkaApp")
 

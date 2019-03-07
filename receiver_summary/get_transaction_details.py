@@ -47,7 +47,7 @@ def parse_details(url):
         print("err in parse_details")
         print(e.message)
 
-    return None
+    return (None, False)
 
 def get_transaction_detail(parser, path):
     result = parser.xpath(path)
