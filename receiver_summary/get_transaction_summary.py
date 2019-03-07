@@ -61,6 +61,7 @@ def get_transction_fee(item):
         actual_cost = re.sub(' ','', actual_cost)
         actual_cost = float(actual_cost)
         return actual_cost
+
     except Exception as e:
         return None
 
@@ -98,12 +99,9 @@ def get_summary(item, txhash, start_time, end_time, blocknumber):
 
 def get_cost(item):
     if(item != None):
-        try:
-            actual_cost = get_transction_fee(item)
-            gas_price = get_gas_price(item)
-            return (actual_cost, gas_price)
-        except Exception as e:
-            print(e)
-        finally:
-            return (None, None)
+        actual_cost = get_transction_fee(item)
+        gas_price = get_gas_price(item)
+        return (actual_cost, gas_price)
+    else:
+        return (None, None)
             

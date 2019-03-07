@@ -21,7 +21,7 @@ BATCH_INTERVAL = int(os.environ.get('BATCH_INTERVAL'))
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
 
 
-def pprint2(col_summary, num=10):
+def pprint2(lines,col_summary, num=10):
     """
     Print the first num elements of each RDD generated in this DStream.
 
