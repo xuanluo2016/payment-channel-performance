@@ -41,7 +41,8 @@ def process_record(col_summary,record):
     else, save data in the start_time db
     """
     record = json.loads(record)
-        print('record: ', record)
+    print('record: ', record)
+    
     if('txhash' in record):
         (item, is_mined) = parse(URL, record['txhash'])
         print('item: ', item)
@@ -75,7 +76,7 @@ ssc = StreamingContext(sc,BATCH_INTERVAL)
 
 # Create the kafka connection object
 # kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
-kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming", {TRANSACTIONS_SUMMARY_TOPIC:1})
+kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-summary", {TRANSACTIONS_SUMMARY_TOPIC:1})
 
 lines = kafkaStream.map(lambda x: x[1])
 

@@ -49,11 +49,13 @@ if __name__ == '__main__':
 
         """
         if('txhash' in message.value):
+            print('detector_summary')
             tx_hash = message.value['txhash']
             result = process_record(col_start_time, col_end_time, col_summary, message.value)
-
+            print('result', result)
             # If the iteam has been inserted into summary table, send out a message for transaction details
             if(0 == result):
+                print('sending summary topic')
                 transaction: dict = {'txhash': tx_hash}
                 producer.send(topic, value=transaction)
                 print(topic, transaction)  # DEBUG

@@ -48,8 +48,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
       MONGO_INITDB_DATABASE: test_transactions
-    volumes:
-      - ./test/db:/test/db
+    # volumes:
+    #  - ./data/test:/data/test
 
   detector_summary:
     build: ./detector_summary

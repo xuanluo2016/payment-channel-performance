@@ -113,7 +113,7 @@ def process_record(col_block_time,col_summary,record):
 
 # Create a basic configuration
 # conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp").setMaster("spark://master:7077")
-conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp111")
+conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp2")
 
 
 # Create a SparkContext using the configuration

@@ -1,9 +1,9 @@
 def process_record(col_start_time,col_end_time,col_summary,record):
     if('starttime' in record):
-        process_record_assistant1(col_start_time,col_end_time,col_summary,record)
+        return process_record_assistant1(col_start_time,col_end_time,col_summary,record)
         
     if('blocktime' in record):
-        process_record_assistant2(col_start_time,col_end_time,col_summary,record)
+        return process_record_assistant2(col_start_time,col_end_time,col_summary,record)
 
 def process_record_assistant1(col_start_time,col_end_time,col_summary,record):
     """
@@ -22,6 +22,7 @@ def process_record_assistant1(col_start_time,col_end_time,col_summary,record):
                 waiting_mined_time = end_time - start_time
                 row = {"txhash": record['txhash'], "blocknumber": doc['blocknumber'], "blocktime": end_time,"waiting_time": 0.0,"actual_cost": 0.0, "gas_price":0.0, "waiting_mined_time": waiting_mined_time}        
                 result = col_summary.insert_one(row)
+                print('inserted')
                 return 0
             else:
                 print("insert into start_time")
@@ -54,6 +55,7 @@ def process_record_assistant2(col_start_time,col_end_time,col_summary,record):
                 waiting_mined_time = end_time - start_time
                 row = {"txhash": record['txhash'], "blocknumber": record['blocknumber'], "blocktime": end_time,"waiting_time": 0.0,"actual_cost": 0.0, "gas_price":0.0, "waiting_mined_time": waiting_mined_time}        
                 result = col_summary.insert_one(row)
+                print('inserted')
                 return 0
             else:
                 print("insert into end_time")

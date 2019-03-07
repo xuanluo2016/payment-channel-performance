@@ -113,7 +113,7 @@ def process_record(col_block_time,col_summary,record):
 
 # Create a basic configuration
 # conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp").setMaster("spark://master:7077")
-conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp111")
+conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp1")
 
 
 # Create a SparkContext using the configuration
@@ -127,7 +127,7 @@ ssc = StreamingContext(sc,BATCH_INTERVAL)
 
 # Create the kafka connection object
 # kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
-kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-blocktime2", {TRANSACTIONS_TOPIC:1})
+kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-blocktime", {TRANSACTIONS_TOPIC:1})
 
 lines = kafkaStream.map(lambda x: x[1])
 
