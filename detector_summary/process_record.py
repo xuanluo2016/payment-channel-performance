@@ -29,10 +29,8 @@ def process_record_assistant1(col_start_time,col_end_time,col_summary,record):
                 # Insert the item to start_time db, ignore the item if duplicate
                 col_start_time.insert(record)
                 return 1
-        except:
-            pass
-
-        finally:
+        except Exception as e:
+            print(e)
             return -1
             
     return -1
@@ -64,8 +62,6 @@ def process_record_assistant2(col_start_time,col_end_time,col_summary,record):
                 return 1
         except Exception as e:
             print(e)
-
-        finally:
             return -1
             
     return -1
