@@ -49,7 +49,9 @@ def publish_message(message):
             #     producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
             #     print(RAW_TRANSACTIONS_TOPIC,transaction) # DEBUG
             if(len(result) > 0):
-                data= json.dumps(result)
+                # if there is only one item in result
+                if(len(result) != 1): 
+                    data = json.dumps(result)
                 results = {"data": data, "time": timestamp_date, "seconds": timestamp }
                 transaction: dict = results
                 producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
