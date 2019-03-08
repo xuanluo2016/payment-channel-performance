@@ -145,7 +145,8 @@ services:
       MONGO_INITDB_DATABASE: transactions     
     depends_on:
       - mongodb
-
+    volumes:
+      - ./test/:/data/test
 networks:
   default:
     external:
