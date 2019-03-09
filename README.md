@@ -6,7 +6,7 @@
 
 ## Install
 
-This fraud detection system is fully containerised. You will need [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/) to run it.
+This system is fully containerised. You will need [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/) to run it.
 
 You simply need to create a Docker network called `kafka-network` to enable communication between the Kafka cluster and the apps:
 
