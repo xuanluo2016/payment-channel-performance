@@ -53,12 +53,11 @@ Topics:
 Example transaction message:
 
 ```json
-{"source": "yGfZ1Xa6k1r0", "target": "N5RvY7RO5sQF", "amount": 217.46, "currency": "EUR"}
 ```
 
 ## Teardown
 
-To stop the transaction generator and fraud detector:
+To stop the transaction generator and detector:
 
 ```bash
 $ docker-compose down
