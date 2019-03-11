@@ -116,9 +116,11 @@ def on_message(ws, message):
     
 
 def on_error(ws, error):
+    request = []
     print(error)
 
 def on_close(ws):
+    request = []
     print("### closed ###")
 
 

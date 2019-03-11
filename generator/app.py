@@ -44,14 +44,15 @@ def publish_message(message):
         dict_message = json.loads(message)
         if('result' in dict_message):
             result = dict_message['result']
+            print("-------------type of result--------------", type(result))
+            print(result)
             # for txhash in transactions:
             #     transaction: dict = {"data": txhash, "time": timestamp_date, "seconds": timestamp }
             #     producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
             #     print(RAW_TRANSACTIONS_TOPIC,transaction) # DEBUG
             if(len(result) > 0):
                 # if there is only one item in result
-                if(len(result) != 1): 
-                    data = json.dumps(result)
+                data = json.dumps(result)
                 results = {"data": data, "time": timestamp_date, "seconds": timestamp }
                 transaction: dict = results
                 producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
@@ -101,9 +102,11 @@ def on_message(ws, message):
     
 
 def on_error(ws, error):
+    request = []
     print(error)
 
 def on_close(ws):
+    request = []
     print("### closed ###")
 
 
@@ -124,7 +127,7 @@ if __name__ == '__main__':
             ws = websocket.WebSocketApp(SOURCE_URL, on_message = on_message, on_error = on_error, on_close = on_close)
             ws.on_open = on_open
             ws.run_forever()
-            sleep(SLEEP_TIME)
+            sleep(15)
             
         except Exception as e:
             print("#######################error in generator############################")
