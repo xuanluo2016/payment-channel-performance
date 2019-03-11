@@ -102,11 +102,9 @@ def on_message(ws, message):
     
 
 def on_error(ws, error):
-    request = []
     print(error)
 
 def on_close(ws):
-    request = []
     print("### closed ###")
 
 
@@ -122,6 +120,7 @@ if __name__ == '__main__':
     while True:
         try:
             print("start websocket")
+            request.clear()
             websocket.enableTrace(False)
 
             ws = websocket.WebSocketApp(SOURCE_URL, on_message = on_message, on_error = on_error, on_close = on_close)

@@ -136,6 +136,8 @@ if __name__ == '__main__':
     while True:
         try:
             print("start websocket")
+            request.clear()
+
             websocket.enableTrace(False)
 
             ws = websocket.WebSocketApp(SOURCE_URL, on_message = on_message, on_error = on_error, on_close = on_close)
