@@ -1,33 +1,16 @@
-import pymongo
-from pymongo.errors import BulkWriteError
-from lib.db import DB
-import os
-import json
-from bson import ObjectId
 
-MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
-BATCH_INTERVAL = int(os.environ.get('BATCH_INTERVAL'))
+from flask import Flask
+from get_data import get_summary
 
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
-        return json.JSONEncoder.default(self, o)
+app = Flask(__name__)
 
-def get_data():
-# Connect to mongodb
-    db_connection =  DB()
-    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
-    col_summary = db["summary"]
+@app.route("/")
+def hello():
+    return "Hello World!"
 
-    doc = col_summary.find()
-    results = []
-    for row in doc:
-        row = JSONEncoder().encode(row)
-        results.append(row)
-    
-    with open('/data/test/data.json', 'w') as outfile:
-        json.dump(results, outfile)
+if __name__ == "__main__":
+    get_summary()
+    app.run(host='0.0.0.0')
 
     # mapper = Code("""
     #             function () {
@@ -46,7 +29,9 @@ def get_data():
     # for doc in result.find():
     #     pprint.pprint(doc)
 
-get_data()
+
+
+
 
 
 
