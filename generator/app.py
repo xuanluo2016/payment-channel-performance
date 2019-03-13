@@ -44,19 +44,12 @@ def publish_message(message):
         dict_message = json.loads(message)
         if('result' in dict_message):
             result = dict_message['result']
-            print("-------------type of result--------------", type(result))
-            print(result)
-            # for txhash in transactions:
-            #     transaction: dict = {"data": txhash, "time": timestamp_date, "seconds": timestamp }
-            #     producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
-            #     print(RAW_TRANSACTIONS_TOPIC,transaction) # DEBUG
+            # if any transactions detected
             if(len(result) > 0):
-                # if there is only one item in result
-                data = json.dumps(result)
-                results = {"data": data, "time": timestamp_date, "seconds": timestamp }
+                results = {"data": result, "time": timestamp_date, "seconds": timestamp }
                 transaction: dict = results
                 producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
-                # print(RAW_TRANSACTIONS_TOPIC,transaction ) # DEBUG
+                print(RAW_TRANSACTIONS_TOPIC,transaction ) # DEBUG
     except Exception as e:
         print(e)    
     finally:
