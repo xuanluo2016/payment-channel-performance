@@ -1,7 +1,7 @@
 
 from flask import Flask, render_template, request
-from get_data import get_summary_all,write_to_file
-
+from get_data import *
+import json
 
 app = Flask(__name__)
 
@@ -11,14 +11,20 @@ app = Flask(__name__)
 def hello(name=None):
     return render_template('hello.html', name=name)
 
+@app.route("/count", methods=['GET'])
+def count():
+    return str(get_count())
+
 @app.route("/summary", methods=['GET'])
-def summary(num):
-    if(num == 0):
-        return get_summary_all()
-    else:
-        results = get_summary_all()
-        return results[0,num]
-        
+def summary(num=0):
+    results = get_summary(num)
+    return json.dumps(results)
+
+@app.route("/stat", methods=['GET'])
+def stat():
+    results = get_stat()
+    return json.dumps(results)
+
 if __name__ == "__main__":
     
     # Save a copy of summary db whenever the summary container restarts
