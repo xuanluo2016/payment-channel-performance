@@ -25,4 +25,7 @@ plt.scatter(points_x, points_y)
 plt.title('Scatter plot')
 plt.xlabel('actual cost')
 plt.ylabel('waiting time')
+plt.xlim(0,0.01)
+plt.ylim(0,5000)
 plt.show()
+
