@@ -13,7 +13,9 @@ def hello(name=None):
 
 @app.route("/count", methods=['GET'])
 def count():
-    return str(get_count())
+    (count_total,count_details) = get_count()
+    result = str(count_total) + '  ' + str(count_details)
+    return result
 
 @app.route("/summary", methods=['GET'])
 def summary(num=0):

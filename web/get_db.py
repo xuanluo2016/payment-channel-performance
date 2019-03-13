@@ -47,8 +47,9 @@ def get_count():
     db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
     col_summary = db["summary"]
 
-    count = col_summary.count()
-    return count
+    count_total = col_summary.count()
+    count_details = col_summary.count({ '$and': [ {'waiting_time': {'$ne': 0}}, {'actual_cost': {'$ne': 0}} ]})
+    return (count_total,count_details)
 
 
 def get_stat():

@@ -38,12 +38,12 @@ plt.scatter(points_x, points_y)
 # plt.title('Scatter plot')
 # plt.xlabel('gas price')
 # plt.ylabel('waiting time')
+
+# plt.xlim(0,20)
+# # # plt.xlim(0.2,0.4)
+
+# plt.ylim(0,500)
 plt.show()
-
-# plt.xlim(0,0.2)
-# # plt.xlim(0.2,0.4)
-
-# plt.ylim(0,2500)
 
 # # matplotlib histogram
 # plt.hist(points_x, color = 'blue', edgecolor = 'black',
