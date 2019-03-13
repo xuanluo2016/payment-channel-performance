@@ -26,10 +26,18 @@ if __name__ == '__main__':
             value = message.value
             time = value['time']
             seconds = value['seconds']
-            data = json.loads(value['data'])
-            for row in data: 
-                transaction: dict = {'txhash': row, 'starttime': time, 'seconds': seconds}
-                topic = TRANSACTIONS_TOPIC
-                producer.send(topic, value=transaction)
-                print(topic, transaction)  # DEBUG
-                # sleep(1)
+            data = value['data']
+            # Check if there is only one transaction in the input
+            if(isinstance(data, list)):
+                for row in data: 
+                    transaction: dict = {'txhash': row, 'starttime': time, 'seconds': seconds}
+                    topic = TRANSACTIONS_TOPIC
+                    producer.send(topic, value=transaction)
+                    print(topic, transaction)  # DEBUG
+                    # sleep(1)
+            else:
+                # Only one transactin
+                    transaction: dict = {'txhash': data, 'starttime': time, 'seconds': seconds}
+                    topic = TRANSACTIONS_TOPIC
+                    producer.send(topic, value=transaction)
+                    print(topic, transaction)  # DEBUG   
