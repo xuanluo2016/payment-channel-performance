@@ -13,7 +13,7 @@ results = json.loads(response.content)
 print('count: ', str(len(results)))
 print('an example of result:', results[0])
 
-# actual_cost of a transaction
+# gas_price of a transaction
 points_x = []
 
 # waiting_time of a transaction
@@ -24,12 +24,12 @@ for row in results:
     points_y.append(row['value'])
 
 # get the max of actual cost
-print('the max actual cost is: ', str(max(points_x)))
+print('the max gas price is: ', str(max(points_x)))
 
 # Plot
 plt.scatter(points_x, points_y)
 plt.title('Scatter plot')
-plt.xlabel('actual cost')
+plt.xlabel('gas price')
 plt.ylabel('waiting time')
 
 plt.xlim(0,0.2)

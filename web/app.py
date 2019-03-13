@@ -25,6 +25,11 @@ def stat():
     results = get_stat()
     return json.dumps(results)
 
+@app.route("/gasstat", methods=['GET'])
+def gasstat():
+    results = get_gas_stat()
+    return json.dumps(results)
+
 if __name__ == "__main__":
     
     # Save a copy of summary db whenever the summary container restarts
