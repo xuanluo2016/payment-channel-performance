@@ -40,12 +40,19 @@ def publish_message(message):
 
         if('result' in dict_message):
             blocks = dict_message['result']
-            # print(type(blocks))
-            for blockhash in blocks:    
-                transaction:dict = {"blockhash": blockhash, }
-                topic = RAW_BLOCKS_TOPIC
-                producer.send(topic, value=transaction)
-                print(topic, transaction)  # DEBUG
+
+            # Check if there are more than one block hashs in the result
+            if(isinstance(blocks, list)):               
+                for blockhash in blocks:    
+                    transaction:dict = {"blockhash": blockhash}
+                    topic = RAW_BLOCKS_TOPIC
+                    producer.send(topic, value=transaction)
+                    print(topic, transaction)  # DEBUG
+            else:
+                    transaction:dict = {"blockhash": blocks}
+                    topic = RAW_BLOCKS_TOPIC
+                    producer.send(topic, value=transaction)
+                    print(topic, transaction)  # DEBUG
     except Exception as e:
         pass
 
