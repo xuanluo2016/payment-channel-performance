@@ -93,7 +93,7 @@ def get_gas_stat():
                 function(key, values) { return Array.avg(values) }
                 """)
 
-    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0} }
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.00} }
     doc = col_summary.map_reduce(mapper, reducer, "test_gas", query = query)
 
     results = []    

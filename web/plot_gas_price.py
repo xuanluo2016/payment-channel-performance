@@ -6,10 +6,11 @@ import seaborn as sns
 
 
 # get count
-url = 'http://localhost:5000/stat'
+url = 'http://localhost:5000/gasstat'
 headers = {'content-type': 'application/json'}
 response = requests.get(url, headers=headers)
 results = json.loads(response.content)
+
 print('count: ', str(len(results)))
 print('an example of result:', results[0])
 
@@ -25,18 +26,24 @@ for row in results:
 
 # get the max of actual cost
 print('the max gas price is: ', str(max(points_x)))
+print('the min gas price is: ', str(min(points_x)))
+print('the max waiting time is: ', str(max(points_y)))
+print('the min waiting time is: ', str(min(points_y)))
+
+print(len(points_x))
+print(len(points_y))
 
 # Plot
 plt.scatter(points_x, points_y)
-plt.title('Scatter plot')
-plt.xlabel('gas price')
-plt.ylabel('waiting time')
-
-plt.xlim(0,0.2)
-# plt.xlim(0.2,0.4)
-
-plt.ylim(0,2500)
+# plt.title('Scatter plot')
+# plt.xlabel('gas price')
+# plt.ylabel('waiting time')
 plt.show()
+
+# plt.xlim(0,0.2)
+# # plt.xlim(0.2,0.4)
+
+# plt.ylim(0,2500)
 
 # # matplotlib histogram
 # plt.hist(points_x, color = 'blue', edgecolor = 'black',
