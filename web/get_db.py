@@ -57,6 +57,23 @@ def get_stat():
     db_connection =  DB()
     db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
     col_summary = db["summary"]
+    query = {'waiting_time': {'$ne': 0.0}, 'actual_cost': {'$ne': 0.0}}
+
+    doc = col_summary.find(query)  
+
+    results = []    
+    for row in doc:
+        item = {'_id': row['actual_cost'], 'value': (row['waiting_time'] + row['waiting_mined_time'])}
+        # row = JSONEncoder().encode(row)
+        results.append(item)
+    
+    return results
+
+def get_avg_stat():
+# Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
 
     mapper = Code("""
                 function () {
@@ -65,10 +82,10 @@ def get_stat():
                 """)
 
     reducer = Code("""
-                function(key, values) { return Array.avg(values) }
+                function(key, values) { return values }
                 """)
 
-    query = {'waiting_time': {'$ne': 0.0}, 'actual_cost': {'$ne': 0.0} }
+    query = {'waiting_time': {'$ne': 0.0}, 'actual_cost': {'$ne': 0.0}}
     doc = col_summary.map_reduce(mapper, reducer, "test", query = query)
 
     results = []    
@@ -79,6 +96,23 @@ def get_stat():
     return results
 
 def get_gas_stat():
+# Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0}}
+
+    doc = col_summary.find(query)  
+
+    results = []    
+    for row in doc:
+        item = {'_id': row['gas_price'], 'value': (row['waiting_time'] + row['waiting_mined_time'])}
+        # row = JSONEncoder().encode(row)
+        results.append(item)
+    
+    return results
+
+def get_gas_avg_stat():
 # Connect to mongodb
     db_connection =  DB()
     db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
@@ -94,7 +128,7 @@ def get_gas_stat():
                 function(key, values) { return Array.avg(values) }
                 """)
 
-    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.00} }
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0} }
     doc = col_summary.map_reduce(mapper, reducer, "test_gas", query = query)
 
     results = []    

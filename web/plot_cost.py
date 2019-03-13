@@ -32,10 +32,9 @@ plt.title('Scatter plot')
 plt.xlabel('actual cost')
 plt.ylabel('waiting time')
 
-plt.xlim(0,0.2)
-# plt.xlim(0.2,0.4)
+plt.xlim(0,0.01)
 
-plt.ylim(0,2500)
+plt.ylim(0,500)
 plt.show()
 
 # # matplotlib histogram
