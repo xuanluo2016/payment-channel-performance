@@ -1,4 +1,6 @@
 pymongo
 flask
+#numpy
+#scipy.optimize
 #matplotlib.pyplot
 #seaborn
