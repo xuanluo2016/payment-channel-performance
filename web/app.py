@@ -37,6 +37,11 @@ def gasmedian():
     results = get_gas_median_stat()
     return json.dumps(results)
 
+@app.route("/gasavg", methods=['GET'])
+def gasavg():
+    results = get_gas_avg_stat()
+    return json.dumps(results)
+
 if __name__ == "__main__":
     
     # Save a copy of summary db whenever the summary container restarts
