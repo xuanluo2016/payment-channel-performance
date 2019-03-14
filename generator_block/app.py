@@ -49,7 +49,7 @@ def publish_message(message):
                     producer.send(topic, value=transaction)
                     print(topic, transaction)  # DEBUG
             else:
-                    transaction:dict = {"blockhash": blocks}
+                    transaction:dict = {"blockhash": dict_message['result']}
                     topic = RAW_BLOCKS_TOPIC
                     producer.send(topic, value=transaction)
                     print(topic, transaction)  # DEBUG
