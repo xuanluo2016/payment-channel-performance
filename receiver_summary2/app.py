@@ -30,7 +30,6 @@ def pprint2(lines,col_summary, num=10):
     def takeAndPrint(rdd):
         collect = rdd.collect() 
         for record in collect:
-            print(record)
             process_record(col_summary, record)
 
     lines.foreachRDD(takeAndPrint)
@@ -67,7 +66,7 @@ def process_record(col_summary,record):
 
             
 # Create a basic configuration
-conf = SparkConf().setAppName("PythonSparkStreamingSummary")
+conf = SparkConf().setAppName("PythonSparkStreamingSummary2")
 
 # conf = (SparkConf()
 #          .setMaster("spark://master:7077 ")

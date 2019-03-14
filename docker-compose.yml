@@ -72,6 +72,17 @@ services:
     depends_on:
       - mongodb
 
+  receiver_summary2:
+    build: ./receiver_summary2
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
+      MONGO_INITDB_DATABASE: transactions
+      URL: https://etherscan.io/tx/
+      BATCH_INTERVAL: 2
+    depends_on:
+      - mongodb
+
   # receiver_start_time:
   #   build: ./receiver_start_time
   #   environment:
