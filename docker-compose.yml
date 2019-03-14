@@ -56,7 +56,7 @@ services:
     environment:
       KAFKA_BROKER_URL: broker:9092
       TRANSACTIONS_TOPIC: streaming.transactions
-      TRANSACTIONS_SUMMARY_TOPIC: queuening.summary.transactions
+      TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
       MONGO_INITDB_DATABASE: transactions
     depends_on:
       - mongodb
@@ -65,7 +65,7 @@ services:
     build: ./receiver_summary
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      TRANSACTIONS_SUMMARY_TOPIC: queuening.summary.transactions
+      TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
       MONGO_INITDB_DATABASE: transactions
       URL: https://etherscan.io/tx/
       BATCH_INTERVAL: 2
