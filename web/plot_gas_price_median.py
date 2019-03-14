@@ -29,8 +29,12 @@ x = []
 y = []
 
 for row in results:
-    x.append(row['_id'])
-    y.append(row['value'])
+    gas_price = row['_id']
+    waiting_time = row['value']
+    if(gas_price <= 50) and (waiting_time <= 500):
+        x.append(gas_price)
+        y.append(waiting_time)
+
 
 # get the max of actual cost
 print('the max gas price is: ', str(max(x)))
@@ -55,8 +59,12 @@ print(pcov)
 
 # Plot curve fit
 # plt.plot(x, func(x, *popt), 'r-', label="Fitted Curve")
-
 plt.plot(x, fitFunc(x, *popt), 'r-', label="Fitted Curve")
+
+# Fit with polynomial curve
+# m, c = np.polyfit(x, y, 1)
+# yn = np.polyval([m, c], x)
+# plt.plot(x, yn)
 
 plt.title('Relation between gas price and waiting time')
 plt.xlabel('gas price')
@@ -66,6 +74,7 @@ plt.ylabel('waiting time')
 plt.xlim(0,50)
 # # # plt.xlim(0.2,0.4)
 plt.ylim(0,500)
+
 plt.legend()
 plt.show()
 
