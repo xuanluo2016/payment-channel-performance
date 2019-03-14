@@ -119,7 +119,7 @@ if __name__ == '__main__':
             ws = websocket.WebSocketApp(SOURCE_URL, on_message = on_message, on_error = on_error, on_close = on_close)
             ws.on_open = on_open
             ws.run_forever()
-            sleep(15)
+            sleep(5)
             
         except Exception as e:
             print("#######################error in generator############################")
