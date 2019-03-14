@@ -67,11 +67,21 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_SUMMARY_TOPIC: queuening.summary.transactions
       MONGO_INITDB_DATABASE: test_transactions
-      URL: https://etherscan.io/tx/
+      URL: https://ropsten.etherscan.io/tx/
       BATCH_INTERVAL: 2
     depends_on:
       - mongodb
 
+  receiver_summary2:
+    build: ./receiver_summary_2
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
+      MONGO_INITDB_DATABASE: transactions
+      URL: https://ropsten.etherscan.io/tx/
+      BATCH_INTERVAL: 2
+    depends_on:
+      - mongodb
   # receiver_start_time:
   #   build: ./receiver_start_time
   #   environment:
@@ -138,6 +148,17 @@ services:
     depends_on:
       - mongodb   
   
+  web:
+    build: ./web
+    environment: 
+      BATCH_INTERVAL: 10
+      MONGO_INITDB_DATABASE: test_transactions
+    ports:
+      - 5000:5000
+    depends_on:
+      - mongodb
+    # volumes:
+    #   - ./test/:/data/test
   # summary:
   #   build: ./summary
   #   environment: 
@@ -146,8 +167,8 @@ services:
   #     NUMBER_OF_CONFIRMATIONS : 12
   #     URL: https://etherscan.io/tx/
      
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
 
 networks:
   default:
