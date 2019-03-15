@@ -1,6 +1,7 @@
 
 from flask import Flask, render_template, request
 from get_db import *
+from get_db_3d import *
 import json
 
 app = Flask(__name__)
@@ -51,6 +52,15 @@ def gasmedian():
 def gasavg():
     results = get_gas_avg_stat()
     return json.dumps(results)
+
+####################################################
+@app.route("/gasstat3d", methods=['GET'])
+def gasstat3d():
+    results = get_gas_stat_3d()
+    return json.dumps(results)
+
+
+#######################################################
 
 @app.route("/postsummary", methods=['POST'])
 def postsummary():

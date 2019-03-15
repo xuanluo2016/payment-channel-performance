@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from scipy.optimize import curve_fit
+from matplotlib.ticker import PercentFormatter
 
 # exponential function
 def func(x, a, b, c):
@@ -12,8 +13,8 @@ def func(x, a, b, c):
 #   return a * np.log(b * (x)) + c
 
 # inverse function
-# def func(x, a, b, c):
-#     return (a*x) + b + c
+def inverseFunc(x, a, b):
+    return (a*x) + b 
 
 def fitFunc(t, A, B, k):
     return A - B*np.exp(-k*t)
@@ -22,10 +23,10 @@ def fitFunc(t, A, B, k):
 # url = 'http://localhost:5000/gasstat'
 
 # get median
-# url = 'http://localhost:5000/gasmedian'
+url = 'http://localhost:5000/gasmedian'
 
 # get avg
-url = 'http://localhost:5000/gasavg'
+# url = 'http://localhost:5000/gasavg'
 
 headers = {'content-type': 'application/json'}
 response = requests.get(url, headers=headers)
@@ -45,6 +46,7 @@ for row in results:
     gas_price = row['_id']
     waiting_time = row['value']
     if(gas_price <= 50) and (waiting_time <= 500):
+    # if(gas_price <= float("inf")) and (waiting_time <= float("inf")):
         x.append(gas_price)
         y.append(waiting_time)
 
@@ -66,8 +68,11 @@ y = np.array(y, dtype=float)
 
 # Fit curve with exponential
 popt, pcov = curve_fit(func, x, y)
-plt.plot(x, func(x, *popt), 'b--',label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
+plt.plot(x, func(x, *popt), 'b--',label='expoential: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
 
+# Fit curve with inverse
+popt, pcov = curve_fit(inverseFunc, x, y)
+plt.plot(x, inverseFunc(x, *popt), 'r--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
 #Optimization by setting bounds when fitting curve
 # popt, pcov = curve_fit(func, x, y, bounds = ((-200,-190),(0,2),(155,160)))
 # plt.plot(x, func(x, *popt), 'r--',label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
@@ -99,8 +104,11 @@ plt.show()
 # sns.distplot(x, hist=True, kde=False, 
 #              bins=int(180/5), color = 'blue',
 #              hist_kws={'edgecolor':'black'})
-# # Add labels
-# plt.title('Histogram of Arrival Delays')
-# plt.xlabel('Delay (min)')
-# plt.ylabel('Flights')
-# plt.show()
+
+plt.hist(x, weights=np.ones(len(x)) / len(x))
+plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+# Add labels
+plt.title('Histogram of gas price')
+plt.xlabel('gas price')
+plt.ylabel('distribution of gas price')
+plt.show()
