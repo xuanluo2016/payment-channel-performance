@@ -169,7 +169,7 @@ def get_gas_avg_stat():
     return results
 
 def get_gas_median_stat():
-# Connect to mongodb
+    # Connect to mongodb
     db_connection =  DB()
     db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
     col_summary = db["summary"]
@@ -201,3 +201,29 @@ def get_gas_median_stat():
 def write_to_file(file, results):
     with open(file, 'w') as outfile:
         json.dump(results, outfile)
+
+def updateSummary(file):
+    data = []
+    items = []
+    result = 0
+    # Get all data 
+    with open('data.json') as json_file:  
+        data = json.load(json_file)
+    json_file.close()
+
+    for row in data:
+        row = json.loads(row)
+        item = {"txhash": row["txhash"], "blocknumber": row["blocknumber"], "blocktime": row["blocktime"], "waiting_time": row["waiting_time"], "actual_cost": row["actual_cost"], "gas_price": row["gas_price"], "waiting_mined_time": row["waiting_mined_time"]}
+        items.append(item)
+
+    if(len(items) > 0):
+        # Connect to mongodb
+        db_connection =  DB()
+        db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+        col_summary = db["summary"]
+        try: 
+            result = col_summary.insert_many(items, ordered=False)
+        except BulkWriteError as bwe:
+            pass
+    # Return the number of inserted items
+    return result

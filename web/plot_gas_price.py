@@ -6,9 +6,14 @@ import seaborn as sns
 import numpy as np
 from scipy.optimize import curve_fit
 
+# exponential function
 def func(x, a, b, c):
-    return (-a) * np.exp(-b * x) + c
+    return a * np.exp(-b * x) + c
 #   return a * np.log(b * (x)) + c
+
+# inverse function
+# def func(x, a, b, c):
+#     return (a*x) + b + c
 
 def fitFunc(t, A, B, k):
     return A - B*np.exp(-k*t)
@@ -24,7 +29,8 @@ url = 'http://localhost:5000/gasavg'
 
 headers = {'content-type': 'application/json'}
 response = requests.get(url, headers=headers)
-results = json.loads(response.content)
+# print(response.content)
+results = json.loads(response.content.decode())
 
 print('count: ', str(len(results)))
 print('an example of result:', results[0])

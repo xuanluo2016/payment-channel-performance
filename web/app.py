@@ -52,6 +52,12 @@ def gasavg():
     results = get_gas_avg_stat()
     return json.dumps(results)
 
+@app.route("/postsummary", methods=['POST'])
+def postsummary():
+    file = 'data.json'
+    result = updateSummary(file)
+    return ('number of items updated: ' + str(result))
+    
 if __name__ == "__main__":
     
     # Save a copy of summary db whenever the summary container restarts
