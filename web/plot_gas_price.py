@@ -7,7 +7,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 def func(x, a, b, c):
-    return a * np.exp(b * (x)) + c
+    return (-a) * np.exp(-b * x) + c
 #   return a * np.log(b * (x)) + c
 
 def fitFunc(t, A, B, k):
@@ -38,7 +38,7 @@ y = []
 for row in results:
     gas_price = row['_id']
     waiting_time = row['value']
-    if(gas_price <= 50) and (waiting_time <= 5000):
+    if(gas_price <= 50) and (waiting_time <= 500):
         x.append(gas_price)
         y.append(waiting_time)
 
@@ -55,15 +55,16 @@ print(len(y))
 # Plot original data
 plt.scatter(x, y)
 
-# Fit a curve with exponential 
 x = np.array(x, dtype=float) 
 y = np.array(y, dtype=float)
-popt, pcov = curve_fit(fitFunc, x, y)
-print(popt)
-print(pcov)
 
-# Plot curve fit
-plt.plot(x, fitFunc(x, *popt), 'r-', label="Fitted Curve")
+# Fit curve with exponential
+popt, pcov = curve_fit(func, x, y)
+plt.plot(x, func(x, *popt), 'b--',label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
+
+#Optimization by setting bounds when fitting curve
+# popt, pcov = curve_fit(func, x, y, bounds = ((-200,-190),(0,2),(155,160)))
+# plt.plot(x, func(x, *popt), 'r--',label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(popt))
 
 # Fit with polynomial curve
 # m, c = np.polyfit(x, y, 1)
@@ -74,10 +75,10 @@ plt.title('Relation between gas price and waiting time')
 plt.xlabel('gas price')
 plt.ylabel('waiting time')
 
-# Set ranges of x-axis and y-axis
-plt.xlim(0,50)
-# # # plt.xlim(0.2,0.4)
-plt.ylim(0,500)
+# # Set ranges of x-axis and y-axis
+# plt.xlim(0,50)
+# # # # plt.xlim(0.2,0.4)
+# plt.ylim(0,500)
 
 plt.legend()
 plt.show()
