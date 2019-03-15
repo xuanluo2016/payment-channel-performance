@@ -36,8 +36,9 @@ for row in results:
     block_time =  row['blocktime']
     waiting_time = row['value']
 
-    # if(gas_price <= 50) and (waiting_time <= 500):
-    if(gas_price <= float("inf")) and (waiting_time <= float("inf")):
+    if(gas_price <= 50) and (waiting_time <= 500):
+    # if(gas_price <= float("inf")) and (waiting_time <= float("inf")):
+    # if(gas_price <= 50):
         x.append(gas_price)
         y.append(block_time)
         z.append(waiting_time)
