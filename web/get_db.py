@@ -52,7 +52,7 @@ def get_count():
     return (count_total,count_details)
 
 
-def get_stat():
+def get_cost_stat():
 # Connect to mongodb
     db_connection =  DB()
     db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
@@ -69,7 +69,7 @@ def get_stat():
     
     return results
 
-def get_avg_stat():
+def get_cost_avg_stat():
 # Connect to mongodb
     db_connection =  DB()
     db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
@@ -82,11 +82,41 @@ def get_avg_stat():
                 """)
 
     reducer = Code("""
-                function(key, values) { return values }
+                function(key, values) { return Array.avg(values) }
                 """)
 
-    query = {'waiting_time': {'$ne': 0.0}, 'actual_cost': {'$ne': 0.0}}
-    doc = col_summary.map_reduce(mapper, reducer, "test", query = query)
+    query = {'waiting_time': {'$ne': 0.0}, 'actual_cost': {'$ne': 0.0} }
+    doc = col_summary.map_reduce(mapper, reducer, "test_cost", query = query)
+
+    results = []    
+    for row in doc.find():
+        # row = JSONEncoder().encode(row)
+        results.append(row)
+    
+    return results
+
+def get_cost_median_stat():
+# Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+
+    mapper = Code("""
+                function () {
+                    emit(this.actual_cost, (this.waiting_time + this.waiting_mined_time));
+                }
+                """)
+
+    reducer = Code("""
+                function(key, values) {   
+                    values = values.sort(function(a, b){ return a - b; });
+                    var i = values.length / 2;
+                    return i % 1 == 0 ? (values[i - 1] + values[i]) / 2 : values[Math.floor(i)];
+                }
+                """)
+
+    query = {'waiting_time': {'$ne': 0.0}, 'actual_cost': {'$ne': 0.0} }
+    doc = col_summary.map_reduce(mapper, reducer, "test_cost", query = query)
 
     results = []    
     for row in doc.find():

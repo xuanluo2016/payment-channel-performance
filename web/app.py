@@ -22,9 +22,19 @@ def summary(num=0):
     results = get_summary(num)
     return json.dumps(results)
 
-@app.route("/stat", methods=['GET'])
-def stat():
-    results = get_stat()
+@app.route("/coststat", methods=['GET'])
+def coststat():
+    results = get_cost_stat()
+    return json.dumps(results)
+
+@app.route("/costmedian", methods=['GET'])
+def costmedian():
+    results = get_cost_median_stat()
+    return json.dumps(results)
+
+@app.route("/costavg", methods=['GET'])
+def costavg():
+    results = get_cost_avg_stat()
     return json.dumps(results)
 
 @app.route("/gasstat", methods=['GET'])
