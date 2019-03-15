@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 
 # exponential function
 def func(x, a, b, c):
-    return a * np.exp(-b * x) + c
+    return (-a) * np.exp(-b * x) + c
 #   return a * np.log(b * (x)) + c
 
 # inverse function
