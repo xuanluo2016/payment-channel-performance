@@ -291,7 +291,7 @@ def write_to_file(file, results):
     with open(file, 'w') as outfile:
         json.dump(results, outfile)
 
-def updateSummary(file):
+def update_summary(file):
     data = []
     items = []
     result = 0
@@ -317,3 +317,29 @@ def updateSummary(file):
     # Return the number of inserted items
     return result
 
+def generate_report(file):
+ # Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0}}
+    doc = col_summary.find(query)
+    items = []
+    result = 0
+
+    for row in doc:
+        start_time = row['blocktime'] - row['waiting_mined_time']
+        confirmed_time = row['blocktime'] + row['waiting_time']
+        item = {'txhash': row['txhash'], 'start_time': start_time, 'blocktime':row['blocktime'],'confirmed_time':confirmed_time,'gas_price':row['gas_price'],'actual_cost': row['actual_cost']}
+        items.append(item)
+
+    if(len(items) > 0):
+        col_report = db["report"]
+        col_report.create_index([('txhash', pymongo.ASCENDING)], unique = True)
+        try: 
+            result = col_report.insert_many(items, ordered=False)
+        except BulkWriteError as bwe:
+            pass
+
+    return result

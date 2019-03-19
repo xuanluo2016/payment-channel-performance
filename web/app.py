@@ -88,9 +88,13 @@ def stat3d():
 @app.route("/postsummary", methods=['POST'])
 def postsummary():
     file = 'data.json'
-    result = updateSummary(file)
+    result = update_summary(file)
     return ('number of items updated: ' + str(result))
-    
+
+@app.route("/postreport", methods=['POST'])
+def postreport():
+    result = generate_report(file)
+    return ('number of report generated: ' + str(result))   
 if __name__ == "__main__":
     
     # Save a copy of summary db whenever the summary container restarts
