@@ -38,7 +38,7 @@ def costavg():
     results = get_cost_avg_stat()
     return json.dumps(results)
 
-@app.route("/gasstat", methods=['GET'])
+@app.route("/", methods=['GET'])
 def gasstat():
     results = get_gas_stat()
     return json.dumps(results)
@@ -53,11 +53,25 @@ def gasavg():
     results = get_gas_avg_stat()
     return json.dumps(results)
 
-@app.route("/waitingminedtimestat", methods=['GET'])
+@app.route("/waitingminedtime", methods=['GET'])
 def waitingminedtimestat():
     results = get_waiting_mined_time()
     return json.dumps(results)
 
+@app.route("/minedavg", methods=['GET'])
+def minedavg():
+    results = get_avg_mined_time()
+    return json.dumps(results)
+
+@app.route("/minedmedian", methods=['GET'])
+def minedmedian():
+    results = get_median_mined_time()
+    return json.dumps(results)
+
+@app.route("/waitingtime", methods=['GET'])
+def waitingtimestat():
+    results = get_waiting_time()
+    return json.dumps(results)
 ####################################################
 @app.route("/gasstat3d", methods=['GET'])
 def gasstat3d():

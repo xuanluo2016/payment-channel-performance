@@ -206,7 +206,33 @@ def get_avg_mined_time():
 
     mapper = Code("""
                 function () {
-                    emit(this.gas_price, (this.waiting_time + this.waiting_mined_time));
+                    emit(this.gas_price, this.waiting_mined_time);
+                }
+                """)
+
+    reducer = Code("""
+                function(key, values) { return Array.avg(values) }
+                """)
+
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0} }
+    doc = col_summary.map_reduce(mapper, reducer, "test_gas", query = query)
+
+    results = []    
+    for row in doc.find():
+        # row = JSONEncoder().encode(row)
+        results.append(row)
+    
+    return results
+
+def get_median_mined_time():
+    # Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+
+    mapper = Code("""
+                function () {
+                    emit(this.gas_price, this.waiting_mined_time);
                 }
                 """)
 
@@ -241,6 +267,22 @@ def get_waiting_mined_time():
     for row in doc:
         item = {'_id': row['gas_price'], 'value': (row['waiting_mined_time'])}
         # row = JSONEncoder().encode(row)
+        results.append(item)
+    
+    return results
+
+def get_waiting_time():
+# Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0}}
+
+    doc = col_summary.find(query)  
+
+    results = []    
+    for row in doc:
+        item = {'_id': row['gas_price'], 'value': (row['waiting_time'])}
         results.append(item)
     
     return results
