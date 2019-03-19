@@ -38,7 +38,7 @@ def costavg():
     results = get_cost_avg_stat()
     return json.dumps(results)
 
-@app.route("/", methods=['GET'])
+@app.route("/gasstat", methods=['GET'])
 def gasstat():
     results = get_gas_stat()
     return json.dumps(results)

@@ -341,5 +341,9 @@ def generate_report(file):
             result = col_report.insert_many(items, ordered=False)
         except BulkWriteError as bwe:
             pass
+            
+    # Close db connection
+    col_summary.close()
+    col_report.close()
 
     return result
