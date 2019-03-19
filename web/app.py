@@ -53,6 +53,11 @@ def gasavg():
     results = get_gas_avg_stat()
     return json.dumps(results)
 
+@app.route("/waitingminedtimestat", methods=['GET'])
+def waitingminedtimestat():
+    results = get_waiting_mined_time()
+    return json.dumps(results)
+
 ####################################################
 @app.route("/gasstat3d", methods=['GET'])
 def gasstat3d():
@@ -60,6 +65,10 @@ def gasstat3d():
     return json.dumps(results)
 
 
+@app.route("/stat3d", methods=['GET'])
+def stat3d():
+    results = get_stat_3d()
+    return json.dumps(results)
 #######################################################
 
 @app.route("/postsummary", methods=['POST'])

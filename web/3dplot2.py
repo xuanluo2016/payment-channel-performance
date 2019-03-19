@@ -12,7 +12,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 # get all
-url = 'http://localhost:5000/gasstat3d'
+url = 'http://localhost:5000/stat3d'
 
 
 headers = {'content-type': 'application/json'}
@@ -34,10 +34,10 @@ z = []
 
 for row in results:
     gas_price = row['_id']
-    block_time =  row['blocktime']
+    block_time =  row['actual_cost']
     waiting_time = row['value']
 
-    if(gas_price <= 50) and (waiting_time <= 500):
+    if(gas_price <= 10) and (waiting_time <= 500):
     # if(gas_price <= float("inf")) and (waiting_time <= float("inf")):
     # if(gas_price <= 50):
         x.append(gas_price)

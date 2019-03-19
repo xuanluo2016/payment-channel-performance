@@ -198,6 +198,53 @@ def get_gas_median_stat():
     
     return results
 
+def get_avg_mined_time():
+    # Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+
+    mapper = Code("""
+                function () {
+                    emit(this.gas_price, (this.waiting_time + this.waiting_mined_time));
+                }
+                """)
+
+    reducer = Code("""
+                function(key, values) {   
+                    values = values.sort(function(a, b){ return a - b; });
+                    var i = values.length / 2;
+                    return i % 1 == 0 ? (values[i - 1] + values[i]) / 2 : values[Math.floor(i)];
+                }
+                """)
+
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0} }
+    doc = col_summary.map_reduce(mapper, reducer, "test_gas", query = query)
+
+    results = []    
+    for row in doc.find():
+        # row = JSONEncoder().encode(row)
+        results.append(row)
+    
+    return results
+
+def get_waiting_mined_time():
+# Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$ne': 0.0}}
+
+    doc = col_summary.find(query)  
+
+    results = []    
+    for row in doc:
+        item = {'_id': row['gas_price'], 'value': (row['waiting_mined_time'])}
+        # row = JSONEncoder().encode(row)
+        results.append(item)
+    
+    return results
+
 def write_to_file(file, results):
     with open(file, 'w') as outfile:
         json.dump(results, outfile)
@@ -227,3 +274,4 @@ def updateSummary(file):
             pass
     # Return the number of inserted items
     return result
+
