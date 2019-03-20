@@ -8,8 +8,8 @@ services:
       KAFKA_BROKER_URL: broker:9092
       RAW_TRANSACTIONS_TOPIC: queueing.raw.transactions
       TRANSACTIONS_PER_SECOND: 1000
-      REQUEST_INTERVAL: 1
-      SOURCE_URL: wss://mainnet.infura.io/ws
+      REQUEST_INTERVAL: 2
+      SOURCE_URL: https://etherscan.io/txsPending
 
   detector:
     build: ./detector

@@ -17,11 +17,13 @@ SOURCE_URL = os.environ.get('SOURCE_URL')
 
 def publish_message(message):
     """public the response of the website to kafka."""
-    print('publish message')
-    timestamp = time.time()
-    timestamp_date = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    # print('publish message')
+    # timestamp = time.time()
+    # timestamp_date = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
   
-    transaction: dict = {"data": message, "time": timestamp_date, "seconds": timestamp }
+    # transaction: dict = {"data": message, "time": timestamp_date, "seconds": timestamp }
+    transaction: dict = {"data": message }
+
     producer.send(RAW_TRANSACTIONS_TOPIC, value=transaction)
     # print(RAW_TRANSACTIONS_TOPIC,transaction ) # DEBUG
 

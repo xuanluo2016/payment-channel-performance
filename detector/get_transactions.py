@@ -23,7 +23,7 @@ def get_transactions(content):
             time = list[0]
             start_time = str(time)
             datetime = dateutil.parser.parse(start_time)
-            epoch = datetime.strftime('%s')
+            epoch = float(datetime.strftime('%s'))
 
         if(txhash != None) and (start_time != None) and (epoch != None):
             item = {'txhash': txhash, 'starttime': start_time, 'seconds': epoch}

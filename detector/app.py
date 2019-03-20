@@ -24,8 +24,8 @@ if __name__ == '__main__':
     for message in consumer:
         if('data' in message.value):
             value = message.value
-            time = value['time']
-            seconds = value['seconds']
+            # time = value['time']
+            # seconds = value['seconds']
             data = value['data']
             transactions = get_transactions(data.encode())
             for transaction in transactions:
