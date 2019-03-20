@@ -1,4 +1,4 @@
 kafka-python
 websocket
 websocket-client
-datetime
+requests
