@@ -4,4 +4,3 @@ requests
 lxml
 datetime
 python-dateutil
-websocket

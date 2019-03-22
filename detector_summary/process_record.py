@@ -20,7 +20,7 @@ def process_record_assistant1(col_start_time,col_end_time,col_summary,record):
                 start_time = record['seconds']
                 end_time =  int(end_time, 16)
                 waiting_mined_time = end_time - start_time
-                row = {"txhash": record['txhash'], "blocknumber": doc['blocknumber'], "blocktime": end_time,"waiting_time": 0.0,"actual_cost": 0.0, "gas_price":0.0, "waiting_mined_time": waiting_mined_time}        
+                row = {"txhash": record['txhash'], "blocknumber": doc['blocknumber'], "blocktime": end_time,"waiting_time": 0.0,"actual_cost": 0.0, "gas_price":0.0, "gas_used": 0.0, "waiting_mined_time": waiting_mined_time}        
                 result = col_summary.insert_one(row)
                 print('inserted')
                 return 0
@@ -51,7 +51,7 @@ def process_record_assistant2(col_start_time,col_end_time,col_summary,record):
                 end_time = record['blocktime']
                 end_time = int(end_time,16)
                 waiting_mined_time = end_time - start_time
-                row = {"txhash": record['txhash'], "blocknumber": record['blocknumber'], "blocktime": end_time,"waiting_time": 0.0,"actual_cost": 0.0, "gas_price":0.0, "waiting_mined_time": waiting_mined_time}        
+                row = {"txhash": record['txhash'], "blocknumber": record['blocknumber'], "blocktime": end_time,"waiting_time": 0.0,"actual_cost": 0.0, "gas_price":0.0, "gas_used": 0.0,"waiting_mined_time": waiting_mined_time}        
                 result = col_summary.insert_one(row)
                 print('inserted')
                 return 0

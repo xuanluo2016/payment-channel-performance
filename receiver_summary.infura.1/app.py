@@ -11,7 +11,6 @@ from lib.db import DB
 
 from get_transaction_details import parse
 from get_transaction_summary import get_cost
-from get_transaction_details import get_transactions_details
 
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_SUMMARY_TOPIC = os.environ.get('TRANSACTIONS_SUMMARY_TOPIC')
@@ -43,32 +42,20 @@ def process_record(col_summary,record):
     else, save data in the start_time db
     """
     record = json.loads(record)
+    print('record: ', record)
+    print('txhash', record['txhash'])
     if('txhash' in record):
         try: 
-            txhash = record['txhash']
-            # Get transactoin gas price
-            query = '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params": ["'
-            query += txhash
-            query += '"],"id":1}'
-            result = get_transaction_details(URL, query)
-            result = json.loads(result)
-            gas_price = result['gasPrice']
-            gas_price = int(gas_price,16)/1000000000
-
-            # Get gas used 
-            query = '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params": ["'
-            query += txhash
-            query += '"],"id":1}'
-            result = get_transaction_details(URL, query)
-            result = json.loads(result)
-            gas_used = result['gasUsed']
-            gas_used = int(gas_used,16)
-
-            actual_cost = gas_price * gas_used/1000000000
+            (item, is_mined) = parse(URL, record['txhash'])
+            print('item: ', item)
+            if(is_mined):
+                (actual_cost, gas_price) = get_cost(item)
+                print('actual_cost: ', actual_cost)
+                print('gas_price: ', gas_price)
         
-            if(actual_cost != None) and (gas_price != None) and (gas_used != None):
+                if(actual_cost != None) and (gas_price != None):
                     # Update actual cost and gas price in summary collection
-                    post = {"actual_cost": actual_cost, "gas_price":gas_price, "gas_used":gas_used}
+                    post = {"actual_cost": actual_cost, "gas_price":gas_price}
                     result = col_summary.update_one({'txhash': record['txhash']},  {'$set': post})
                     print('number of update in summary: ', result.modified_count) # Debug            
        

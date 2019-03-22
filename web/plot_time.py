@@ -8,12 +8,12 @@ from scipy.optimize import curve_fit
 from matplotlib.ticker import PercentFormatter
 from scipy import stats
 # get all
-url = 'http://localhost:5000/waitingminedtime'
+# url = 'http://localhost:5000/waitingminedtime'
 # url = 'http://localhost:5000/waitingtime'
 # url = 'http://localhost:5000/gasstat'
 
 # get avg
-# url = 'http://localhost:5000/gasavg'
+url = 'http://localhost:5000/gasavg'
 # url = 'http://localhost:5000/minedavg'
 
 headers = {'content-type': 'application/json'}

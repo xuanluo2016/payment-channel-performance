@@ -68,7 +68,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
       MONGO_INITDB_DATABASE: transactions2
-      URL: https://etherscan.io/tx/
+      # URL: https://etherscan.io/tx/
+      URL: wss://mainnet.infura.io/ws/a699fa2391894c5799607f10f8b89ab3
       BATCH_INTERVAL: 1
     depends_on:
       - mongodb

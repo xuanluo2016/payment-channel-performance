@@ -26,13 +26,13 @@ if __name__ == '__main__':
     )
     for message in consumer:
         try: 
-            if('blocknumber' in message.value):
+            if('blockhash' in message.value):
                 value = message.value
                 print(value)          
-                blocknumber = value['blocknumber']                
+                blockhash = value['blockhash']                
                 # Get transactoin hashes and blocktime of the block
-                query = '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params": ["'
-                query += blocknumber
+                query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["'
+                query += blockhash
                 query += '",false],"id":1}'
                 block_details = get_transactions_from_block(SOURCE_BLOCKDETAILS_URL, query)
                 block_details = json.loads(block_details)
@@ -44,10 +44,9 @@ if __name__ == '__main__':
                     transactions = result['transactions']
                     endtime = result['timestamp']
                     blocknumber = result['number']
-                    gasused = result['gasUsed']
                     
                     # Send out topic about blocknumber and blocktime
-                    transaction_block : dict = {'blocktime': endtime,'blocknumber':blocknumber, 'gasused':gasused}
+                    transaction_block : dict = {'blocktime': endtime,'blocknumber':blocknumber}
                     producer.send(TRANSACTIONS_BLOCK_TOPIC, value=transaction_block)
                     print(TRANSACTIONS_BLOCK_TOPIC, transaction_block)  # DEBUG
 

@@ -271,6 +271,73 @@ def get_waiting_mined_time():
     
     return results
 
+def get_block_avg_gas():
+    # Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+
+    mapper = Code("""
+                function () {
+                    emit(this.blocknumber, this.gas_price);
+                }
+                """)
+
+    reducer = Code("""
+                function(key, values) { return Array.avg(values) }
+                """)
+
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$gt': 0.0} }
+    doc = col_summary.map_reduce(mapper, reducer, "test_gas", query = query)
+
+    results = []    
+    for row in doc.find():
+        # row = JSONEncoder().encode(row)
+        results.append(row)
+    
+    return results
+
+def get_block_avg_cost():
+    # Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+
+    mapper = Code("""
+                function () {
+                    emit(this.blocknumber, this.actual_cost);
+                }
+                """)
+
+    reducer = Code("""
+                function(key, values) { return Array.avg(values) }
+                """)
+
+    query = {'waiting_time': {'$ne': 0.0}, 'actual_cost': {'$gt': 0.0} }
+    doc = col_summary.map_reduce(mapper, reducer, "test_gas", query = query)
+
+    results = []    
+    for row in doc.find():
+        # row = JSONEncoder().encode(row)
+        results.append(row)
+    
+    return results
+
+def get_block_and_fee():
+# Connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    col_summary = db["summary"]
+    query = {'waiting_time': {'$ne': 0.0}, 'gas_price': {'$gt': 0.0}}
+
+    doc = col_summary.find(query)  
+
+    results = []    
+    for row in doc:
+        item = {'_id': row['blocknumber'], 'value': row['gas_price'], 'actual_cost': row['actual_cost'], 'txhash': row['txhash']}
+        results.append(item)    
+    return results
+
 def get_waiting_time():
 # Connect to mongodb
     db_connection =  DB()

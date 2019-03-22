@@ -72,6 +72,22 @@ def minedmedian():
 def waitingtimestat():
     results = get_waiting_time()
     return json.dumps(results)
+
+@app.route("/blockavggas", methods=['GET'])
+def blockavggas():
+    results = get_block_avg_gas()
+    return json.dumps(results)
+
+@app.route("/blockavgcost", methods=['GET'])
+def blockavgcost():
+    results = get_block_avg_cost()
+    return json.dumps(results)
+
+@app.route("/blockandfee", methods=['GET'])
+def blockandgas():
+    results = get_block_and_fee()
+    return json.dumps(results)
+
 ####################################################
 @app.route("/gasstat3d", methods=['GET'])
 def gasstat3d():
