@@ -10,7 +10,7 @@ services:
       TRANSACTIONS_PER_SECOND: 1000
       REQUEST_INTERVAL: 2
       SOURCE_URL: https://etherscan.io/txsPending
-
+      # SOURCE_URL: wss://mainnet.infura.io/ws/a699fa2391894c5799607f10f8b89ab3
   detector:
     build: ./detector
     environment:
@@ -22,12 +22,13 @@ services:
     build: ./generator_block
     environment:
       KAFKA_BROKER_URL: broker:9092
-      KAFKA_LOG4J_LOGGERS : kafka.controller=WARN, kafka.foo.bar=DEBUG  
-      KAFKA_LOG4J_ROOT_LOGLEVEL : WARN 
-      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR 
+      # KAFKA_LOG4J_LOGGERS : kafka.controller=WARN, kafka.foo.bar=DEBUG  
+      # KAFKA_LOG4J_ROOT_LOGLEVEL : WARN 
+      # KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR 
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
       TRANSACTIONS_PER_SECOND: 1000
       REQUEST_INTERVAL: 1
+      NUMBER_OF_CONFIRMATIONS: 12
       SOURCE_URL: wss://mainnet.infura.io/ws
 
   detector_block:
@@ -47,7 +48,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: transactions
+      MONGO_INITDB_DATABASE: transactions2
     volumes:
       - ./data/db:/data/db
 
@@ -57,7 +58,7 @@ services:
       KAFKA_BROKER_URL: broker:9092
       TRANSACTIONS_TOPIC: streaming.transactions
       TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
-      MONGO_INITDB_DATABASE: transactions
+      MONGO_INITDB_DATABASE: transactions2
     depends_on:
       - mongodb
 
@@ -66,7 +67,7 @@ services:
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
-      MONGO_INITDB_DATABASE: transactions
+      MONGO_INITDB_DATABASE: transactions2
       URL: https://etherscan.io/tx/
       BATCH_INTERVAL: 1
     depends_on:
@@ -132,7 +133,7 @@ services:
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
-      MONGO_INITDB_DATABASE: transactions
+      MONGO_INITDB_DATABASE: transactions2
       NUMBER_OF_CONFIRMATIONS: 12
       BATCH_INTERVAL: 1
     depends_on:
@@ -153,7 +154,7 @@ services:
     build: ./web
     environment: 
       BATCH_INTERVAL: 10
-      MONGO_INITDB_DATABASE: transactions
+      MONGO_INITDB_DATABASE: transactions2
     ports:
       - 5000:5000
     depends_on:

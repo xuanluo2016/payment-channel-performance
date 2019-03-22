@@ -26,13 +26,13 @@ if __name__ == '__main__':
     )
     for message in consumer:
         try: 
-            if('blockhash' in message.value):
+            if('blocknumber' in message.value):
                 value = message.value
                 print(value)          
-                blockhash = value['blockhash']                
+                blocknumber = value['blocknumber']                
                 # Get transactoin hashes and blocktime of the block
-                query = '{"jsonrpc":"2.0","method":"eth_getBlockByHash","params": ["'
-                query += blockhash
+                query = '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params": ["'
+                query += blocknumber
                 query += '",false],"id":1}'
                 block_details = get_transactions_from_block(SOURCE_BLOCKDETAILS_URL, query)
                 block_details = json.loads(block_details)
