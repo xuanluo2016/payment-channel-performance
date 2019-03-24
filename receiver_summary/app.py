@@ -10,6 +10,7 @@ from pymongo.errors import BulkWriteError
 from lib.db import DB
 
 from get_transaction_details import *
+from websocket import create_connection
 
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_SUMMARY_TOPIC = os.environ.get('TRANSACTIONS_SUMMARY_TOPIC')
@@ -28,12 +29,13 @@ def pprint2(lines,col_summary, num=10):
     """
     def takeAndPrint(rdd):
         collect = rdd.collect() 
+        ws = get_ws_connection(URL)
         for record in collect:
-            process_record(col_summary, record)
-
+            process_record(col_summary, record, ws)
+        ws.close()
     lines.foreachRDD(takeAndPrint)
 
-def process_record(col_summary,record):
+def process_record(col_summary,record, ws):
     """
     Check if the txhash exists or not in the end_time table
     if yes, send streaming data to query tx details and remove related record in the end_time db
@@ -48,7 +50,7 @@ def process_record(col_summary,record):
             query = '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params": ["'
             query += txhash
             query += '"],"id":1}'
-            result = get_transaction_details(URL, query)
+            result = get_transaction_details(ws, query)
             gas_price = get_gas_price(result)
 
             #Get gas
@@ -58,7 +60,7 @@ def process_record(col_summary,record):
             query = '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params": ["'
             query += txhash
             query += '"],"id":1}'
-            result = get_transaction_details(URL, query)
+            result = get_transaction_details(ws, query)
             gas_used = get_gas_used(result)
         
             if(gas_price != None) and (gas_used != None) and (gas != None):

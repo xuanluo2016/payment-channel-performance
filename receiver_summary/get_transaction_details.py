@@ -2,11 +2,15 @@ import requests
 from websocket import create_connection
 import json
 
-def get_transaction_details(url, query):
+def get_ws_connection(url):
     ws = create_connection(url)
+    return ws
+
+def get_transaction_details(ws, query):
+    # ws = create_connection(url)
     ws.send(query)
     result =  ws.recv()
-    ws.close()
+    # ws.close()
     return result
 
 def get_gas_price(result):
