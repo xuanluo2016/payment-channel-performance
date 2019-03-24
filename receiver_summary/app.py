@@ -9,9 +9,7 @@ import pymongo
 from pymongo.errors import BulkWriteError
 from lib.db import DB
 
-from get_transaction_details import parse
-from get_transaction_summary import get_cost
-from get_transaction_details import get_transactions_details
+from get_transaction_details import *
 
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
 TRANSACTIONS_SUMMARY_TOPIC = os.environ.get('TRANSACTIONS_SUMMARY_TOPIC')
@@ -31,7 +29,6 @@ def pprint2(lines,col_summary, num=10):
     def takeAndPrint(rdd):
         collect = rdd.collect() 
         for record in collect:
-            print(record)
             process_record(col_summary, record)
 
     lines.foreachRDD(takeAndPrint)
@@ -46,31 +43,27 @@ def process_record(col_summary,record):
     if('txhash' in record):
         try: 
             txhash = record['txhash']
+            print('tx hash: ',txhash )
             # Get transactoin gas price
             query = '{"jsonrpc":"2.0","method":"eth_getTransactionByHash","params": ["'
             query += txhash
             query += '"],"id":1}'
             result = get_transaction_details(URL, query)
-            result = json.loads(result)
-            gas_price = result['gasPrice']
-            gas_price = int(gas_price,16)/1000000000
+            gas_price = get_gas_price(result)
 
             # Get gas used 
             query = '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params": ["'
             query += txhash
             query += '"],"id":1}'
             result = get_transaction_details(URL, query)
-            result = json.loads(result)
-            gas_used = result['gasUsed']
-            gas_used = int(gas_used,16)
-
-            actual_cost = gas_price * gas_used/1000000000
+            gas_used = get_gas_used(result)
         
-            if(actual_cost != None) and (gas_price != None) and (gas_used != None):
-                    # Update actual cost and gas price in summary collection
-                    post = {"actual_cost": actual_cost, "gas_price":gas_price, "gas_used":gas_used}
-                    result = col_summary.update_one({'txhash': record['txhash']},  {'$set': post})
-                    print('number of update in summary: ', result.modified_count) # Debug            
+            if(gas_price != None) and (gas_used != None):
+                actual_cost = gas_price * gas_used/1000000000
+                # Update actual cost and gas price in summary collection
+                post = {"actual_cost": actual_cost, "gas_price":gas_price, "gas_used":gas_used}
+                result = col_summary.update_one({'txhash': record['txhash']},  {'$set': post})
+                print('number of update in summary: ', result.modified_count) # Debug            
        
         except Exception as e:
             print(e)

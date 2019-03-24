@@ -5,3 +5,4 @@ lxml
 datetime
 python-dateutil
 websocket
+websocket-client
