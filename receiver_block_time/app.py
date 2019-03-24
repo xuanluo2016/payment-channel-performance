@@ -60,7 +60,7 @@ def process_record(col_block_time,col_summary,record):
             block_number = record['blocknumber']
             block_number = int(block_number, 16)
             prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS
-            prev_blocknumber = hex(prev_blocknumber)
+            # prev_blocknumber = hex(prev_blocknumber)
 
 
             # Get the blocktime of previous block ahead of number of confirmations
@@ -69,7 +69,7 @@ def process_record(col_block_time,col_summary,record):
                 # Get the delta of time for blocks
 
                 prev_block_time = doc['blocktime']
-                prev_block_time = int(prev_block_time,16)
+                # prev_block_time = int(prev_block_time,16)
                 block_time_delta = block_time - prev_block_time
             
                 #Update transactions which are 12 blocks earlier
@@ -95,8 +95,8 @@ def process_record(col_block_time,col_summary,record):
 
             # insert block_time and block_number to table block_time
             print('insert into block collection: ')
-            col_block_time.insert(record)
-
+            # col_block_time.insert(record)
+            col_block_time.insert({'blocktime':block_time,"blocknumber":block_number})
         except Exception as e:
             print(e)
             

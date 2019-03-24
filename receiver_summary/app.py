@@ -51,6 +51,9 @@ def process_record(col_summary,record):
             result = get_transaction_details(URL, query)
             gas_price = get_gas_price(result)
 
+            #Get gas
+            gas = get_gas(result)
+
             # Get gas used 
             query = '{"jsonrpc":"2.0","method":"eth_getTransactionReceipt","params": ["'
             query += txhash
@@ -58,10 +61,10 @@ def process_record(col_summary,record):
             result = get_transaction_details(URL, query)
             gas_used = get_gas_used(result)
         
-            if(gas_price != None) and (gas_used != None):
+            if(gas_price != None) and (gas_used != None) and (gas != None):
                 actual_cost = gas_price * gas_used/1000000000
                 # Update actual cost and gas price in summary collection
-                post = {"actual_cost": actual_cost, "gas_price":gas_price, "gas_used":gas_used}
+                post = {"actual_cost": actual_cost, "gas_price":gas_price, "gas_used":gas_used, "gas":gas}
                 result = col_summary.update_one({'txhash': record['txhash']},  {'$set': post})
                 print('number of update in summary: ', result.modified_count) # Debug            
        

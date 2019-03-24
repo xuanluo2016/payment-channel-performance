@@ -31,3 +31,13 @@ def get_gas_used(result):
         print(e)
         return None
 
+def get_gas(result):
+    result = json.loads(result)
+    try:
+        result = result['result']
+        gas = result['gas']
+        gas = int(gas,16)
+        return gas
+    except Exception as e:
+        print(e)
+        return None
