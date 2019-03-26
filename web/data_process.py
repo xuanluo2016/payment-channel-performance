@@ -87,14 +87,12 @@ def create_test_data():
     return
 
 def main():
-    url = 'http://localhost:5000/waitingminedtime'
-    data = get_data(url)
-    print(len(data))
-    print(data[0])
-    # fields = ['_id', 'value']
-    # data = get_data_as_matrix(data,fields)
-    # plot2D_matrix(data)
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.1,500)
+    urls = ['http://localhost:5000/gasstat','http://localhost:5000/waitingminedtime']
+    data = get_data(urls[0])
+    # For waiting_mined_time
+    # (x,y) = get_data_avg_by_range(data,'_id','value',0.01,500)
+    # For waiting_time
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.02,10000)
     plot2D(x,y)
     return
 
