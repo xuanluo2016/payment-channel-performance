@@ -1,4 +1,4 @@
-# Ethereum Transaction Time and Gas Cost Real-time Analyzer Based on Kafka + Spark
+# Ethereum Data Analyzer Based on Kafka + Spark
 
 [![Kafka](https://img.shields.io/badge/streaming_platform-kafka-black.svg?style=flat-square)](https://kafka.apache.org)
 [![Docker Images](https://img.shields.io/badge/docker_images-confluent-orange.svg?style=flat-square)](https://github.com/confluentinc/cp-docker-images)
