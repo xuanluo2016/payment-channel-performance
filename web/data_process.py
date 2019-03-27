@@ -73,17 +73,35 @@ def get_data_as_matrix(data, fields):
 
 def plot2D_matrix(data,*args,**kwargs):
     plt.scatter(data[:,0], data[:,1],*args, **kwargs)
-    plt.legend()
-    plt.show()
     return
 
 def plot2D(x,y,*args,**kwargs):
     plt.scatter(x, y,*args, **kwargs)
-    plt.legend()
-    plt.show()
     return
 
 def create_test_data():
+    return
+
+
+
+def plot_curve_exp(x,y):
+    
+    # exponential function
+    def exp(x, a, b, c):
+        return (-a) * np.exp(-b * x) + c
+    def fitFunc(t, A, B, k):
+        return A - B*np.exp(-k*t)
+
+    def inverse(x, a, b):
+        return (a/x) + b 
+
+    x = np.array(x, dtype=float) 
+    y = np.array(y, dtype=float)
+    
+    # Fit curve with inverse function
+    popt, pcov = curve_fit(inverse, x, y)
+    plt.plot(x, inverse(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
+    
     return
 
 def main():
@@ -92,9 +110,11 @@ def main():
     # For waiting_mined_time
     # (x,y) = get_data_avg_by_range(data,'_id','value',0.01,500)
     # For waiting_time
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.02,10000)
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,5000)
     plot2D(x,y)
-    return
+    plot_curve_exp(x,y)
+    plt.legend()
+    plt.show()
 
 if __name__== "__main__":
     main()
