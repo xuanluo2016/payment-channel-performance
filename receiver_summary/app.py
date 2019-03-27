@@ -20,6 +20,9 @@ BATCH_INTERVAL = int(os.environ.get('BATCH_INTERVAL'))
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0  pyspark-shell'
 
+# Setup Websocket Connection
+connections = []
+connections.append(get_ws_connection(URL))
 
 def pprint2(lines,col_summary, num=10):
     """
@@ -29,13 +32,11 @@ def pprint2(lines,col_summary, num=10):
     """
     def takeAndPrint(rdd):
         collect = rdd.collect() 
-        ws = get_ws_connection(URL)
         for record in collect:
-            process_record(col_summary, record, ws)
-        ws.close()
+            process_record(col_summary, record)
     lines.foreachRDD(takeAndPrint)
 
-def process_record(col_summary,record, ws):
+def process_record(col_summary,record):
     """
     Check if the txhash exists or not in the end_time table
     if yes, send streaming data to query tx details and remove related record in the end_time db
@@ -43,7 +44,8 @@ def process_record(col_summary,record, ws):
     """
     record = json.loads(record)
     if('txhash' in record):
-        try: 
+        try:
+            ws = connections[0]
             txhash = record['txhash']
             print('tx hash: ',txhash )
             # Get transactoin gas price
@@ -53,7 +55,7 @@ def process_record(col_summary,record, ws):
             result = get_transaction_details(ws, query)
             gas_price = get_gas_price(result)
 
-            #Get gas
+            # Get gas
             gas = get_gas(result)
 
             # Get gas used 
@@ -71,46 +73,51 @@ def process_record(col_summary,record, ws):
                 print('number of update in summary: ', result.modified_count) # Debug            
        
         except Exception as e:
-            print(e)
-
+            err = str(e)
+            print(err)
+            if('socket is already closed' in err):
+                connections.clear()
+                connections.append(get_ws_connection(URL))
         finally:
             pass
 
-            
-# Create a basic configuration
-conf = SparkConf().setAppName("PythonSparkStreamingSummary")
+def main():
+    # Create a basic configuration
+    conf = SparkConf().setAppName("PythonSparkStreamingSummary")
 
-# conf = (SparkConf()
-#          .setMaster("spark://master:7077 ")
-#          .setAppName("PythonSparkStreamingKafkaApp")
-#          .set("spark.executor.memory", "1g"))
+    # conf = (SparkConf()
+    #          .setMaster("spark://master:7077 ")
+    #          .setAppName("PythonSparkStreamingKafkaApp")
+    #          .set("spark.executor.memory", "1g"))
 
-# Create a SparkContext using the configuration
-sc = SparkContext(conf=conf)
+    # Create a SparkContext using the configuration
+    sc = SparkContext(conf=conf)
 
-# Set log level
-sc.setLogLevel("ERROR")
+    # Set log level
+    sc.setLogLevel("ERROR")
 
-# Create the streaming contect objects
-ssc = StreamingContext(sc,BATCH_INTERVAL)
+    # Create the streaming contect objects
+    ssc = StreamingContext(sc,BATCH_INTERVAL)
 
-# Create the kafka connection object
-# kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
-kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-summary", {TRANSACTIONS_SUMMARY_TOPIC:1})
+    # Create the kafka connection object
+    # kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
+    kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-summary", {TRANSACTIONS_SUMMARY_TOPIC:1})
 
-lines = kafkaStream.map(lambda x: x[1])
+    lines = kafkaStream.map(lambda x: x[1])
 
-# connect to mongodb
-db_connection =  DB()
-db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+    # connect to mongodb
+    db_connection =  DB()
+    db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
 
-col_summary = db["summary"]
-col_summary.create_index([('txhash', pymongo.ASCENDING)], unique = True)
+    col_summary = db["summary"]
+    col_summary.create_index([('txhash', pymongo.ASCENDING)], unique = True)
 
-# insert data to mongo db
-pprint2(lines,col_summary)
+    # insert data to mongo db
+    pprint2(lines,col_summary)
 
-# start ssc
-ssc.start()
-ssc.awaitTermination()
+    # start ssc
+    ssc.start()
+    ssc.awaitTermination()
 
+if __name__== "__main__":
+    main()    
