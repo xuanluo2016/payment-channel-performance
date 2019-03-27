@@ -13,7 +13,7 @@ from get_transaction_details import parse
 from get_transaction_summary import get_summary
 
 MONGO_INITDB_DATABASE = os.environ.get('MONGO_INITDB_DATABASE')
-TRANSACTIONS_TOPIC = os.environ.get('TRANSACTIONS_BLOCK_TOPIC')
+TRANSACTIONS_BLOCK_TOPIC = os.environ.get('TRANSACTIONS_BLOCK_TOPIC')
 KAFKA_ZOOKEEPER_CONNECT = os.environ.get('KAFKA_ZOOKEEPER_CONNECT')
 NUMBER_OF_CONFIRMATIONS = int(os.environ.get('NUMBER_OF_CONFIRMATIONS'))
 BATCH_INTERVAL = int(os.environ.get('BATCH_INTERVAL'))
@@ -24,7 +24,6 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming
 def pprint2(lines,col_block_time,col_summary):
     """
     Print the first num elements oNUMBER_OF_CONFIRMATIONSf each RDD generated in this DStream.
-
     @param num: the number of elements from the first will be printed.
     """
     # def takeAndPrint(rdd):
@@ -37,7 +36,8 @@ def pprint2(lines,col_block_time,col_summary):
 
     def takeAndPrint(rdd):
         collect = rdd.collect() 
-        for record in collect:            
+        for record in collect:
+            print(record, '1')           
             process_record(col_block_time,col_summary,record)
 
     lines.foreachRDD(takeAndPrint)
@@ -60,8 +60,8 @@ def process_record(col_block_time,col_summary,record):
             block_number = record['blocknumber']
             block_number = int(block_number, 16)
             prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS
-            prev_blocknumber = hex(prev_blocknumber)
-
+            # prev_blocknumber = hex(prev_blocknumber)
+            print('current block number: ', block_number)
 
             # Get the blocktime of previous block ahead of number of confirmations
             doc = col_block_time.find_one({'blocknumber': prev_blocknumber})
@@ -69,7 +69,7 @@ def process_record(col_block_time,col_summary,record):
                 # Get the delta of time for blocks
 
                 prev_block_time = doc['blocktime']
-                prev_block_time = int(prev_block_time,16)
+                # prev_block_time = int(prev_block_time,16)
                 block_time_delta = block_time - prev_block_time
             
                 #Update transactions which are 12 blocks earlier
@@ -77,25 +77,9 @@ def process_record(col_block_time,col_summary,record):
                 col_summary.update_many({'blocknumber': prev_blocknumber},  {'$set': post}) 
                 print('update summary table')
 
-            # # Find transactions which are 12 blocks ahead
-            # doc = col_summary.find({"blocknumber": prev_blocknumber} )
-
-            # for row in doc:
-            #     prev_block_time = row['blocktime']
-            #     block_time_delta = block_time - prev_block_time
-            #     waiting_time = block_time_delta + row['waiting_time']
-            #     # query = '{_id: ' + row['_id'] + '}, {$set: {"waiting_time": ' + str(waiting_time) + '}}'
-            #     # print(query)
-            #     # result = col_summary.update(query)
-            #     post = {"waiting_time": waiting_time}
-            #     # col_summary.update_one({"_id":'ObjectId("5c7b78046fd11d5872ff4be3")'},  {"$set": post}) 
-            #     result = col_summary.update_one({"txhash":row['txhash']},  {"$set": post})  
-            #     print(result)
-            #     print(row['txhash']) 
-
             # insert block_time and block_number to table block_time
             print('insert into block collection: ')
-            col_block_time.insert(record)
+            col_block_time.insert({'blocktime':block_time,"blocknumber":block_number})
 
         except Exception as e:
             print(e)
@@ -104,12 +88,6 @@ def process_record(col_block_time,col_summary,record):
             pass
    
     return
-
-# mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
-# db = mongo_client["transactions"]
-# col = db["start_time"]
-# col.find({}, no_cursor_timeout=True).limit(30)
-
 
 # Create a basic configuration
 # conf = SparkConf().setAppName("PythonSparkStreamingKafkaEndTimeApp").setMaster("spark://master:7077")
@@ -127,7 +105,7 @@ ssc = StreamingContext(sc,BATCH_INTERVAL)
 
 # Create the kafka connection object
 # kafkaStream = KafkaUtils.createStream(ssc, ["starttime"], {"metadata.broker.list": "localhost:9092" ,TRANSACTIONS_DETAILS_TOPIC:1})
-kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-blocktime", {TRANSACTIONS_TOPIC:1})
+kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-streaming-blocktime", {TRANSACTIONS_BLOCK_TOPIC:1})
 
 lines = kafkaStream.map(lambda x: x[1])
 
@@ -146,4 +124,3 @@ pprint2(lines,col_block_time,col_summary)
 # start ssc
 ssc.start()
 ssc.awaitTermination()
-
