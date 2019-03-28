@@ -8,12 +8,12 @@ from scipy.optimize import curve_fit
 from matplotlib.ticker import PercentFormatter
 from scipy import stats
 # get all
-# url = 'http://localhost:5000/waitingminedtime'
+url = 'http://localhost:5000/waitingminedtime'
 # url = 'http://localhost:5000/waitingtime'
 # url = 'http://localhost:5000/gasstat'
 
 # get avg
-url = 'http://localhost:5000/gasavg'
+# url = 'http://localhost:5000/gasavg'
 # url = 'http://localhost:5000/minedavg'
 
 headers = {'content-type': 'application/json'}
@@ -36,10 +36,13 @@ y_negative = []
 for row in results:
     gas_price = row['_id']
     time = row['value']
+    # if(gas_price <= 50):
+    # if(gas_price <= 3) and (time <= 1000):
+    if (gas_price >= 0) and (gas_price <= 0.2):
     # if(gas_price <= 10) and (time <= 400):
-    if(gas_price <= float("inf")) and (time <= float("inf")):
+    # if(gas_price <= float("inf")) and (time <= float("inf")):
         x.append(gas_price)
-        y.append(time)
+        y.append(time) 
 
         if(time > 0):
             x_positive.append(gas_price)
@@ -57,18 +60,23 @@ print('the min time is: ', str(min(y)))
 print(len(x))
 print(len(y))
 
-print('the max gas price is: ', str(max(x_negative)))
-print('the min gas price is: ', str(min(x_negative)))
+if(len(x_negative) > 0):
+    print('the max gas price is: ', str(max(x_negative)))
+    print('the min gas price is: ', str(min(x_negative)))
 
-fig, axs = plt.subplots(1, 3, sharey=True, tight_layout=True)
-plt.title('Relation between gas price and time')
+plt.scatter(x,y,c='g')
+plt.scatter(x_positive,y_positive,c='r')
+plt.scatter(x_negative,y_negative,c='b')
+
+# fig, axs = plt.subplots(1, 3, sharey=True, tight_layout=True)
+# plt.title('Relation between gas price and time')
 plt.xlabel('gas price')
 plt.ylabel('time')
 
-# Plot original data
-axs[0].scatter(x, y, c="g")
-axs[1].scatter(x_positive, y_positive, c="r")
-axs[2].scatter(x_negative, y_negative, c="b")
+# # Plot original data
+# axs[0].scatter(x, y, c="g")
+# axs[1].scatter(x_positive, y_positive, c="r")
+# axs[2].scatter(x_negative, y_negative, c="b")
 
 
 plt.legend()
@@ -102,7 +110,15 @@ plt.show()
 # axs[0].hist(x_positive,  weights=np.ones(len(y)) / len(y))
 
 # kolmogrove test
-result = stats.ks_2samp(x_positive,x_negative)
-print(result)
-result = stats.ks_2samp(y_positive,y_negative)
-print(result)
+# result = stats.ks_2samp(x_positive,x_negative)
+# print(result)
+# result = stats.ks_2samp(y_positive,y_negative)
+# print(result)
+
+#box plot
+# test = [x_positive, x_negative]
+# plt.boxplot(test)
+# # plt.boxplot(x_positive)
+# # plt.boxplot(x_negative)
+# plt.legend()
+# plt.show()

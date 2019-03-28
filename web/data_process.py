@@ -14,6 +14,9 @@ def get_data(url):
     results = json.loads(response.content.decode())
     return results
 
+def save_to_csv(file, data):
+    return
+
 def get_data_avg_by_range(data,field_x,field_y,range=0,sample=1):
     print('range :', range)
     print('sample: ', sample)
@@ -115,9 +118,11 @@ def main():
     # For waiting_mined_time
     # (x,y) = get_data_avg_by_range(data,'_id','value',0.01,500)
     # For waiting_time
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10000)
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.001,10000)
     plot2D(x,y)
     plot_curve_exp(x,y)
+    plt.ylabel('total waiting time')
+    plt.xlabel('gas price')
     plt.legend()
     plt.show()
 

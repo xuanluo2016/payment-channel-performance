@@ -21,9 +21,10 @@ def fitFunc(t, A, B, k):
 
 # get all
 # url = 'http://localhost:5000/gasstat'
+url = 'http://localhost:5000/waitingminedtime'
 
 # get median
-url = 'http://localhost:5000/gasmedian'
+# url = 'http://localhost:5000/gasmedian'
 
 # get avg
 # url = 'http://localhost:5000/gasavg'
@@ -45,8 +46,9 @@ y = []
 for row in results:
     gas_price = row['_id']
     waiting_time = row['value']
-    if(gas_price <= 50) and (waiting_time <= 500):
-    # if(gas_price <= float("inf")) and (waiting_time <= float("inf")):
+    # if(gas_price <= 50) and (waiting_time <= 500):
+    # if(gas_price <= 50) and (waiting_time <= 1000):
+    if(gas_price <= float("inf")) and (waiting_time <= float("inf")):
         x.append(gas_price)
         y.append(waiting_time)
 

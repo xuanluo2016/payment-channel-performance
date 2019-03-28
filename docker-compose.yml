@@ -74,61 +74,6 @@ services:
     depends_on:
       - mongodb
 
-  # receiver_summary2:
-  #   build: ./receiver_summary_2
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     TRANSACTIONS_SUMMARY_TOPIC: queueing.summary.transactions
-  #     MONGO_INITDB_DATABASE: transactions
-  #     URL: https://etherscan.io/tx/
-  #     BATCH_INTERVAL: 5
-  #   depends_on:
-  #     - mongodb
-
-  # receiver_start_time:
-  #   build: ./receiver_start_time
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     TRANSACTIONS_SUMMARY_TOPIC: queuening.summary.transactions
-  #     MONGO_INITDB_DATABASE: transactions
-  #     URL: https://etherscan.io/tx/
-  #     BATCH_INTERVAL: 2
-  #   depends_on:
-  #     - mongodb
-
-  # receiver_start_time_2:
-  #   build: ./receiver_start_time_2
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     TRANSACTIONS_TOPIC: streaming.transactions
-  #     MONGO_INITDB_DATABASE: transactions
-  #     URL: https://etherscan.io/tx/
-  #     BATCH_INTERVAL: 10
-  #   depends_on:
-  #     - mongodb  
-
-  # receiver_end_time:
-  #   build: ./receiver_end_time
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
-  #     MONGO_INITDB_DATABASE: transactions
-  #     URL: https://etherscan.io/tx/
-  #     BATCH_INTERVAL: 2      
-  #   depends_on:
-  #     - mongodb
-
-  # receiver_end_time_2:26589
-  #   build: ./receiver_e26589nd_time_2
-  #   environment:26589
-  #     KAFKA_ZOOKEEPER_C26589ONNECT: zookeeper:2181
-  #     TRANSACTIONS_BLOC26589KTIME_TOPIC: streaming.blocktime.transactions
-  #     MONGO_INITDB_DATA26589BASE: transactions
-  #     URL: https://etherscan.io/tx/
-  #     BATCH_INTERVAL: 2      
-  #   depends_on:
-  #     - mongodb
-
   receiver_block_time:
     build: ./receiver_block_time
     environment:
@@ -138,19 +83,7 @@ services:
       NUMBER_OF_CONFIRMATIONS: 12
       BATCH_INTERVAL: 1
     depends_on:
-      - mongodb    
-
-  # receiver_block_time_2:
-  #   build: ./receiver_block_time_2
-  #   environment:
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
-  #     MONGO_INITDB_DATABASE: transactions
-  #     NUMBER_OF_CONFIRMATIONS: 12
-  #     BATCH_INTERVAL: 5  
-  #   depends_on:
-  #     - mongodb   
-  
+      - mongodb      
   web:
     build: ./web
     environment: 
