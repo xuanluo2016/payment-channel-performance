@@ -44,6 +44,8 @@ def get_data_avg_by_range(data,field_x,field_y,range=0,sample=1):
                     x.append(current_x)
                     # arr_y = remove_outlier(arr_y)
                     y.append(np.log(stat.mean(arr_y)))
+                    # y.append(stat.mean(arr_y))
+
                 # Clear data for current range and start collecting data from next range
                 arr_y.clear()
                 arr_y.append(temp_y)
@@ -82,17 +84,12 @@ def plot2D(x,y,*args,**kwargs):
     plt.scatter(x, y,*args, **kwargs)
     return
 
-def create_training_and_test_data(x,y, scale=0.7):
-    total_numer = len(x)
+def create_training_and_test_data(data, scale=0.7):
+    total_numer = len(data)
     training_number = int(scale*total_numer)
-    x_train = x[:training_number]
-    x_test = x[training_number:]
-
-    # Split the targets into training/testing sets
-    y_train = y[:training_number]
-    y_test = y[training_number:]
-
-    return(x_train,y_train,x_test,y_test)
+    data_train = data[:training_number]
+    data_test = data[training_number:]
+    return(data_train,data_test)
 
 # exponential function
 def exp(x, a, b, c,d):
@@ -122,7 +119,7 @@ def plot_curve_fit(x,y,func,*args, **kwargs):
     return
 
 def plot_residual(y,y_prediction):
-    plt.scatter(y_prediction, y_prediction - y, c = 'g', s=40)
+    plt.scatter(y_prediction, y_prediction - y, c = 'g')
     plt.hlines(y=0, xmin=5, xmax=7)
     plt.title('Residual plot')
     plt.ylabel('Residual')
@@ -139,8 +136,14 @@ def main():
     # Load the dataset
     urls = ['http://localhost:5000/gasstat','http://localhost:5000/waitingminedtime']
     data = get_data(urls[0])
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10)
-    (x_train,y_train,x_test,y_test) = create_training_and_test_data(x,y)
+    
+    # Split data into training set and test test
+    # (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10)
+    (data_train,data_test) = create_training_and_test_data(data,0.7)
+
+    # Pre-proces data using step-size
+    (x_train,y_train) = get_data_avg_by_range(data_train,'_id','value',0.01,10)
+    (x_test, y_test) =  get_data_avg_by_range(data_test,'_id','value',0.01,10)
 
     # Fit the training data
     plot2D(x_train,y_train, c='g')
