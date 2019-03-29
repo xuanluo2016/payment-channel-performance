@@ -59,7 +59,7 @@ def process_record(col_block_time,col_summary,record):
             # Get the block number which is 12 blocks ahead
             block_number = record['blocknumber']
             block_number = int(block_number, 16)
-            prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS
+            prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS + 1
             # prev_blocknumber = hex(prev_blocknumber)
             print('current block number: ', block_number)
 
