@@ -84,6 +84,13 @@ def plot2D(x,y,*args,**kwargs):
     plt.scatter(x, y,*args, **kwargs)
     return
 
+def plot_hist(x,*args,**kwargs):
+    plt.hist(x, weights=np.ones(len(x)) / len(x))
+    plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+    plt.title('Histogram of gas price')
+    plt.ylabel('Percentage of gas price')
+    plt.show()
+
 def create_training_and_test_data(data, scale=0.7):
     total_numer = len(data)
     training_number = int(scale*total_numer)
@@ -138,12 +145,12 @@ def main():
     data = get_data(urls[0])
     
     # Split data into training set and test test
-    # (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10)
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10)
     (data_train,data_test) = create_training_and_test_data(data,0.7)
 
     # Pre-proces data using step-size
-    (x_train,y_train) = get_data_avg_by_range(data_train,'_id','value',0.01,10)
-    (x_test, y_test) =  get_data_avg_by_range(data_test,'_id','value',0.01,10)
+    (x_train,y_train) = get_data_avg_by_range(data_train,'_id','value',0.01,50)
+    (x_test, y_test) =  get_data_avg_by_range(data_test,'_id','value',0.01,50)
 
     # Fit the training data
     plot2D(x_train,y_train, c='g')
@@ -170,5 +177,10 @@ def main():
 
     # Get r-square score  
     print('r square score is: ', rsq(y_test,y_prediction))
+
+    # Plot histgram of gas price
+    plot_hist(x)
+
+    # plot_hist
 if __name__== "__main__":
     main()
