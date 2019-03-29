@@ -82,8 +82,17 @@ def plot2D(x,y,*args,**kwargs):
     plt.scatter(x, y,*args, **kwargs)
     return
 
-def create_test_data():
-    return
+def create_training_and_test_data(x,y, scale=0.7):
+    total_numer = len(x)
+    training_number = int(scale*total_numer)
+    x_train = x[:training_number]
+    x_test = x[training_number:]
+
+    # Split the targets into training/testing sets
+    y_train = y[:training_number]
+    y_test = y[training_number:]
+
+    return(x_train,y_train,x_test,y_test)
 
 # exponential function
 def exp(x, a, b, c,d):
@@ -127,25 +136,36 @@ def rsq(y,y_prediction):
     return r2
 
 def main():
+    # Load the dataset
     urls = ['http://localhost:5000/gasstat','http://localhost:5000/waitingminedtime']
     data = get_data(urls[0])
-    # For waiting_time
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,200)
-    plot2D(x,y)
-    plot_curve_fit(x,y,inverse)  
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10)
+    (x_train,y_train,x_test,y_test) = create_training_and_test_data(x,y)
+
+    # Fit the training data
+    plot2D(x_train,y_train, c='g')
+    plot_curve_fit(x_train,y_train,inverse)  
     plt.ylabel('total waiting time')
     plt.xlabel('gas price')
     plt.legend()
     plt.show()
 
-    # plot residual plot
-    popt, pcov = fit_curve(x,y,inverse)
-    y_prediction = inverse(x, *popt)
-    plot_residual(y,y_prediction)
+    # Use test data to evaluate the fit curve
+    popt, pcov = fit_curve(x_train,y_train,inverse)
+    y_prediction = inverse(x_test, *popt)
+
+    # Plot test data
+    plot2D(x_test,y_test, c='g')
+    plt.plot(x_test, y_prediction)
+    plt.legend()
+    plt.show()
+
+    # plot residual plot using test data
+    plot_residual(y_test,y_prediction)
     plt.legend()
     plt.show()
 
     # Get r-square score  
-    print('r square score is: ', rsq(y,y_prediction))
+    print('r square score is: ', rsq(y_test,y_prediction))
 if __name__== "__main__":
     main()
