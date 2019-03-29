@@ -85,7 +85,6 @@ def plot2D(x,y,*args,**kwargs):
 def create_test_data():
     return
 
-
 # exponential function
 def exp(x, a, b, c,d):
     return a * np.exp(-b *x + c ) + d
@@ -113,19 +112,25 @@ def plot_curve_fit(x,y,func,*args, **kwargs):
     plt.plot(x, func(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
     return
 
-def plot_residual(x,y,func,*args, **kwargs):
-    popt, pcov = fit_curve(x,y,func)
-    y_prediction = func(x, *popt)
+def plot_residual(y,y_prediction):
     plt.scatter(y_prediction, y_prediction - y, c = 'g', s=40)
     plt.hlines(y=0, xmin=5, xmax=7)
     plt.title('Residual plot')
     plt.ylabel('Residual')
 
+def rsq(y,y_prediction):
+    total_data = len(y_prediction)
+    y_avg = np.sum(y)/total_data
+    tot_err = np.sum((y - y_avg)**2)
+    res_err = np.sum((y - y_prediction)**2)
+    r2 = 1 -(res_err/tot_err)
+    return r2
+
 def main():
     urls = ['http://localhost:5000/gasstat','http://localhost:5000/waitingminedtime']
     data = get_data(urls[0])
     # For waiting_time
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10)
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,200)
     plot2D(x,y)
     plot_curve_fit(x,y,inverse)  
     plt.ylabel('total waiting time')
@@ -133,8 +138,14 @@ def main():
     plt.legend()
     plt.show()
 
-    plot_residual(x,y,inverse)
+    # plot residual plot
+    popt, pcov = fit_curve(x,y,inverse)
+    y_prediction = inverse(x, *popt)
+    plot_residual(y,y_prediction)
     plt.legend()
     plt.show()
+
+    # Get r-square score  
+    print('r square score is: ', rsq(y,y_prediction))
 if __name__== "__main__":
     main()
