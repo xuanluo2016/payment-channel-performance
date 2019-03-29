@@ -86,41 +86,48 @@ def create_test_data():
     return
 
 
+# exponential function
+def exp(x, a, b, c,d):
+    return a * np.exp(-b *x + c ) + d
 
-def plot_curve_exp(x,y):
-    
-    # exponential function
-    def exp(x, a, b, c,d):
-        return a * np.exp(-b *x + c ) + d
+def fitFunc(t, A, B, k):
+    return A - B*np.exp(-k*t)
 
-    def fitFunc(t, A, B, k):
-        return A - B*np.exp(-k*t)
+def inverse(x, a, b):
+    return (a/x) + b 
 
-    def inverse(x, a, b):
-        return (a/x) + b 
-
+def fit_curve(x,y, func=inverse,*args, **kwargs):
     x = np.array(x, dtype=float) 
     y = np.array(y, dtype=float)
     
     # Fit curve with inverse function
-    popt, pcov = curve_fit(inverse, x, y)
-    plt.plot(x, inverse(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
+    popt, pcov = curve_fit(func,x, y)
+    plt.plot(x, func(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
 
-    # Fit curve with exp function
-    popt, pcov = curve_fit(exp, x, y)
-    plt.plot(x, exp(x, *popt), 'r--',label='exp: a=%5.3f, b=%5.3f, c=%5.3f, d=%5.3f' % tuple(popt))
+    # # Fit curve with exp function
+    # popt, pcov = curve_fit(exp, x, y)
+    # plt.plot(x, exp(x, *popt), 'r--',label='exp: a=%5.3f, b=%5.3f, c=%5.3f, d=%5.3f' % tuple(popt))
 
+    return (popt, pcov)
+
+def plot_curve_fit(x,y,func,*args, **kwargs):
+    popt, pcov = fit_curve(x,y,func)
+    plt.plot(x, func(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
     return
+
+def plot_residual(y, y_prediction):
+    plt.scatter(y_prediction, y_prediction - y, c = 'g')
+    plt.hlines(y=0, xmin = 0)
+    plt.title('Residual plot')
+    plt.ylabel('Residual')
 
 def main():
     urls = ['http://localhost:5000/gasstat','http://localhost:5000/waitingminedtime']
     data = get_data(urls[0])
-    # For waiting_mined_time
-    # (x,y) = get_data_avg_by_range(data,'_id','value',0.01,500)
     # For waiting_time
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.1,1)
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.1,10)
     plot2D(x,y)
-    plot_curve_exp(x,y)
+    plot_curve_fit(x,y,inverse)  
     plt.ylabel('total waiting time')
     plt.xlabel('gas price')
     plt.legend()
