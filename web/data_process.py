@@ -102,8 +102,6 @@ def fit_curve(x,y, func=inverse,*args, **kwargs):
     
     # Fit curve with inverse function
     popt, pcov = curve_fit(func,x, y)
-    plt.plot(x, func(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
-
     # # Fit curve with exp function
     # popt, pcov = curve_fit(exp, x, y)
     # plt.plot(x, exp(x, *popt), 'r--',label='exp: a=%5.3f, b=%5.3f, c=%5.3f, d=%5.3f' % tuple(popt))
@@ -115,9 +113,11 @@ def plot_curve_fit(x,y,func,*args, **kwargs):
     plt.plot(x, func(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
     return
 
-def plot_residual(y, y_prediction):
-    plt.scatter(y_prediction, y_prediction - y, c = 'g')
-    plt.hlines(y=0, xmin = 0)
+def plot_residual(x,y,func,*args, **kwargs):
+    popt, pcov = fit_curve(x,y,func)
+    y_prediction = func(x, *popt)
+    plt.scatter(y_prediction, y_prediction - y, c = 'g', s=40)
+    plt.hlines(y=0, xmin=5, xmax=7)
     plt.title('Residual plot')
     plt.ylabel('Residual')
 
@@ -125,7 +125,7 @@ def main():
     urls = ['http://localhost:5000/gasstat','http://localhost:5000/waitingminedtime']
     data = get_data(urls[0])
     # For waiting_time
-    (x,y) = get_data_avg_by_range(data,'_id','value',0.1,10)
+    (x,y) = get_data_avg_by_range(data,'_id','value',0.01,10)
     plot2D(x,y)
     plot_curve_fit(x,y,inverse)  
     plt.ylabel('total waiting time')
@@ -133,5 +133,8 @@ def main():
     plt.legend()
     plt.show()
 
+    plot_residual(x,y,inverse)
+    plt.legend()
+    plt.show()
 if __name__== "__main__":
     main()
