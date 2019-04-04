@@ -41,7 +41,7 @@ if __name__ == '__main__':
                     # get the block number which are 12 blocks older
                     block_number = latest_block_number
                     block_number = int(block_number, 16)
-                    prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS
+                    prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS + 1
                     prev_blocknumber = hex(prev_blocknumber)
 
                     # Send a new item to block topic
