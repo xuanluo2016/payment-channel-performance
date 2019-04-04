@@ -1,0 +1,6 @@
+#kafka-python
+#websocket
+#websocket-client
+requests
+web3
+mysql-connector
