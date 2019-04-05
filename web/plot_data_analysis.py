@@ -15,10 +15,14 @@ def rmse(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
 
 def get_lsq_error(func,x_train,y_train):
-    popt, pcov = curve_fit(func,x_train, y_train)
-    y_prediction = func(x_train, *popt)
-    error = rmse(y_prediction,y_train)
-    return error
+    try: 
+        popt, pcov = curve_fit(func,x_train, y_train)
+        y_prediction = func(x_train, *popt)
+        error = rmse(y_prediction,y_train)
+        return error
+    except Exception as e:
+        print(e)
+        return None
 
 def main():
     # Load the dataset
@@ -33,45 +37,37 @@ def main():
     z = []
 
     step_size = 0.01
+    baby_step = 0.01
 
-    alpha = 0
     sample = 100
+    baby_sample = 100
     iter_step_size = 100
-    try: 
-        while(iter_step_size >= 0):
-            cur_step_size = step_size
-            cur_sample = sample
-            while(True):
-                (x_train,y_train) = get_data_avg_by_range(data,'_id','value',cur_step_size,cur_sample)
-                
-                # # Fit with inverse
-                # func = inverse
-                # lsq1 = get_lsq_error(func,x_train,y_train)
+    count = 0
+    
+    while(iter_step_size >= 0):
+        step_size = step_size + baby_step
+        sample = baby_sample
+        iter_sample = 100
+        while(iter_sample >= 0):
+            sample = sample + baby_sample
+            (x_train,y_train) = get_data_avg_by_range(data,'_id','value',step_size,sample)
 
-                # Fit with exponential 
-                func = exp
-                lsq = get_lsq_error(func,x_train,y_train)
+            # Fit with exponential 
+            func = exp
+            lsq = get_lsq_error(func,x_train,y_train)
 
+            if(lsq != None):
                 # Save the lsq error
                 x.append(step_size)
                 y.append(sample)
                 z.append(lsq)
                 print('lsq is:',lsq)
+                
+            iter_sample = iter_sample -1
 
-                # Start next iteration            
-                alpha = alpha + 1
-                cur_step_size = step_size*(alpha+1)
-                cur_sample = sample *(alpha+1)
-                if(alpha >=10):
-                    alpha = 0
-                    step_size = step_size * 10
-                    sample = sample * 10
-                    break
+        iter_step_size = iter_step_size - 1
 
-            iter_step_size = iter_step_size - 1
-    except Exception as e:
-        pass
-
+    
     print(len(x))
     print(len(y))
     print(len(z))
