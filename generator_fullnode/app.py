@@ -65,7 +65,7 @@ def main():
     )
 
     mycursor = mydb.cursor()
-    mycursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) PRIMARY KEY, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime FLOAT(50,7), Index(txhash))")
+    mycursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) PRIMARY KEY, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
     mydb.commit()
 
     while True:
@@ -75,8 +75,12 @@ def main():
         break
       # Extract useful data from request
       txlist = get_pendingtransactions(item['data'],item['starttime'])
+      print("first entry of transactions:", txlist[0])
+
       # Insert every single transaction into table transadtions
       sql_insert_query =  "INSERT IGNORE INTO transactions (txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s,%s)"
+      # mycursor.execute(sql_insert_query, txlist)  
+
       mycursor.executemany(sql_insert_query, txlist)  
       mydb.commit()
       print("affected rows = {}".format(mycursor.rowcount))
