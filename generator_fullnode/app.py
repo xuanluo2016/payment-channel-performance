@@ -57,16 +57,17 @@ def main():
   def worker_pull():
     print('worker pull started')
     # DB initialization
-    mydb = mysql.connector.connect(
+    ctx = mysql.connector.connect(
       host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
       user = "admin",
       passwd = "l3ft0fth3d0t",
       database = "transactionsdb"
     )
 
-    mycursor = mydb.cursor()
-    mycursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) PRIMARY KEY, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
-    mydb.commit()
+    cursor = ctx.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) PRIMARY KEY, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
+    cursor.close()
+    ctx.commit()
 
     while True:
       item = q.get()
@@ -79,13 +80,14 @@ def main():
 
       # Insert every single transaction into table transadtions
       sql_insert_query =  "INSERT IGNORE INTO transactions (txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s,%s)"
-      # mycursor.execute(sql_insert_query, txlist)  
-
-      mycursor.executemany(sql_insert_query, txlist)  
-      mydb.commit()
-      print("affected rows = {}".format(mycursor.rowcount))
+      # cursor.execute(sql_insert_query, txlist)  
+      cursor = ctx.cursor()
+      cursor.executemany(sql_insert_query, txlist)  
+      ctx.commit()
+      print("affected rows = {}".format(cursor.rowcount))
+      cursor.close()
     
-    mydb.close()
+    ctx.close()
     q.task_done()
 
   # Create a fifo qeque
