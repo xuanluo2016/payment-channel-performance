@@ -2,6 +2,7 @@ import json
 import mysql.connector
 import requests
 import queue
+import time
 
 def send_request(url):
   headers = {'content-type': 'application/json'}
@@ -9,7 +10,7 @@ def send_request(url):
 
   response = requests.post(url,data = data, headers = headers)
   result = response.content
-  return(result)
+  return result
 
 def get_pendingtransactions(data):
   data = json.loads(data.decode())
@@ -17,13 +18,21 @@ def get_pendingtransactions(data):
   if('result' in data):
     txlist = data['result']
     for row in txlist:
-      item = {'hash': row['hash'],'gasPrice':row['gasPrice'],'gas':row['gas']}
-      results.append(item)
-  
+      temp = []
+      temp.append(row['hash'])
+      temp.append(row['gasPrice'])
+      temp.append(row['gas'])
+      temp.append(0)
+
+      # item = {'hash': row['hash'],'gasprice':row['gasPrice'],'gas':row['gas']}
+      # item = {row['hash'],row['gasPrice'],row['gas'],0}
+      # results.append(item)
+      results.append(temp)
+
   return results  
 
-def insert():
-  return
+# def insert_txlist():
+#   return
 
 def main():
   # Create a fifo qeque
@@ -37,8 +46,11 @@ def main():
   data = send_request(url)
 
   # Extract useful data from request
+  start = time.time()
   txlist = get_pendingtransactions(data)
-  print(txlist)
+  end = time.time()
+  print(end - start, "delay in extracting txlist")
+  # print(txlist)
 
   print("test db connection")
 
@@ -51,16 +63,19 @@ def main():
   )
 
   mycursor = mydb.cursor()
-  mycursor.execute("CREATE TABLE IF NOT EXISTS txlist ( txhashlist VARCHAR(255) NOT NULL, starttime FLOAT )")
+  mycursor.execute("CREATE TABLE IF NOT EXISTS txlist (txhashlist VARCHAR(255) NOT NULL, starttime FLOAT )")
+  mycursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime FLOAT)")
+
   # mycursor.execute("SHOW TABLES")  
   # mycursor.execute("SELECT * FROM txlist")
 
   # Insert transaction lists into table txlist
-  sql_insert_query =  """ INSERT INTO `txlist`(`txhashlist`, `starttime`) VALUES ('Scott1', 111)"""
-  mycursor.execute(sql_insert_query)  
+  print(txlist, 'txlist')
+  sql_insert_query =  "INSERT INTO transactions (txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s,%s)"
+  mycursor.executemany(sql_insert_query, txlist)  
   mydb.commit()
 
-  mycursor.execute("SELECT * FROM txlist")
+  mycursor.execute("SELECT * FROM transactions")
 
   for x in mycursor:
     print(x)
