@@ -1,26 +1,39 @@
-from web3 import Web3
 import json
-from web3.providers.rpc import HTTPProvider
 import mysql.connector
+import requests
 
-web3 = Web3(HTTPProvider('http://localhost:8545'))
-print (web3.eth.blockNumber)
-print (web3.eth.syncing)
-print (web3.txpool.inspect)
+def insert():
+  return
+
+def get_pendingtransactions():
+  return
+
+# Setup local connection
+url = 'http://localhost:8545'
+headers = {'content-type': 'application/json'}
+data = '{"method":"parity_pendingTransactions","params":[],"id":1,"jsonrpc":"2.0"}'
+
+response = requests.post(url,data = data, headers = headers)
+print(response)
+
 
 print("test db connection")
 mydb = mysql.connector.connect(
   host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
   user = "admin",
-  passwd = "l3ft0fth3d0t"
+  passwd = "l3ft0fth3d0t",
+  database = "transactionsdb"
 )
 
-print(mydb)
 mycursor = mydb.cursor()
 
-mycursor.execute("CREATE DATABASE testdb")
 
-mycursor.execute("SHOW DATABASES")
+# print(mydb)
+# mycursor = mydb.cursor()
 
-for x in mycursor:
-  print(x)
+# mycursor.execute("CREATE DATABASE testdb")
+
+# mycursor.execute("SHOW DATABASES")
+
+# for x in mycursor:
+#   print(x)
