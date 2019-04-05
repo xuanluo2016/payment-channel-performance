@@ -26,6 +26,9 @@ def insert():
   return
 
 def main():
+  # Create a fifo qeque
+  q = queue.Queue() 
+
   # Setup connection url
   url = 'http://35.162.229.77:8545'
   #url = 'http://localhost:8545'
@@ -37,27 +40,30 @@ def main():
   txlist = get_pendingtransactions(data)
   print(txlist)
 
+  print("test db connection")
 
-  # print("test db connection")
-  # mydb = mysql.connector.connect(
-  #   host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-  #   user = "admin",
-  #   passwd = "l3ft0fth3d0t",
-  #   database = "transactionsdb"
-  # )
+  # DB initialization
+  mydb = mysql.connector.connect(
+    host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
+    user = "admin",
+    passwd = "l3ft0fth3d0t",
+    database = "transactionsdb"
+  )
 
-  # mycursor = mydb.cursor()
+  mycursor = mydb.cursor()
+  mycursor.execute("CREATE TABLE IF NOT EXISTS txlist ( txhashlist VARCHAR(255) NOT NULL, starttime FLOAT )")
+  # mycursor.execute("SHOW TABLES")  
+  # mycursor.execute("SELECT * FROM txlist")
 
+  # Insert transaction lists into table txlist
+  sql_insert_query =  """ INSERT INTO `txlist`(`txhashlist`, `starttime`) VALUES ('Scott1', 111)"""
+  mycursor.execute(sql_insert_query)  
+  mydb.commit()
 
-  # print(mydb)
-  # mycursor = mydb.cursor()
+  mycursor.execute("SELECT * FROM txlist")
 
-  # mycursor.execute("CREATE DATABASE testdb")
-
-  # mycursor.execute("SHOW DATABASES")
-
-  # for x in mycursor:
-  #   print(x)
+  for x in mycursor:
+    print(x)
 
 if __name__== "__main__":
     main()
