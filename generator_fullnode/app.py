@@ -56,20 +56,22 @@ def main():
 
   def worker_pull():
     print('worker pull started')
-    # DB initialization
-    ctx = mysql.connector.connect(
-      host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-      user = "admin",
-      passwd = "l3ft0fth3d0t",
-      database = "transactionsdb"
-    )
 
-    cursor = ctx.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) PRIMARY KEY, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
-    cursor.close()
-    ctx.commit()
 
     while True:
+      # DB initialization
+      ctx = mysql.connector.connect(
+        host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
+        user = "admin",
+        passwd = "l3ft0fth3d0t",
+        database = "transactionsdb"
+      )
+
+      cursor = ctx.cursor()
+      cursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) PRIMARY KEY, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
+      cursor.close()
+      ctx.commit()
+
       item = q.get()
       if item is None:
         print('no item in the queue')
@@ -86,8 +88,8 @@ def main():
       ctx.commit()
       print("affected rows = {}".format(cursor.rowcount))
       cursor.close()
-    
-    ctx.close()
+      ctx.close()
+   
     q.task_done()
 
   # Create a fifo qeque
