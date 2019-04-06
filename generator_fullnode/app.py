@@ -4,6 +4,10 @@ import requests
 import queue
 import time
 import threading
+import os
+
+SERVER = os.uname().nodename
+URL = 'http://localhost:8545'
 
 # Send request to get pending transactions
 def send_request(url):
@@ -22,6 +26,9 @@ def get_pendingtransactions(data, starttime):
     txlist = data['result']
     for row in txlist:
       temp = []
+      # Generate new hashcode by combining servername and txhash
+      hashcode = hash(SERVER+row['hash'])
+      temp.append(hashcode)
       temp.append(row['hash'])
       temp.append(row['gasPrice'])
       temp.append(row['gas'])
@@ -33,16 +40,13 @@ def get_pendingtransactions(data, starttime):
 
 def main():
   def worker_push():
-      print('worker push started')
-
-      # Setup connection url
-      url = 'http://35.162.229.77:8545'
-      #url = 'http://localhost:8545'
-
-      # Insert complete transaction list into queue
-      oldhash = ''
-      count = 0
-      while True:
+    print('worker push started')
+    # Setup connection url
+    url = URL
+    # Insert complete transaction list into queue
+    oldhash = ''
+    count = 0
+    while True:
         starttime = time.time()
         # Get response from http request
         data = send_request(url)
@@ -68,7 +72,7 @@ def main():
       )
 
       cursor = ctx.cursor()
-      cursor.execute("CREATE TABLE IF NOT EXISTS transactions (txhash VARCHAR(255) PRIMARY KEY, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
+      cursor.execute("CREATE TABLE IF NOT EXISTS txstart (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
       cursor.close()
       ctx.commit()
 
@@ -81,7 +85,7 @@ def main():
       print("first entry of transactions:", txlist[0])
 
       # Insert every single transaction into table transadtions
-      sql_insert_query =  "INSERT IGNORE INTO transactions (txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s,%s)"
+      sql_insert_query =  "INSERT IGNORE INTO txstart (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
       # cursor.execute(sql_insert_query, txlist)  
       cursor = ctx.cursor()
       cursor.executemany(sql_insert_query, txlist)  
