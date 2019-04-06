@@ -60,40 +60,37 @@ def main():
 
   def worker_pull():
     print('worker pull started')
-
-
-    while True:
-      # DB initialization
-      ctx = mysql.connector.connect(
+    # DB initialization
+    ctx = mysql.connector.connect(
         host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
         user = "admin",
         passwd = "l3ft0fth3d0t",
         database = "transactionsdb"
-      )
-
-      cursor = ctx.cursor()
-      cursor.execute("CREATE TABLE IF NOT EXISTS txstart (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
-      cursor.close()
-      ctx.commit()
-
+    )
+    cursor = ctx.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS txstart (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
+    ctx.commit()
+    cursor.close()
+    
+    while True:
       item = q.get()
       if item is None:
         print('no item in the queue')
         break
+
       # Extract useful data from request
       txlist = get_pendingtransactions(item['data'],item['starttime'])
       print("first entry of transactions:", txlist[0])
 
       # Insert every single transaction into table transadtions
       sql_insert_query =  "INSERT IGNORE INTO txstart (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
-      # cursor.execute(sql_insert_query, txlist)  
       cursor = ctx.cursor()
       cursor.executemany(sql_insert_query, txlist)  
       ctx.commit()
       print("affected rows = {}".format(cursor.rowcount))
       cursor.close()
-      ctx.close()
-   
+
+    ctx.close()
     q.task_done()
 
   # Create a fifo qeque
@@ -112,9 +109,9 @@ def main():
   # block until all tasks are done
   q.join()
 
-  # # stop workers
-  # for t in threads:
-  #     t.join()
+#   # stop workers
+#   for t in threads:
+#       t.join()
 
 if __name__== "__main__":
     main()
