@@ -68,7 +68,7 @@ def main():
         database = "transactionsdb"
     )
     cursor = ctx.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS txstart (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), Index(txhash))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS txstart (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7))")
     ctx.commit()
     cursor.close()
     
