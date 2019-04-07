@@ -8,12 +8,20 @@ import os
 
 SERVER = os.uname().nodename
 URL = 'http://localhost:8545'
+REDIS_URL = 'http://70.79.145.26:5000'
 
 # Send request to get pending transactions
 def send_request(url):
   headers = {'content-type': 'application/json'}
   data = '{"method":"parity_pendingTransactions","params":[],"id":1,"jsonrpc":"2.0"}'
 
+  response = requests.post(url,data = data, headers = headers)
+  result = response.content
+  return result
+
+# Send request to get pending transactions
+def send_request_ro_redis(url,data):
+  headers = {'content-type': 'application/json'}
   response = requests.post(url,data = data, headers = headers)
   result = response.content
   return result
@@ -60,18 +68,7 @@ def main():
 
   def worker_pull():
     print('worker pull started')
-    # DB initialization
-    ctx = mysql.connector.connect(
-        host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-        user = "admin",
-        passwd = "l3ft0fth3d0t",
-        database = "transactionsdb"
-    )
-    cursor = ctx.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS txstart (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7))")
-    ctx.commit()
-    cursor.close()
-    
+  
     while True:
       item = q.get()
       if item is None:
@@ -81,16 +78,9 @@ def main():
       # Extract useful data from request
       txlist = get_pendingtransactions(item['data'],item['starttime'])
       print("first entry of transactions:", txlist[0])
+      result = send_request_ro_redis(REDIS_URL, txlist)
+      print(result)
 
-      # Insert every single transaction into table transadtions
-      sql_insert_query =  "INSERT IGNORE INTO txstart (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
-      cursor = ctx.cursor()
-      cursor.executemany(sql_insert_query, txlist)  
-      ctx.commit()
-      print("affected rows = {}".format(cursor.rowcount))
-      cursor.close()
-
-    ctx.close()
     q.task_done()
 
   # Create a fifo qeque

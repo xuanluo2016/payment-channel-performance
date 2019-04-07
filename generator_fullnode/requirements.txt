@@ -4,3 +4,7 @@
 requests
 web3
 mysql-connector
+flask
+redis
+rq
+rq_dashboard
