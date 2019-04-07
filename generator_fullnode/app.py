@@ -20,11 +20,10 @@ def send_request(url):
   return result
 
 # Send request to get pending transactions
-def send_request_ro_redis(url,data):
+def send_request_to_redis(url,data):
   headers = {'content-type': 'application/json'}
   response = requests.post(url,data = json.dumps(data), headers = headers)
-  result = response.content
-  return result
+  return 
 
 # Extract pending transaction list
 def get_pendingtransactions(data, starttime):
@@ -78,8 +77,7 @@ def main():
       # Extract useful data from request
       txlist = get_pendingtransactions(item['data'],item['starttime'])
       print("first entry of transactions:", txlist[0])
-      result = send_request_ro_redis(REDIS_URL, txlist)
-      print(result)
+      send_request_to_redis(REDIS_URL, txlist)
 
     q.task_done()
 
