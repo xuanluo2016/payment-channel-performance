@@ -13,7 +13,7 @@ import collections
 DEBUG = True
 # Use FIFO queue to store a cache of transaction hashcode
 MAX_QUEUE_SIZE = 5000
-QUEUE = collections.deque(MAX_QUEUE_SIZE)
+QUEUE = collections.deque([],MAX_QUEUE_SIZE)
 
 app = Flask(__name__)
 
@@ -41,18 +41,18 @@ def parse_and_persist_tx_info(requests):
 
 def write_data_to_db(requests):
 	# DB initialization
-  ctx = mysql.connector.connect(
-      host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-      user = "admin",
-      passwd = "l3ft0fth3d0t",
-      database = "transactionsdb"
-  )
-  
+	ctx = mysql.connector.connect(
+		host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
+		user = "admin",
+		passwd = "l3ft0fth3d0t",
+		database = "transactionsdb"
+	)
+
 	# Insert every single transaction into table transadtions
-  sql_insert_query =  "INSERT IGNORE INTO txstart (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
-  cursor = ctx.cursor()
-  cursor.executemany(sql_insert_query, requests)  
-  ctx.commit()
+	sql_insert_query =  "INSERT IGNORE INTO txstart (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
+	cursor = ctx.cursor()
+	cursor.executemany(sql_insert_query, requests)
+	ctx.commit()
 	cursor.close()
 	ctx.close()
 	print("affected rows = {}".format(cursor.rowcount))
@@ -120,9 +120,9 @@ def parse_tx():
 				QUEUE.append(hashcode)
 				requests.append(row)
 
-	# If any new data, commit data to mysql			
-	if(len(requests)):					
-			txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(requests,),job_id=len(requests))
+	# If any new data, commit data to mysql
+	if(len(requests)):
+		txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(requests,),job_id=len(requests))
 		return "%d txs are scheduled for info parsing."%(len(requests))
 	return "Only json file of tx hash array is accepted.",400
 
