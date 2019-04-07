@@ -8,7 +8,7 @@ import os
 
 SERVER = os.uname().nodename
 URL = 'http://localhost:8545'
-REDIS_URL = 'http://70.79.145.26:5000'
+REDIS_URL = 'http://70.79.145.26:5000/parseTx'
 
 # Send request to get pending transactions
 def send_request(url):
@@ -22,7 +22,7 @@ def send_request(url):
 # Send request to get pending transactions
 def send_request_ro_redis(url,data):
   headers = {'content-type': 'application/json'}
-  response = requests.post(url,data = data, headers = headers)
+  response = requests.post(url,data = json.dumps(data), headers = headers)
   result = response.content
   return result
 
