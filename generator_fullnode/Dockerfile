@@ -1,19 +1,21 @@
-FROM python:3.6
+FROM python:3.6.5-alpine
 
-# Set up code directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir /usr/srv
 
-# Install Linux dependencies
-RUN apt-get update && apt-get install -y libssl-dev
+WORKDIR /usr/srv
 
-COPY web3 ./web3/
-COPY tests ./tests/
-COPY ens ./ens/
+RUN apk add --update --no-cache libc-dev gcc libxslt-dev
 
-COPY setup.py .
-COPY README.md .
+RUN pip install pipenv
 
-RUN pip install -e .[dev]
+COPY Pipfile ./
+COPY Pipfile.lock ./
 
-WORKDIR /code
+RUN pipenv install --system
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["honcho", "start"]
+

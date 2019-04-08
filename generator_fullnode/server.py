@@ -9,11 +9,12 @@ import collections
 import mysql.connector
 
 DEBUG = True
+
+app = Flask(__name__)
+
 # Use FIFO queue to store a cache of transaction hashcode
 MAX_QUEUE_SIZE = 5000
 QUEUE = collections.deque([],MAX_QUEUE_SIZE)
-
-app = Flask(__name__)
 
 # Spawn a client connection to redis server. Here Docker
 # provieds a link to our local redis server usinf 'redis'
@@ -31,13 +32,27 @@ txInfoParserQueue = Queue('txInfoParser',connection=redisClient)
 # generate_redis_key_for_book = lambda bookURL: 'GOODREADS_BOOKS_INFO:' + bookURL
 generate_redis_key_for_tx = lambda txURL: 'TX_INFO:' + txURL
 
+# def parse_book_link_for_meta_data(bookLink):
+#   htmlString = requests.get(bookLink).content
+#   bsTree = BeautifulSoup(htmlString,"html.parser")
+#   title = bsTree.find("h1", attrs={"id": "bookTitle"}).string
+#   author = bsTree.find("a", attrs={"class": "authorName"}).span.string
+#   rating = bsTree.find("span", attrs={"itemprop": "ratingValue"}).string
+#   description = ''.join(bsTree.find("div", attrs={"id": "description"}).find("span", attrs={"style": "display:none"}).stripped_strings)
+#   return dict(title=title.strip() if title else '',author=author.strip() if author else '',rating=float(rating.strip() if rating else 0),description=description)
+#
+# def parse_and_persist_book_info(bookUrl):
+#   redisKey = generate_redis_key_for_book(bookUrl)
+#   bookInfo  = parse_book_link_for_meta_data(bookUrl)
+#   redisClient.set(redisKey,pickle.dumps(bookInfo))
 
-def parse_and_persist_tx_info(requests):
-  redisKey = generate_redis_key_for_tx(requests)
-  write_data_to_db(requests)
-  redisClient.set(redisKey,pickle.dumps(requests))
+def parse_and_persist_tx_info(results):
+  redisKey = generate_redis_key_for_tx(results[0][1])
+  write_data_to_db(results)
+  redisClient.set(redisKey,pickle.dumps(results))
 
-def write_data_to_db(requests):
+def write_data_to_db(results):
+	print('write_data_to_db')
 	# DB initialization
 	ctx = mysql.connector.connect(
 		host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
@@ -47,25 +62,14 @@ def write_data_to_db(requests):
 	)
 
 	# Insert every single transaction into table transadtions
-	sql_insert_query =  "INSERT IGNORE INTO start (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
+	sql_insert_query =  "INSERT IGNORE INTO start (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s, %s, %s)"
 	cursor = ctx.cursor()
-	cursor.executemany(sql_insert_query, requests)
+	cursor.executemany(sql_insert_query, results)
 	ctx.commit()
+	print("affected rows = {}".format(cursor.rowcount))  
 	cursor.close()
 	ctx.close()
-	print("affected rows = {}".format(cursor.rowcount))
 
-# def parse_tx_link_for_meta_data(url):
-#     tx_result = ''
-#     tx_detailedTime = ''
-#     from_address = ''
-#     to_address = ''
-#     (tx_result, tx_detailedTime, from_address, to_address) = parse_tx(url)
-#     if(tx_result == ''):
-#         url = re.sub('0x','',url)
-#         (tx_result, tx_detailedTime,from_address,to_address) = parse_tx(url)
-
-#     return dict(tx_hash = tx_result, tx_time = tx_detailedTime, takerAddr = from_address, makerAddr = to_address)
 #################################
 #### ENDPOINTS ##################
 #################################
@@ -75,40 +79,10 @@ def write_data_to_db(requests):
 def health_check():
 	return "Web server is up and running!"
 
-# #Endpoint that accepts an array of tx hashes for querying tx details
-# @app.route('/getAllTx', methods=["GET"])
-# def get_all_tx_info():
-#   result = []
-#   txListResult = request.get_json()
-#   source_url = SOURCE_URL
-#   if (len(txListResult)):
-#     for tx_id in txListResult:
-#       txURL = source_url + str(tx_id)
-#       redisKey = generate_redis_key_for_tx(txURL)
-#       cachedValue = redisClient.get(redisKey)
-#       if cachedValue:
-#         result.append(pickle.loads(cachedValue))
-#     return jsonify(result)
-#   return "Only array of tx hashes is accepted.",400
-
-# #Endpoint for retrieving book info from Redis
-# @app.route('/getTx', methods=["GET"])
-# def get_tx_info():
-#   txURL = request.args.get('url', None)
-#   if (txURL and txURL.startswith('https://www.etherchain.org/tx/')):
-#     redisKey = generate_redis_key_for_tx(txURL)
-#     cachedValue = redisClient.get(redisKey)
-#     if cachedValue:
-#       return jsonify(pickle.loads(cachedValue))
-#     return "No meta info found for this tx."
-#   return "'url' query parameter is required. It must be a valid tx URL.",400
-
-# Endpoint for posting tx ids
-
 @app.route('/parseTx', methods=["POST"])
 def parse_tx():
 	txListResult = request.get_json()
-	requests = []
+	results = []
 
 	# If transaction list is not empty
 	if (len(txListResult)):
@@ -117,21 +91,22 @@ def parse_tx():
 			hashcode = row[0]
 			if(hashcode not in QUEUE):
 				QUEUE.append(hashcode)
-				requests.append(row)
+				results.append(row)
 
 	# If any new data, commit data to mysql	
-	if(len(requests)):
-		txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(requests,),job_id=requests[0][5])
-		return "%d txs are scheduled for info parsing."%(len(requests))
+	if(len(results)):
+		print('parseTx')
+		txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(results,),job_id=str(len(results)))
+		return "%d txs are scheduled for info parsing."%(len(results))
 	return "Only json file of tx hash array is accepted.",400
 
-####################################
-#Integrating RQ Dashboard with flask
-####################################
+######################################
+## Integrating RQ Dashboard with flask
+######################################
 app.config.from_object(rq_dashboard.default_settings)
-app.config.update(REDIS_URL='redis://localhost')
+app.config.update(REDIS_URL='redis://redis')
 app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rqstatus")
 
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0')
+	app.run()
