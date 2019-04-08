@@ -4,11 +4,9 @@ from rq import Queue
 import pickle
 import rq_dashboard
 import requests
-from bs4 import BeautifulSoup
-from lxml import html, etree
-import requests
 import re
 import collections
+import mysql.connector
 
 DEBUG = True
 # Use FIFO queue to store a cache of transaction hashcode
@@ -49,7 +47,7 @@ def write_data_to_db(requests):
 	)
 
 	# Insert every single transaction into table transadtions
-	sql_insert_query =  "INSERT IGNORE INTO txstart (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
+	sql_insert_query =  "INSERT IGNORE INTO start (hashcode, txhash, gasprice, gas, starttime) VALUES  (%s, %s, %s, %s,%s)"
 	cursor = ctx.cursor()
 	cursor.executemany(sql_insert_query, requests)
 	ctx.commit()
@@ -115,24 +113,25 @@ def parse_tx():
 	# If transaction list is not empty
 	if (len(txListResult)):
 		for row in txListResult:
-			hashcode = row['hashcode']
+			# 0 stands for hashcode
+			hashcode = row[0]
 			if(hashcode not in QUEUE):
 				QUEUE.append(hashcode)
 				requests.append(row)
 
-	# If any new data, commit data to mysql
+	# If any new data, commit data to mysql	
 	if(len(requests)):
-		txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(requests,),job_id=len(requests))
+		txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(requests,),job_id=requests[0][5])
 		return "%d txs are scheduled for info parsing."%(len(requests))
 	return "Only json file of tx hash array is accepted.",400
 
-######################################
-## Integrating RQ Dashboard with flask
-######################################
+####################################
+#Integrating RQ Dashboard with flask
+####################################
 app.config.from_object(rq_dashboard.default_settings)
-app.config.update(REDIS_URL='localhost')
+app.config.update(REDIS_URL='redis://localhost')
 app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rqstatus")
 
 
 if __name__ == '__main__':
-	app.run()
+	app.run(host='0.0.0.0')
