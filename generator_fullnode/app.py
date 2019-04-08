@@ -69,16 +69,19 @@ def main():
     print('worker pull started')
   
     while True:
-      item = q.get()
-      if item is None:
-        print('no item in the queue')
-        break
+      try: 
+        item = q.get()
+        if item is None:
+          print('no item in the queue')
+          break
 
-      # Extract useful data from request
-      txlist = get_pendingtransactions(item['data'],item['starttime'])
-      print("first entry of transactions:", txlist[0])
-      send_request_to_redis(REDIS_URL, txlist)
-
+        # Extract useful data from request
+        txlist = get_pendingtransactions(item['data'],item['starttime'])
+        print("first entry of transactions:", txlist[0])
+        send_request_to_redis(REDIS_URL, txlist)
+      except Exception as e:
+        print(e)
+        pass
     q.task_done()
 
   # Create a fifo qeque
