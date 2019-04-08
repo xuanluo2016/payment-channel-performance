@@ -21,11 +21,31 @@ def send_request(url):
   return result
 
 # Send request to get pending transactions
-def send_request_to_redis(url,data):
+def send_request_to_redis(url,data, timeout=1):
   headers = {'content-type': 'application/json'}
-  response = requests.post(url,data = json.dumps(data), headers = headers)
+  requests.post(url,data = json.dumps(data), headers = headers, timeout)
   return 
 
+# Extract pending transaction list
+def get_pendingtransactions(data, starttime):
+  data = json.loads(data.decode())
+  results = []
+  if('result' in data):
+    txlist = data['result']
+    for row in txlist:
+      temp = []
+      # Generate new hashcode by combining servername and txhash
+      hashcode = SERVER+row['hash']
+      temp.append(hashcode)
+      temp.append(row['hash'])
+      temp.append(row['gasPrice'])
+      temp.append(row['gas'])
+      temp.append(starttime)
+      temp.append(SERVER)
+      results.append(temp)
+
+  return results
+  
 def main():
   def worker_push():
     print('worker push started')
@@ -47,7 +67,7 @@ def main():
         data = data.decode()
 
         if(newhash != oldhash):
-          q.put({'data':data, 'starttime':starttime, 'hostname': SERVER})
+          q.put({'data':data, 'starttime':starttime})
           count = count + 1
           print('pushed items: ', count)
           oldhash = newhash
@@ -65,12 +85,12 @@ def main():
           print('no item in the queue')
           break
 
-        requests_to_send.append(item)
-        print("pull: ", count)
-        if(len(requests_to_send) == max_size):
-          send_request_to_redis(REDIS_URL, requests_to_send)
-          requests_to_send.clear()
+        # Extract useful data from request
+        txlist = get_pendingtransactions(item['data'],item['starttime'])
+        print("first entry of transactions:", txlist[0])
+        result = send_request_ro_redis(REDIS_URL, txlist)
         count = count + 1
+        print('pull: ', count)
       except Exception as e:
         print(e)
         pass
