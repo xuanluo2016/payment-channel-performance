@@ -7,11 +7,15 @@ import requests
 import re
 import collections
 import mysql.connector
+import config
 
 DEBUG = True
 # Use FIFO queue to store a cache of transaction hashcode
 MAX_QUEUE_SIZE = 15000
 QUEUE = collections.deque([],MAX_QUEUE_SIZE)
+DATABASE = config.Database
+TABLE = config.Table
+
 
 app = Flask(__name__)
 
@@ -43,17 +47,46 @@ def write_data_to_db(requests):
       host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
       user = "admin",
       passwd = "l3ft0fth3d0t",
-      database = "transactionsdb"
+      database = DATABASE
   )
   
 	# Insert every single transaction into table transadtions
-  sql_insert_query =  "INSERT IGNORE INTO start (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s,%s, %s)"
+  sql_insert_query =  "INSERT IGNORE INTO " + TABLE  + " (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s,%s, %s)"
+  
   cursor = ctx.cursor()
   cursor.executemany(sql_insert_query, requests)  
   ctx.commit()
   print("affected rows = {}".format(cursor.rowcount))
   cursor.close()
   ctx.close()
+
+def initialize_db_and_table():  
+
+	ctx = mysql.connector.connect(
+		host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
+		user = "admin",
+		passwd = "l3ft0fth3d0t",
+		database = DATABASE
+	)
+
+	# # Create Database if not exist
+	# cursor = ctx.cursor()
+	# query = "CREATE DATABASE IF NOT EXISTS " + DATABASE
+	# cursor.execute(query)
+	# ctx.commit()
+
+	# # Create Table
+	# query = "USE " + DATABASE
+	# cursor.execute(query)
+
+	cursor = ctx.cursor()
+	query = "CREATE TABLE IF NOT EXISTS " + TABLE + " (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), hostname VARCHAR(255) NOT NULL)"
+	cursor.execute(query)
+	ctx.commit()
+	print("affected rows = {}".format(cursor.rowcount))
+	cursor.close()
+	ctx.close()
+	return
 
 #################################
 #### ENDPOINTS ##################
@@ -66,8 +99,8 @@ def health_check():
 
 @app.route('/parseTx', methods=["POST"])
 def parse_tx():
-	txListResult = request.get_json()
 	requests = []
+	txListResult = request.get_json()	
 
 	# If transaction list is not empty
 	if (len(txListResult)):
@@ -93,4 +126,5 @@ app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rqstatus")
 
 
 if __name__ == '__main__':
+	initialize_db_and_table()
 	app.run()
