@@ -28,7 +28,6 @@ def send_request_to_redis(url,data, timeout=1):
 
 # Extract pending transaction list
 def get_pendingtransactions(data, starttime):
-  data = json.loads(data.decode())
   results = []
   if('result' in data):
     txlist = data['result']
@@ -63,8 +62,8 @@ def main():
         hash_object = hashlib.md5(data)
         newhash = hash_object.hexdigest()
 
-        # Transfer byte to string
-        data = data.decode()
+        # # Transfer byte to string
+        # data = data.decode()
 
         if(newhash != oldhash):
           q.put({'data':data, 'starttime':starttime})
