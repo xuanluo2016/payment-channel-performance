@@ -82,8 +82,8 @@ def main():
         hash_object = hashlib.md5(data)
         newhash = hash_object.hexdigest()
 
-        # # Transfer byte to string
-        # data = data.decode()
+        # Transfer byte to string
+        data = data.decode()
 
         if(newhash != oldhash):
           q.put({'data':data, 'starttime':starttime})
