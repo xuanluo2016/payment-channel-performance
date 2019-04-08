@@ -25,113 +25,32 @@ def send_request_to_redis(url,data):
   response = requests.post(url,data = json.dumps(data), headers = headers)
   return 
 
-# # Extract pending transaction list
-# def get_pendingtransactions(data, starttime):
-#   data = json.loads(data.decode())
-#   results = []
-#   if('result' in data):
-#     txlist = data['result']
-#     for row in txlist:
-#       temp = []
-#       # Generate new hashcode by combining servername and txhash
-#       hashcode = SERVER+row['hash']
-#       temp.append(hashcode)
-#       temp.append(row['hash'])
-#       temp.append(row['gasPrice'])
-#       temp.append(row['gas'])
-#       temp.append(starttime)
-#       temp.append(SERVER)
-#       results.append(temp)
-
-#   return results 
-
-# Extract pending transaction list
-# def get_pendingtransactions_dict(data, starttime):
-#   data = json.loads(data.decode())
-#   results = []
-#   if('result' in data):
-#     txlist = data['result']
-#     for row in txlist:
-#       temp = []
-#       # Generate new hashcode by combining servername and txhash
-#       hashcode = SERVER+row['hash']
-#       temp.append(hashcode)
-#       temp.append(row['hash'])
-#       temp.append(row['gasPrice'])
-#       temp.append(row['gas'])
-#       temp.append(starttime)
-#       temp.append(SERVER)
-#       results.append(temp)
-
-#   return results 
-
 def main():
-  def worker_push():
-    print('worker push started')
-    # Setup connection url
-    url = URL
-    # Insert complete transaction list into queue
-    oldhash = ''
-    count = 0
-    while True:
-        starttime = time.time()
-        # Get response from http request
-        data = send_request(url)
+  # Setup connection url
+  url = URL
+  # Insert complete transaction list into queue
+  oldhash = ''
+  count = 0
+  while True:
+      starttime = time.time()
+      # Get response from http request
+      data = send_request(url)
 
-        # Get new hash values
-        hash_object = hashlib.md5(data)
-        newhash = hash_object.hexdigest()
+      # Get new hash values
+      hash_object = hashlib.md5(data)
+      newhash = hash_object.hexdigest()
 
-        # Transfer byte to string
-        data = data.decode()
+      # Transfer byte to string
+      data = data.decode()
 
-        if(newhash != oldhash):
-          q.put({'data':data, 'starttime':starttime, 'hostname': SERVER})
+      if(newhash != oldhash):
+          item = {'data':data, 'starttime':starttime, 'hostname': SERVER}
+          send_request_to_redis(REDIS_URL,item)
           count = count + 1
           print('pushed items: ', count)
           oldhash = newhash
-        time.sleep(1)
-
-  def worker_pull():
-    print('worker pull started')
-    count = 0
-    while True:
-      try: 
-        item = q.get()
-        if item is None:
-          print('no item in the queue')
-          break
-
-        # Extract useful data from request
-        # txlist = get_pendingtransactions(item['data'],item['starttime'])
-        txlist_dict = json.dumps(item)
-        print("pull: ", count)
-        send_request_to_redis(REDIS_URL, txlist_dict)
-        count = count + 1
-      except Exception as e:
-        print(e)
-        pass
-    q.task_done()
-
-  # Create a fifo qeque
-  q = queue.Queue()
-  
-  threads = []
-
-  t = threading.Thread(target=worker_push)
-  t.start()
-  threads.append(t)
-
-  t = threading.Thread(target=worker_pull)
-  t.start()
-  threads.append(t)
-
-  # block until all tasks are done
-  q.join()
-
-#   # stop workers
-#   for t in threads:
-#       t.join()
+      endtime = time.time()
+      print('lag in time:', endtime - starttime)
 
 if __name__== "__main__":
     main()
