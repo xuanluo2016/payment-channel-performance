@@ -70,6 +70,25 @@ def write_data_to_db(results):
 	cursor.close()
 	ctx.close()
 
+# Extract pending transaction list
+def get_pendingtransactions(data, starttime):
+  data = json.loads(data.decode())
+  results = []
+  if('result' in data):
+    txlist = data['result']
+    for row in txlist:
+      temp = []
+      # Generate new hashcode by combining servername and txhash
+      hashcode = SERVER+row['hash']
+      temp.append(hashcode)
+      temp.append(row['hash'])
+      temp.append(row['gasPrice'])
+      temp.append(row['gas'])
+      temp.append(starttime)
+      temp.append(SERVER)
+      results.append(temp)
+
+  return results 
 #################################
 #### ENDPOINTS ##################
 #################################
@@ -81,7 +100,8 @@ def health_check():
 
 @app.route('/parseTx', methods=["POST"])
 def parse_tx():
-	txListResult = request.get_json()
+	dict_data = request.get_json()
+	txListResult = get_pendingtransactions(dict_data['data'], dict_data['starttime'])
 	results = []
 
 	# If transaction list is not empty

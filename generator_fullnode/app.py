@@ -44,6 +44,25 @@ def get_pendingtransactions(data, starttime):
 
   return results 
 
+# Extract pending transaction list
+def get_pendingtransactions_dict(data, starttime):
+  data = json.loads(data.decode())
+  results = []
+  if('result' in data):
+    txlist = data['result']
+    for row in txlist:
+      temp = []
+      # Generate new hashcode by combining servername and txhash
+      hashcode = SERVER+row['hash']
+      temp.append(hashcode)
+      temp.append(row['hash'])
+      temp.append(row['gasPrice'])
+      temp.append(row['gas'])
+      temp.append(starttime)
+      temp.append(SERVER)
+      results.append(temp)
+
+  return results 
 
 def main():
   def worker_push():
@@ -67,7 +86,7 @@ def main():
 
   def worker_pull():
     print('worker pull started')
-  
+    count = 0
     while True:
       try: 
         item = q.get()
@@ -76,9 +95,11 @@ def main():
           break
 
         # Extract useful data from request
-        txlist = get_pendingtransactions(item['data'],item['starttime'])
-        print("first entry of transactions:", txlist[0])
+        # txlist = get_pendingtransactions(item['data'],item['starttime'])
+        txlist = json.dumps(item)
+        print("pull: ", count)
         send_request_to_redis(REDIS_URL, txlist)
+        count = count + 1
       except Exception as e:
         print(e)
         pass
