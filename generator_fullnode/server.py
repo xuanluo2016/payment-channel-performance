@@ -6,10 +6,11 @@ import rq_dashboard
 import requests
 import re
 import collections
+import mysql.connector
 
 DEBUG = True
 # Use FIFO queue to store a cache of transaction hashcode
-MAX_QUEUE_SIZE = 5000
+MAX_QUEUE_SIZE = 15000
 QUEUE = collections.deque([],MAX_QUEUE_SIZE)
 
 app = Flask(__name__)
@@ -32,7 +33,7 @@ generate_redis_key_for_tx = lambda txURL: 'TX_INFO:' + txURL
 
 
 def parse_and_persist_tx_info(requests):
-  redisKey = generate_redis_key_for_tx(requests)
+  redisKey = generate_redis_key_for_tx(requests[0][0])
   write_data_to_db(requests)
   redisClient.set(redisKey,pickle.dumps(requests))
 
@@ -50,9 +51,9 @@ def write_data_to_db(requests):
   cursor = ctx.cursor()
   cursor.executemany(sql_insert_query, requests)  
   ctx.commit()
+  print("affected rows = {}".format(cursor.rowcount))
   cursor.close()
   ctx.close()
-  print("affected rows = {}".format(cursor.rowcount))
 
 #################################
 #### ENDPOINTS ##################
@@ -71,7 +72,8 @@ def parse_tx():
 	# If transaction list is not empty
 	if (len(txListResult)):
 		for row in txListResult:
-			hashcode = row['hashcode']
+			# Check if any existing transaction from the server exists
+			hashcode = row[0]
 			if(hashcode not in QUEUE):
 				QUEUE.append(hashcode)
 				requests.append(row)
