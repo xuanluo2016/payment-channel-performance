@@ -27,7 +27,7 @@ def send_request_to_redis(url, data, timeout=10):
   return 
 
 # Extract pending transaction list
-def get_pendingtransactions(data, starttime):
+def get_pendingtransactions(data, starttime, results):
   data = json.loads(data)
   results = []
   if('result' in data):
@@ -43,8 +43,7 @@ def get_pendingtransactions(data, starttime):
       temp.append(starttime)
       temp.append(SERVER)
       results.append(temp)
-
-  return results
+  return 
   
 def main():
   def worker_push():
@@ -77,7 +76,7 @@ def main():
     print('worker pull started')
     count = 0
     requests_to_send = []
-    max_size = 10
+    max_size = 5000
     while True:
       try: 
         item = q.get()
@@ -86,9 +85,8 @@ def main():
           break
 
         # Extract useful data from request
-        txlist = get_pendingtransactions(item['data'],item['starttime'])
-        requests_to_send.append(txlist)
-        if(len(requests_to_send == max_size):
+        get_pendingtransactions(item['data'],item['starttime'],requests_to_send)
+        if(len(requests_to_send) >= max_size):
           result = send_request_to_redis(REDIS_URL, requests_to_send)
           requests_to_send.clear()
         count = count + 1
