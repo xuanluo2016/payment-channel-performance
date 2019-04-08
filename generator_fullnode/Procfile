@@ -2,5 +2,3 @@ webserver: gunicorn --bind "0.0.0.0:5000" server:app
 rqworker1: rq worker txInfoParser -u redis://redis
 rqworker2: rq worker txInfoParser -u redis://redis
 rqworker3: rq worker txInfoParser -u redis://redis
-rqworker4: rq worker txInfoParser -u redis://redis
-rqworker5: rq worker txInfoParser -u redis://redis

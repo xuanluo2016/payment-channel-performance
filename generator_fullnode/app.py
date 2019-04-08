@@ -25,45 +25,45 @@ def send_request_to_redis(url,data):
   response = requests.post(url,data = json.dumps(data), headers = headers)
   return 
 
+# # Extract pending transaction list
+# def get_pendingtransactions(data, starttime):
+#   data = json.loads(data.decode())
+#   results = []
+#   if('result' in data):
+#     txlist = data['result']
+#     for row in txlist:
+#       temp = []
+#       # Generate new hashcode by combining servername and txhash
+#       hashcode = SERVER+row['hash']
+#       temp.append(hashcode)
+#       temp.append(row['hash'])
+#       temp.append(row['gasPrice'])
+#       temp.append(row['gas'])
+#       temp.append(starttime)
+#       temp.append(SERVER)
+#       results.append(temp)
+
+#   return results 
+
 # Extract pending transaction list
-def get_pendingtransactions(data, starttime):
-  data = json.loads(data.decode())
-  results = []
-  if('result' in data):
-    txlist = data['result']
-    for row in txlist:
-      temp = []
-      # Generate new hashcode by combining servername and txhash
-      hashcode = SERVER+row['hash']
-      temp.append(hashcode)
-      temp.append(row['hash'])
-      temp.append(row['gasPrice'])
-      temp.append(row['gas'])
-      temp.append(starttime)
-      temp.append(SERVER)
-      results.append(temp)
+# def get_pendingtransactions_dict(data, starttime):
+#   data = json.loads(data.decode())
+#   results = []
+#   if('result' in data):
+#     txlist = data['result']
+#     for row in txlist:
+#       temp = []
+#       # Generate new hashcode by combining servername and txhash
+#       hashcode = SERVER+row['hash']
+#       temp.append(hashcode)
+#       temp.append(row['hash'])
+#       temp.append(row['gasPrice'])
+#       temp.append(row['gas'])
+#       temp.append(starttime)
+#       temp.append(SERVER)
+#       results.append(temp)
 
-  return results 
-
-# Extract pending transaction list
-def get_pendingtransactions_dict(data, starttime):
-  data = json.loads(data.decode())
-  results = []
-  if('result' in data):
-    txlist = data['result']
-    for row in txlist:
-      temp = []
-      # Generate new hashcode by combining servername and txhash
-      hashcode = SERVER+row['hash']
-      temp.append(hashcode)
-      temp.append(row['hash'])
-      temp.append(row['gasPrice'])
-      temp.append(row['gas'])
-      temp.append(starttime)
-      temp.append(SERVER)
-      results.append(temp)
-
-  return results 
+#   return results 
 
 def main():
   def worker_push():
@@ -86,7 +86,7 @@ def main():
         data = data.decode()
 
         if(newhash != oldhash):
-          q.put({'data':data, 'starttime':starttime})
+          q.put({'data':data, 'starttime':starttime, 'hostname': SERVER})
           count = count + 1
           print('pushed items: ', count)
           oldhash = newhash

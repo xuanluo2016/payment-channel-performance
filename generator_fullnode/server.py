@@ -7,6 +7,7 @@ import requests
 import re
 import collections
 import mysql.connector
+import json
 
 DEBUG = True
 
@@ -57,21 +58,21 @@ def write_data_to_db(results):
 	ctx.close()
 
 # Extract pending transaction list
-def get_pendingtransactions(data, starttime):
-  data = json.loads(data.decode())
+def get_pendingtransactions(data, starttime, hostname):
+  data = json.loads(data)
   results = []
   if('result' in data):
     txlist = data['result']
     for row in txlist:
       temp = []
       # Generate new hashcode by combining servername and txhash
-      hashcode = SERVER+row['hash']
+      hashcode = hostname+row['hash']
       temp.append(hashcode)
       temp.append(row['hash'])
       temp.append(row['gasPrice'])
       temp.append(row['gas'])
       temp.append(starttime)
-      temp.append(SERVER)
+      temp.append(hostname)
       results.append(temp)
 
   return results 
@@ -86,8 +87,8 @@ def health_check():
 
 @app.route('/parseTx', methods=["POST"])
 def parse_tx():
-	dict_data = request.get_json()
-	txListResult = get_pendingtransactions(dict_data['data'], dict_data['starttime'])
+	dict_data = json.loads(request.get_json())
+	txListResult = get_pendingtransactions(dict_data['data'], dict_data['starttime'], dict_data['hostname'])
 	results = []
 
 	# If transaction list is not empty
