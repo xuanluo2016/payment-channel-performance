@@ -5,6 +5,7 @@ import time
 import threading
 import os
 import hashlib
+import config
 
 SERVER = os.uname().nodename
 URL = config.URL
