@@ -4,6 +4,7 @@ import queue
 import time
 import threading
 import os
+import hashlib
 
 SERVER = os.uname().nodename
 URL = 'http://localhost:8545'
@@ -76,7 +77,14 @@ def main():
         starttime = time.time()
         # Get response from http request
         data = send_request(url)
-        newhash = hash(data)
+
+        # Get new hash values
+        hash_object = hashlib.md5(data)
+        newhash = hash_object.hexdigest()
+
+        # # Transfer byte to string
+        # data = data.decode()
+
         if(newhash != oldhash):
           q.put({'data':data, 'starttime':starttime})
           count = count + 1
@@ -96,9 +104,9 @@ def main():
 
         # Extract useful data from request
         # txlist = get_pendingtransactions(item['data'],item['starttime'])
-        txlist = json.dumps(item)
+        txlist_dict = json.dumps(item)
         print("pull: ", count)
-        send_request_to_redis(REDIS_URL, txlist)
+        send_request_to_redis(REDIS_URL, txlist_dict)
         count = count + 1
       except Exception as e:
         print(e)

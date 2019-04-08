@@ -32,20 +32,6 @@ txInfoParserQueue = Queue('txInfoParser',connection=redisClient)
 # generate_redis_key_for_book = lambda bookURL: 'GOODREADS_BOOKS_INFO:' + bookURL
 generate_redis_key_for_tx = lambda txURL: 'TX_INFO:' + txURL
 
-# def parse_book_link_for_meta_data(bookLink):
-#   htmlString = requests.get(bookLink).content
-#   bsTree = BeautifulSoup(htmlString,"html.parser")
-#   title = bsTree.find("h1", attrs={"id": "bookTitle"}).string
-#   author = bsTree.find("a", attrs={"class": "authorName"}).span.string
-#   rating = bsTree.find("span", attrs={"itemprop": "ratingValue"}).string
-#   description = ''.join(bsTree.find("div", attrs={"id": "description"}).find("span", attrs={"style": "display:none"}).stripped_strings)
-#   return dict(title=title.strip() if title else '',author=author.strip() if author else '',rating=float(rating.strip() if rating else 0),description=description)
-#
-# def parse_and_persist_book_info(bookUrl):
-#   redisKey = generate_redis_key_for_book(bookUrl)
-#   bookInfo  = parse_book_link_for_meta_data(bookUrl)
-#   redisClient.set(redisKey,pickle.dumps(bookInfo))
-
 def parse_and_persist_tx_info(results):
   redisKey = generate_redis_key_for_tx(results[0][1])
   write_data_to_db(results)
