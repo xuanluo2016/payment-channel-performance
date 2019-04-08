@@ -87,25 +87,27 @@ def health_check():
 
 @app.route('/parseTx', methods=["POST"])
 def parse_tx():
+	print('parse_tx')
 	dict_data = json.loads(request.get_json())
-	txListResult = get_pendingtransactions(dict_data['data'], dict_data['starttime'], dict_data['hostname'])
-	results = []
+	for row in dict_data:
+		txListResult = get_pendingtransactions(row['data'], row['starttime'], row['hostname'])
+		results = []
 
-	# If transaction list is not empty
-	if (len(txListResult)):
-		for row in txListResult:
-			# 0 stands for hashcode
-			hashcode = row[0]
-			if(hashcode not in QUEUE):
-				QUEUE.append(hashcode)
-				results.append(row)
+		# If transaction list is not empty
+		if (len(txListResult)):
+			for row in txListResult:
+				# 0 stands for hashcode
+				hashcode = row[0]
+				if(hashcode not in QUEUE):
+					QUEUE.append(hashcode)
+					results.append(row)
 
-	# If any new data, commit data to mysql	
-	if(len(results)):
-		print('parseTx')
-		txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(results,),job_id=str(len(results)))
-		return "%d txs are scheduled for info parsing."%(len(results))
-	return "Only json file of tx hash array is accepted.",400
+		# If any new data, commit data to mysql	
+		if(len(results)):
+			print('parseTx')
+			txInfoParserQueue.enqueue_call(func=parse_and_persist_tx_info,args=(results,),job_id=str(len(results)))
+			print("%d txs are scheduled for info parsing."%(len(results)))
+	return
 
 ######################################
 ## Integrating RQ Dashboard with flask
