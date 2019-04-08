@@ -23,7 +23,7 @@ def send_request(url):
 # Send request to get pending transactions
 def send_request_to_redis(url,data, timeout=1):
   headers = {'content-type': 'application/json'}
-  requests.post(url,data = json.dumps(data), headers = headers, timeout)
+  requests.post(url,data = json.dumps(data), headers = headers,timeout=timeout)
   return 
 
 # Extract pending transaction list
