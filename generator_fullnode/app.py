@@ -33,7 +33,7 @@ def get_pendingtransactions(data, starttime):
     for row in txlist:
       temp = []
       # Generate new hashcode by combining servername and txhash
-      hashcode = hash(SERVER+row['hash'])
+      hashcode = SERVER+row['hash']
       temp.append(hashcode)
       temp.append(row['hash'])
       temp.append(row['gasPrice'])
