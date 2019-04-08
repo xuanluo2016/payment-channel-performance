@@ -1,5 +1,4 @@
 import json
-import mysql.connector
 import requests
 import queue
 import time
@@ -40,9 +39,10 @@ def get_pendingtransactions(data, starttime):
       temp.append(row['gasPrice'])
       temp.append(row['gas'])
       temp.append(starttime)
+      temp.append(SERVER)
       results.append(temp)
 
-  return results  
+  return results 
 
 
 def main():
