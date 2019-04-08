@@ -7,8 +7,8 @@ import os
 import hashlib
 
 SERVER = os.uname().nodename
-URL = 'http://localhost:8545'
-REDIS_URL = 'http://70.79.145.26:5000/parseTx'
+URL = config.URL
+REDIS_URL = config.REDIS_URL
 
 # Send request to get pending transactions
 def send_request(url):
@@ -68,6 +68,7 @@ def main():
         print("pull: ", count)
         if(len(requests_to_send) == max_size):
           send_request_to_redis(REDIS_URL, requests_to_send)
+          requests_to_send.clear()
         count = count + 1
       except Exception as e:
         print(e)
