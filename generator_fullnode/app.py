@@ -26,31 +26,73 @@ def send_request_to_redis(url,data):
   return 
 
 def main():
-  # Setup connection url
-  url = URL
-  # Insert complete transaction list into queue
-  oldhash = ''
-  count = 0
-  while True:
-      starttime = time.time()
-      # Get response from http request
-      data = send_request(url)
+  def worker_push():
+    print('worker push started')
+    # Setup connection url
+    url = URL
+    # Insert complete transaction list into queue
+    oldhash = ''
+    count = 0
+    while True:
+        starttime = time.time()
+        # Get response from http request
+        data = send_request(url)
 
-      # Get new hash values
-      hash_object = hashlib.md5(data)
-      newhash = hash_object.hexdigest()
+        # Get new hash values
+        hash_object = hashlib.md5(data)
+        newhash = hash_object.hexdigest()
 
-      # Transfer byte to string
-      data = data.decode()
+        # Transfer byte to string
+        data = data.decode()
 
-      if(newhash != oldhash):
-          item = {'data':data, 'starttime':starttime, 'hostname': SERVER}
-          send_request_to_redis(REDIS_URL,item)
+        if(newhash != oldhash):
+          q.put({'data':data, 'starttime':starttime, 'hostname': SERVER})
           count = count + 1
           print('pushed items: ', count)
           oldhash = newhash
-      endtime = time.time()
-      print('lag in time:', endtime - starttime)
+        time.sleep(1)
+
+  def worker_pull():
+    print('worker pull started')
+    count = 0
+    requests_to_send = []
+    max_size = 10
+    while True:
+      try: 
+        item = q.get()
+        if item is None:
+          print('no item in the queue')
+          break
+
+        requests_to_send.append(item)
+        print("pull: ", count)
+        if(len(requests_to_send) == max_size):
+          send_request_to_redis(REDIS_URL, requests_to_send)
+        count = count + 1
+      except Exception as e:
+        print(e)
+        pass
+    q.task_done()
+
+  # Create a fifo qeque
+  q = queue.Queue()
+  
+  threads = []
+
+  t = threading.Thread(target=worker_push)
+  t.start()
+  threads.append(t)
+
+  t = threading.Thread(target=worker_pull)
+  t.start()
+  threads.append(t)
+
+  # block until all tasks are done
+  q.join()
+
+#   # stop workers
+#   for t in threads:
+#       t.join()
 
 if __name__== "__main__":
     main()
