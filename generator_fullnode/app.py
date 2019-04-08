@@ -28,6 +28,7 @@ def send_request_to_redis(url,data, timeout=1):
 
 # Extract pending transaction list
 def get_pendingtransactions(data, starttime):
+  data = json.loads(data)
   results = []
   if('result' in data):
     txlist = data['result']
