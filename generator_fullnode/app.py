@@ -21,7 +21,7 @@ def send_request(url):
   return result
 
 # Send request to get pending transactions
-def send_request_to_redis(url, data, timeout=1):
+def send_request_to_redis(url, data, timeout=10):
   headers = {'content-type': 'application/json'}
   requests.post(url,data = json.dumps(data), headers = headers,timeout=timeout)
   return 
@@ -87,8 +87,10 @@ def main():
 
         # Extract useful data from request
         txlist = get_pendingtransactions(item['data'],item['starttime'])
-        print("first entry of transactions:", txlist[0])
-        result = send_request_to_redis(REDIS_URL, txlist)
+        requests_to_send.append(txlist)
+        if(len(requests_to_send == max_size):)
+          result = send_request_to_redis(REDIS_URL, requests_to_send)
+          requests_to_send.clear()
         count = count + 1
         print('pull: ', count)
       except Exception as e:
