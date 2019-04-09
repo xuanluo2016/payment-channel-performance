@@ -21,9 +21,9 @@ def send_request(url):
   return result
 
 # Send request to get pending transactions
-def send_request_to_redis(url, data, timeout=(10,20)):
+def send_request_to_redis(url, data):
   headers = {'content-type': 'application/json'}
-  requests.post(url,data = json.dumps(data), headers = headers,timeout=timeout)
+  requests.post(url,data = json.dumps(data), headers = headers)
   return 
 
 # Extract pending transaction list
