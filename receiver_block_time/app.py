@@ -6,7 +6,6 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
 import config
-from lib.db import DB
 import mysql.connector
 
 
