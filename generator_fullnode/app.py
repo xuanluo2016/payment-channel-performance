@@ -98,7 +98,7 @@ def main():
     q.task_done()
 
   # Create a fifo qeque
-  q = queue.Queue()
+  q = queue.Queue(config.QUEUE_MAX_SIZE)
   
   threads = []
 
