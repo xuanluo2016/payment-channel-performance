@@ -76,7 +76,7 @@ def main():
     print('worker pull started')
     #count = 0
     requests_to_send = []
-    max_size = 10000
+    max_size = 5000
     session = requests.Session()
     while True:
       try: 
