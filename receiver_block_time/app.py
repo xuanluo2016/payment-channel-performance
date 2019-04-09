@@ -121,9 +121,9 @@ lines = kafkaStream.map(lambda x: x[1])
 
 # Connect to mysql db
 ctx = mysql.connector.connect(
-    host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-    user = "admin",
-    passwd = "l3ft0fth3d0t",
+    host = config.Host,
+    user = config.User,
+    passwd = config.Passwd,
     database = config.Database
     )
 

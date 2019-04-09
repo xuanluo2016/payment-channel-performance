@@ -6,7 +6,6 @@ from time import sleep
 
 from kafka import KafkaConsumer, KafkaProducer
 from get_transactions_from_block import get_transactions_from_block
-from lib.db import DB
 import config
 import mysql.connector
 
@@ -25,9 +24,9 @@ DATABASE = config.Database
 def initialize_db_and_table():  
 
 	ctx =  mysql.connector.connect(
-        host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-        user = "admin",
-        passwd = "l3ft0fth3d0t",
+        host = config.Host,
+        user = config.User,
+        passwd = config.Passwd,
         database = config.Database
         )
 	cursor = ctx.cursor()
