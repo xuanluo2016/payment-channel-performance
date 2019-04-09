@@ -52,9 +52,9 @@ if __name__ == '__main__':
     # Create Table if not exist
     initialize_db_and_table()
     ctx =  mysql.connector.connect(
-        host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-        user = "admin",
-        passwd = "l3ft0fth3d0t",
+        host = config.Host,
+        user = config.User,
+        passwd = config.Passwd,
         database = config.Database
         )
     
