@@ -52,7 +52,7 @@ def main():
     url = URL
     # Insert complete transaction list into queue
     oldhash = ''
-    count = 0
+    #count = 0
     while True:
         starttime = time.time()
         # Get response from http request
@@ -67,14 +67,14 @@ def main():
 
         if(newhash != oldhash):
           q.put({'data':data, 'starttime':starttime})
-          count = count + 1
-          print('pushed items: ', count)
+          #count = count + 1
+          #print('pushed items: ', count)
           oldhash = newhash
         time.sleep(1)
 
   def worker_pull():
     print('worker pull started')
-    count = 0
+    #count = 0
     requests_to_send = []
     max_size = 10000
     session = requests.Session()
@@ -90,8 +90,7 @@ def main():
         if(len(requests_to_send) >= max_size):
           result = send_request_to_redis(session, REDIS_URL, requests_to_send)
           requests_to_send.clear()
-        count = count + 1
-        print('pull: ', count)
+        print('len of queue: ', q.qsize())
       except Exception as e:
         print(e)
         pass
