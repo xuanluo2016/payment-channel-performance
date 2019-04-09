@@ -5,9 +5,10 @@ from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 
-import pymongo
-from pymongo.errors import BulkWriteError
+import config
 from lib.db import DB
+import mysql.connector
+
 
 from get_transaction_details import parse
 from get_transaction_summary import get_summary
@@ -20,83 +21,61 @@ BATCH_INTERVAL = int(os.environ.get('BATCH_INTERVAL'))
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.0 pyspark-shell --master spark://master:7077 '
 
+TABLE = config.Table
+DATABASE = config.Database
 
-def pprint2(lines,col_block_time,col_summary):
+def pprint2(lines,ctx):
     """
     Print the first num elements oNUMBER_OF_CONFIRMATIONSf each RDD generated in this DStream.
 
     @param num: the number of elements from the first will be printed.
     """
-    # def takeAndPrint(rdd):
-    #     taken = rdd.take(num + 1) 
-    #     for record in taken[:num]:            
-    #         process_record(col_start_time,col_end_time, col_summary, record)
-    #         if len(taken) > num:
-    #             print("...")
-    #             print("")
-
     def takeAndPrint(rdd):
         collect = rdd.collect() 
         for record in collect:            
-            process_record(col_block_time,col_summary,record)
+            process_record(ctx,record)
 
     lines.foreachRDD(takeAndPrint)
 
-    # lines.foreachRDD(takeAndPrint)
-
-def process_record(col_block_time,col_summary,record):
+def process_record(ctx,record):
     """
     Check if the txhash exists or not in the end_time table
     if yes, send streaming data to query tx details and remove related record in the end_time db
     else, save data in the start_time db
     """
-    record = json.loads(record)
     print(record)
+    record = json.loads(record)
     if('blocknumber' in record):
         try: 
+            print('111')
             block_time = int(record['blocktime'],16)
 
             # Get the block number which is 12 blocks ahead
             block_number = record['blocknumber']
             block_number = int(block_number, 16)
             prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS + 1
-            # prev_blocknumber = hex(prev_blocknumber)
 
-
+            print('222')
             # Get the blocktime of previous block ahead of number of confirmations
-            doc = col_block_time.find_one({'blocknumber': prev_blocknumber})
-            if(doc != None):
+            cursor = ctx.cursor()
+            query = "select * from " + TABLE + " where blocknumber = " + str(prev_blocknumber)
+            cursor.execute(query)
+            print('333')
+            for row in cursor:
                 # Get the delta of time for blocks
-
-                prev_block_time = doc['blocktime']
-                # prev_block_time = int(prev_block_time,16)
+                prev_block_time = row[2]
                 block_time_delta = block_time - prev_block_time
             
                 #Update transactions which are 12 blocks earlier
-                post = {"waiting_time": block_time_delta}
-                col_summary.update_many({'blocknumber': prev_blocknumber},  {'$set': post}) 
-                print('update summary table')
+                query = "update " + TABLE + " SET waiting_time = " + str(block_time_delta) +  "where blocknumber = " + str(prev_blocknumber)
+                newcursor = ctx.cursor()
+                newcursor.execute(query)
+                ctx.commit()
+                print("updated rows of waiting time = {}".format(newcursor.rowcount))
+                newcursor.close()
+                break 
+            cursor.close()
 
-            # # Find transactions which are 12 blocks ahead
-            # doc = col_summary.find({"blocknumber": prev_blocknumber} )
-
-            # for row in doc:
-            #     prev_block_time = row['blocktime']
-            #     block_time_delta = block_time - prev_block_time
-            #     waiting_time = block_time_delta + row['waiting_time']
-            #     # query = '{_id: ' + row['_id'] + '}, {$set: {"waiting_time": ' + str(waiting_time) + '}}'
-            #     # print(query)
-            #     # result = col_summary.update(query)
-            #     post = {"waiting_time": waiting_time}
-            #     # col_summary.update_one({"_id":'ObjectId("5c7b78046fd11d5872ff4be3")'},  {"$set": post}) 
-            #     result = col_summary.update_one({"txhash":row['txhash']},  {"$set": post})  
-            #     print(result)
-            #     print(row['txhash']) 
-
-            # insert block_time and block_number to table block_time
-            print('insert into block collection: ')
-            # col_block_time.insert(record)
-            col_block_time.insert({'blocktime':block_time,"blocknumber":block_number})
         except Exception as e:
             print(e)
             
@@ -131,17 +110,25 @@ kafkaStream = KafkaUtils.createStream(ssc, KAFKA_ZOOKEEPER_CONNECT, "spark-strea
 
 lines = kafkaStream.map(lambda x: x[1])
 
-# connect to mongodb
-db_connection =  DB()
-db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
+# # connect to mongodb
+# db_connection =  DB()
+# db = db_connection.mongo_client[str(MONGO_INITDB_DATABASE)]
 
-col_block_time = db["block_time"]
-col_block_time.create_index([('blocknumber', pymongo.ASCENDING)], unique = True)
+# col_block_time = db["block_time"]
+# col_block_time.create_index([('blocknumber', pymongo.ASCENDING)], unique = True)
 
-col_summary = db["summary"]
+# col_summary = db["summary"]
+
+# Connect to mysql db
+ctx = mysql.connector.connect(
+    host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
+    user = "admin",
+    passwd = "l3ft0fth3d0t",
+    database = config.Database
+    )
 
 # insert data to mongo db
-pprint2(lines,col_block_time,col_summary)
+pprint2(lines,ctx)
 
 # start ssc
 ssc.start()

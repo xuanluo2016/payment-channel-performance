@@ -1,8 +1,0 @@
-pyspark
-pymongo
-requests
-lxml
-datetime
-python-dateutil
-websocket
-websocket-client

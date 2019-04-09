@@ -48,6 +48,7 @@ if __name__ == '__main__':
                     transaction:dict = {"blocknumber": prev_blocknumber}
                     topic = RAW_BLOCKS_TOPIC
                     producer.send(topic, value=transaction)
+                    print(topic, transaction)
 
             # Wait for a while before sending out next request
             sleep(REQUEST_INTERVAL)

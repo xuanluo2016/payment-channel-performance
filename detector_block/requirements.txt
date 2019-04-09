@@ -1,3 +1,4 @@
 kafka-python
 websocket
 websocket-client
+mysql-connector

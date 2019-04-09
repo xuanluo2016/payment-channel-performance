@@ -1,5 +1,0 @@
-kafka-python
-lxml
-datetime
-python-dateutil
-requests

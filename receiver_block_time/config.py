@@ -1,0 +1,2 @@
+Database = 'transactionsdb'
+Table = 'end'
