@@ -12,22 +12,49 @@ services:
       NUMBER_OF_CONFIRMATIONS: 12
       SOURCE_URL: wss://mainnet.infura.io/ws
 
+  generator_block2:
+    build: ./generator_block2
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+      RAW_BLOCKS_TOPIC: queueing.raw.blocks2
+      TRANSACTIONS_PER_SECOND: 1000
+      REQUEST_INTERVAL: 2
+      NUMBER_OF_CONFIRMATIONS: 12
+      START_BLOCK: 7530729
+      END_BLOCK: 7536567
+      SOURCE_URL: wss://mainnet.infura.io/ws
+
   detector_block:
     build: ./detector_block
     environment:
       KAFKA_BROKER_URL: broker:9092
       RAW_BLOCKS_TOPIC: queueing.raw.blocks
-      TRANSACTIONS_TOPIC: streaming.transactions
-      # TRANSACTIONS_BLOCKTIME_TOPIC: streaming.blocktime.transactions
       TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
+      SOURCE_BLOCKDETAILS_URL: wss://mainnet.infura.io/ws/a699fa2391894c5799607f10f8b89ab3
+      NUMBER_OF_CONFIRMATIONS: 12
+
+  detector_block2:
+    build: ./detector_block
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+      RAW_BLOCKS_TOPIC: queueing.raw.blocks2
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks2
       SOURCE_BLOCKDETAILS_URL: wss://mainnet.infura.io/ws/a699fa2391894c5799607f10f8b89ab3
       NUMBER_OF_CONFIRMATIONS: 12
 
   receiver_block_time:
     build: ./receiver_block_time
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_URL: broker:9092
       TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks
+      NUMBER_OF_CONFIRMATIONS: 12
+      BATCH_INTERVAL: 1
+
+  receiver_block_time2:
+    build: ./receiver_block_time
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+      TRANSACTIONS_BLOCK_TOPIC: queueing.blocktime.blocks2
       NUMBER_OF_CONFIRMATIONS: 12
       BATCH_INTERVAL: 1
       

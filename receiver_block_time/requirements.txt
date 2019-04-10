@@ -1,7 +1,3 @@
-pyspark
-pymongo
 requests
-lxml
-datetime
-python-dateutil
 mysql-connector
+kafka-python

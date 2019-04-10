@@ -97,8 +97,8 @@ if __name__ == '__main__':
                         sql_insert_query =  "INSERT IGNORE INTO " + TABLE  + " (txhash,blocknumber,blocktime,waitingtime) VALUES  (%s, %s, %s, %s)"
                         cursor.executemany(sql_insert_query, requests)  
                         ctx.commit()
+                        print("affected rows = {}".format(cursor.rowcount))
                         cursor.close()
-                        print("affected rows = {}".format(cursor.rowcount))                        
                         requests.clear()
                     
                     # # Update Records which are 12 confirmations ahead
@@ -112,7 +112,7 @@ if __name__ == '__main__':
                     #     block_time_delta = block_time - prev_block_time
                     
                     #     #Update transactions which are 12 blocks earlier
-                    #     query = "update " + TABLE + " SET waiting_time = " + str(block_time_delta) +  "where blocknumber = " + str(prev_blocknumber)
+                    #     query = "update " + TABLE + " SET waitingtime = " + str(block_time_delta) +  "where blocknumber = " + str(prev_blocknumber)
                     #     cursor.execute(query)
                     #     ctx.commit()
                     #     print("updated rows of waiting time = {}".format(cursor.rowcount))                        
