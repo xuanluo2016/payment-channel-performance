@@ -31,8 +31,8 @@ if __name__ == '__main__':
         try:
             query = '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
             message = get_current_block(SOURCE_URL, query)
-            print(message)
-            print(type(message))
+            # print(message)
+            # print(type(message))
             message = json.loads(message)
             if('result' in message):
                 latest_block_number = message['result']

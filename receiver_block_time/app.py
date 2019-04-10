@@ -33,14 +33,14 @@ if __name__ == '__main__':
         try:
            if('blocknumber' in message.value):
                value = message.value
-               print(value)
+            #    print(value)
                block_time = int(value['blocktime'],16)
                
                # Get the block number which is 12 blocks ahead
                block_number = int(value['blocknumber'], 16)
                prev_blocknumber = block_number - NUMBER_OF_CONFIRMATIONS + 1
                
-               print('prev_blocknumber :', prev_blocknumber)
+            #    print('prev_blocknumber :', prev_blocknumber)
                # Get the blocktime of previous block ahead of number of confirmations
                cursor = ctx.cursor(buffered=True)
                query = "select * from " + TABLE + " where blocknumber = " + str(prev_blocknumber)
@@ -51,7 +51,7 @@ if __name__ == '__main__':
                    prev_block_time = row[2]
                    block_time_delta = block_time - prev_block_time
 
-                #    query = "SET SQL_SAFE_UPDATES = 0"
+                   query = "SET SQL_SAFE_UPDATES = 0"
                    cursor.execute(query)
 
                    #Update transactions which are 12 blocks earlier
