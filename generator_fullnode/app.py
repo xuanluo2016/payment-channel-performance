@@ -12,11 +12,11 @@ URL = config.URL
 REDIS_URL = config.REDIS_URL
 
 # Send request to get pending transactions
-def send_request(url):
+def send_request(session,url):
   headers = {'content-type': 'application/json'}
   data = '{"method":"parity_pendingTransactions","params":[],"id":1,"jsonrpc":"2.0"}'
 
-  response = requests.post(url,data = data, headers = headers)
+  response = session.post(url,data = data, headers = headers)
   result = response.content
   return result
 
@@ -56,7 +56,9 @@ def main():
     while True:
         starttime = time.time()
         # Get response from http request
-        data = send_request(url)
+        #data = send_request(url)
+        session = requests.Session()
+        data = send_request(session, url)
 
         # Get new hash values
         hash_object = hashlib.md5(data)
