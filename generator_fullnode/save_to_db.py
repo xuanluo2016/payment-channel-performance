@@ -10,7 +10,7 @@ URL = config.URL
 REDIS_URL = config.REDIS_URL
 
 # Extract pending transaction list from file
-def save_to_db(file = 'data.json'):
+def save_to_db(file = 'data-last.json'):
     f = open(file,"r")
     if(f.mode == "r"):
         # Read content of the file line by line
@@ -95,19 +95,6 @@ def find_after( s, first):
 
     except ValueError:
         return ""
-
-def test(file = 'data.json'):
-    with open(file) as f:
-        lines = f.read().splitlines()
-        for line in lines:
-            print(line)
-
-def test2(file = 'data.json'):
-    with open(file) as f:
-        content = f.read()
-        lines = content.split('}')
-        for line in lines:
-            print(line)
 
 def main():
     save_to_db()
