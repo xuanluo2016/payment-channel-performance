@@ -19,13 +19,16 @@ def save_to_db(file = 'data-last.json'):
         # Seperate files into different lines
         lines = content.split('}')
         results = []
-        length = len(lines)
-        for i in range(0, int(length/2)):
+        i = 0
+        while(i < len(lines) -1 ):
+            print(i)
             temp = extract_data(lines[i], lines[i+1])
+            print(temp)
             results.append(temp)
+            i = i + 2
 
     f.close()
-    print(results)
+    print(len(results))
     return results
 
 def extract_data(txdata, time):
@@ -48,6 +51,7 @@ def extract_transaction_data(txdata):
     txhash = find_between(txdata, 'hash', ',')
     # Remove all special characters between ' and '
     txhash = find_between(txhash, "'", "'")
+
 
     # Find substr of gas
     gas = find_between(txdata, 'gas', ',')
