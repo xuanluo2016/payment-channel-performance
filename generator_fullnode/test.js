@@ -13,11 +13,14 @@ web3.eth.subscribe('pendingTransactions', function(error, result) {
 })
 .on('data', function(txData){
     web3.eth.getTransaction(txData).then(function(value) {
-        console.log(value)
-        // fs.writeFile('hello.txt', value, function(err) {
-        //     // If an error occurred, show it and return
-        //     if(err) return console.error(err);
-        //     // Successfully wrote to the file!
-        //   });
+       // console.log(value, Math.floor(new Date() / 1000))
+       var dict = {};
+       dict.data = value
+       dict.starttime = Math.floor(new Date() / 1000)	
+       fs.writeFile('hello.json', JSON.stringify(dict), 'utf8', function(err) {
+       // If an error occurred, show it and return
+       if(err) return console.error(err);
+       // Successfully wrote to the file!
+           });
       })
 });
