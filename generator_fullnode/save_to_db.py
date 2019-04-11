@@ -19,7 +19,7 @@ def save_to_db(txlist):
     
     cursor = ctx.cursor()
     # Insert every single transaction into table transadtions
-    sql_insert_query =  "INSERT IGNORE INTO " + TABLE  + " (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s,%s, %s)"
+    sql_insert_query =  "INSERT IGNORE INTO " + config.Table  + " (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s,%s, %s)"
     cursor = ctx.cursor()
     cursor.executemany(sql_insert_query, requests)  
     ctx.commit()
@@ -130,7 +130,7 @@ def initialize_db_and_table():
 		database = config.Database
 	)
 
-	query = "CREATE TABLE IF NOT EXISTS " + TABLE + " (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), hostname VARCHAR(255) NOT NULL)"
+	query = "CREATE TABLE IF NOT EXISTS " + config.Table + " (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), hostname VARCHAR(255) NOT NULL)"
 	cursor.execute(query)
 	ctx.commit()
 	print("affected rows = {}".format(cursor.rowcount))
@@ -142,7 +142,7 @@ def main():
 
     # initialize db
     initialize_db_and_table()
-    
+
     # extract transaction list from file
     results = get_transaction_list()
     print('length of results:' ,len(results))
