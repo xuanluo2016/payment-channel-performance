@@ -8,6 +8,7 @@ import mysql.connector
 
 SERVER = os.uname().nodename
 URL = config.URL
+TABLE = config.Table
 
 def save_to_db(txlist):
     ctx = mysql.connector.connect(
@@ -19,9 +20,9 @@ def save_to_db(txlist):
     
     cursor = ctx.cursor()
     # Insert every single transaction into table transadtions
-    sql_insert_query =  "INSERT IGNORE INTO " + config.Table  + " (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s,%s, %s)"
+    sql_insert_query =  "INSERT IGNORE INTO " + TABLE  + " (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s,%s, %s)"
     cursor = ctx.cursor()
-    cursor.executemany(sql_insert_query, requests)  
+    cursor.executemany(sql_insert_query, txlist)  
     ctx.commit()
     print("affected rows = {}".format(cursor.rowcount))
     cursor.close()
@@ -41,8 +42,8 @@ def get_transaction_list(file = 'data-last.json'):
         i = 0
         while(i < len(lines) -1 ):
             temp = extract_data(lines[i], lines[i+1])
-            print(temp)
-            if(len(temp) == 0):
+            print('item: ', temp)
+            if(len(temp) > 0):
                 results.append(temp)
             i = i + 2
 
@@ -51,7 +52,7 @@ def get_transaction_list(file = 'data-last.json'):
 
 def extract_data(txdata, time):
     result = []
-    if ('hash' in txdata) and ('starttime' in txdata):
+    if ('hash' in txdata) and ('starttime' in time):
         (txhash,gas,gasprice) = extract_transaction_data(txdata)
         starttime = extract_starttime(time)
         hostname = SERVER
@@ -122,21 +123,20 @@ def find_after( s, first):
         return ""
 
 def initialize_db_and_table():  
-
-	ctx = mysql.connector.connect(
-		host = config.Host,
-		user = config.User,
-		passwd = config.Passwd,
-		database = config.Database
-	)
-
-	query = "CREATE TABLE IF NOT EXISTS " + config.Table + " (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), hostname VARCHAR(255) NOT NULL)"
-	cursor.execute(query)
-	ctx.commit()
-	print("affected rows = {}".format(cursor.rowcount))
-	cursor.close()
-	ctx.close()
-	return
+    ctx = mysql.connector.connect(
+        host = config.Host,
+        user = config.User,
+        passwd = config.Passwd,
+        database = config.Database
+    )
+    cursor = ctx.cursor()
+    query = "CREATE TABLE IF NOT EXISTS " + TABLE+ " (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), hostname VARCHAR(255) NOT NULL)"
+    cursor.execute(query)
+    ctx.commit()
+    print("affected rows = {}".format(cursor.rowcount))
+    cursor.close()
+    ctx.close()
+    return
     
 def main():
 
@@ -145,11 +145,14 @@ def main():
 
     # extract transaction list from file
     results = get_transaction_list()
-    print('length of results:' ,len(results))
-    print('last item in results:' ,results[-1])
+    print(results)
 
-    # Insert txlist into mysql
-    save_to_db(results)
+    if(len(results) > 0):
+        print('length of results:' ,len(results))
+        print('last item in results:' ,results[-1])
+        
+        # Insert txlist into mysql
+        save_to_db(results)
 
 if __name__== "__main__":
     main()
