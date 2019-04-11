@@ -44,10 +44,10 @@ def parse_and_persist_tx_info(requests):
 def write_data_to_db(requests):
 	# DB initialization
   ctx = mysql.connector.connect(
-      host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-      user = "admin",
-      passwd = "l3ft0fth3d0t",
-      database = DATABASE
+    host = config.Host,
+    user = config.User,
+    passwd = config.Passwd,
+    database = config.Database
   )
   
 	# Insert every single transaction into table transadtions
@@ -63,10 +63,10 @@ def write_data_to_db(requests):
 def initialize_db_and_table():  
 
 	ctx = mysql.connector.connect(
-		host = "ethfullnodedb.c0cwkssklnbh.us-west-2.rds.amazonaws.com",
-		user = "admin",
-		passwd = "l3ft0fth3d0t",
-		database = DATABASE
+		host = config.Host,
+		user = config.User,
+		passwd = config.Passwd,
+		database = config.Database
 	)
 
 	# # Create Database if not exist
@@ -127,4 +127,4 @@ app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rqstatus")
 
 if __name__ == '__main__':
 	initialize_db_and_table()
-	app.run()
+app.run()
