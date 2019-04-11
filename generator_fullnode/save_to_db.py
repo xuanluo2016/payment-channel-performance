@@ -22,7 +22,7 @@ def save_to_db(file = 'data-last.json'):
         i = 0
         while(i < len(lines) -1 ):
             temp = extract_data(lines[i], lines[i+1])
-            if(len(temp) = 0):
+            if(len(temp) == 0):
                 results.append(temp)
             i = i + 2
 
