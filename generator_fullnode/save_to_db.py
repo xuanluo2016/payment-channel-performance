@@ -9,6 +9,7 @@ import mysql.connector
 SERVER = os.uname().nodename
 URL = config.URL
 TABLE = config.Table
+BATCH_SIZE = 10000
 
 def save_to_db(txlist):
     ctx = mysql.connector.connect(
@@ -27,7 +28,7 @@ def save_to_db(txlist):
     print("affected rows = {}".format(cursor.rowcount))
     cursor.close()
     ctx.close()
-    return
+    return 
 
 # Extract pending transaction list from file
 def get_transaction_list(file = 'data-last.json'):
@@ -137,7 +138,11 @@ def initialize_db_and_table():
     cursor.close()
     ctx.close()
     return
-    
+
+def chunks(list, BATCH_SIZE):
+    n = max(1, BATCH_SIZE)
+    return (list[i:i+n] for i in range(0, len(list), n))
+
 def main():
 
     # initialize db
@@ -152,7 +157,9 @@ def main():
         print('last item in results:' ,results[-1])
         
         # Insert txlist into mysql
-        save_to_db(results)
+        list = chunks(requests, BATCH_SIZE)
+        for sublist in list:            
+            save_to_db(sublist)
 
 if __name__== "__main__":
     main()
