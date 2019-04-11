@@ -21,28 +21,27 @@ def save_to_db(file = 'data-last.json'):
         results = []
         i = 0
         while(i < len(lines) -1 ):
-            print(i)
             temp = extract_data(lines[i], lines[i+1])
-            print(temp)
-            results.append(temp)
+            if(len(temp) = 0):
+                results.append(temp)
             i = i + 2
 
     f.close()
-    print(len(results))
+    print('length of results:' ,len(results))
     return results
 
 def extract_data(txdata, time):
     result = []
-
-    (txhash,gas,gasprice) = extract_transaction_data(txdata)
-    starttime = extract_starttime(time)
-    hostname = SERVER
-    
-    result.append(txhash)
-    result.append(gas)
-    result.append(gasprice)
-    result.append(starttime)
-    result.append(hostname)
+    if ('hash' in txdata) and ('starttime' in txdata):
+        (txhash,gas,gasprice) = extract_transaction_data(txdata)
+        starttime = extract_starttime(time)
+        hostname = SERVER
+        
+        result.append(txhash)
+        result.append(gas)
+        result.append(gasprice)
+        result.append(starttime)
+        result.append(hostname)
 
     return result
 
