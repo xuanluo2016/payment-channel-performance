@@ -8,17 +8,16 @@ var fs = require("fs");
 const web3 = new Web3("ws://localhost:8546");
 
 
-
-
 web3.eth.subscribe('pendingTransactions', function(error, result) {
     console.log(error);
 })
 .on('data', function(txData){
     web3.eth.getTransaction(txData).then(function(value) {
-        fs.writeFile('hello.txt', value, function(err) {
-            // If an error occurred, show it and return
-            if(err) return console.error(err);
-            // Successfully wrote to the file!
-          });
+        console.log(value)
+        // fs.writeFile('hello.txt', value, function(err) {
+        //     // If an error occurred, show it and return
+        //     if(err) return console.error(err);
+        //     // Successfully wrote to the file!
+        //   });
       })
 });
