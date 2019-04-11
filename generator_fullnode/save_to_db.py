@@ -157,7 +157,7 @@ def main():
         print('last item in results:' ,results[-1])
         
         # Insert txlist into mysql
-        list = chunks(requests, BATCH_SIZE)
+        list = chunks(results, BATCH_SIZE)
         for sublist in list:            
             save_to_db(sublist)
 
