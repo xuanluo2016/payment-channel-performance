@@ -14,9 +14,11 @@ web3.eth.subscribe('pendingTransactions', function(error, result) {
     console.log(error);
 })
 .on('data', function(txData){
-    fs.writeFile('hello.txt', web3.eth.getTransaction(txData), function(err) {
-        // If an error occurred, show it and return
-        if(err) return console.error(err);
-        // Successfully wrote to the file!
-      });
+    web3.eth.getTransaction(txData).then(function(value) {
+        fs.writeFile('hello.txt', value, function(err) {
+            // If an error occurred, show it and return
+            if(err) return console.error(err);
+            // Successfully wrote to the file!
+          });
+      })
 });
