@@ -5,6 +5,7 @@ import hashlib
 import config
 import re
 import mysql.connector
+import sys
 
 SERVER = os.uname().nodename
 URL = config.URL
@@ -136,7 +137,7 @@ def chunks(list, BATCH_SIZE):
     return (list[i:i+n] for i in range(0, len(list), n))
 
 def main():
-    if(len(sys.argv[1:]) == 0):
+    if(len(sys.argv[1:]) > 0):
         file = sys.argv[1:][0]
     else:
         print('using default file location')
