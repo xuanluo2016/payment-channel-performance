@@ -123,7 +123,7 @@ def initialize_db_and_table():
         database = config.Database
     )
     cursor = ctx.cursor()
-    query = "CREATE TABLE IF NOT EXISTS " + TABLE+ " (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice VARCHAR(255) NOT NULL, gas VARCHAR(255), starttime DOUBLE(50,7), hostname VARCHAR(255) NOT NULL)"
+    query = "CREATE TABLE IF NOT EXISTS " + TABLE+ " (hashcode VARCHAR(255) PRIMARY KEY, txhash VARCHAR(255) NOT NULL, gasprice DOUBLE(50,7) NOT NULL, gas DOUBLE(50,7), starttime DOUBLE(50,7), hostname VARCHAR(255) NOT NULL)"
     cursor.execute(query)
     ctx.commit()
     print("affected rows = {}".format(cursor.rowcount))
