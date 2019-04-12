@@ -11,14 +11,7 @@ URL = config.URL
 TABLE = config.Table
 BATCH_SIZE = 10000
 
-def save_to_db(txlist):
-    ctx = mysql.connector.connect(
-        host = config.Host,
-        user = config.User,
-        passwd = config.Passwd,
-        database = config.Database
-    )
-    
+def save_to_db(ctx,txlist):
     cursor = ctx.cursor()
     # Insert every single transaction into table transadtions
     sql_insert_query =  "INSERT IGNORE INTO " + TABLE  + " (hashcode, txhash, gasprice, gas, starttime, hostname) VALUES  (%s, %s, %s, %s,%s, %s)"
@@ -27,7 +20,6 @@ def save_to_db(txlist):
     ctx.commit()
     print("affected rows = {}".format(cursor.rowcount))
     cursor.close()
-    ctx.close()
     return 
 
 # Extract pending transaction list from file
@@ -158,8 +150,16 @@ def main():
         
         # Insert txlist into mysql
         list = chunks(results, BATCH_SIZE)
+        ctx = mysql.connector.connect(
+            host = config.Host,
+            user = config.User,
+            passwd = config.Passwd,
+            database = config.Database
+        )
+        
         for sublist in list:            
-            save_to_db(sublist)
+            save_to_db(ctx, sublist)
+        ctx.close()
 
 if __name__== "__main__":
     main()
