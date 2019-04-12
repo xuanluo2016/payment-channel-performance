@@ -23,7 +23,7 @@ def save_to_db(ctx,txlist):
     return 
 
 # Extract pending transaction list from file
-def get_transaction_list(file = 'data-last.json'):
+def get_transaction_list(file):
     f = open(file,"r")
     if(f.mode == "r"):
         # Read content of the file line by line
@@ -136,12 +136,17 @@ def chunks(list, BATCH_SIZE):
     return (list[i:i+n] for i in range(0, len(list), n))
 
 def main():
+    if(len(sys.argv[1:]) == 0):
+        file = sys.argv[1:][0]
+    else:
+        print('using default file location')
+        file = 'data-last.json'
 
     # initialize db
     initialize_db_and_table()
 
     # extract transaction list from file
-    results = get_transaction_list()
+    results = get_transaction_list(file)
     print(results)
 
     if(len(results) > 0):
