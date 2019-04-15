@@ -47,8 +47,9 @@ def get_transaction_list(file):
             print('item: ', temp)
             if(len(temp) > 0):
                 results.append(temp)
-            i = i + 2
-
+                i = i + 2
+            else:
+                i = i + 1
     f.close()
     return results
 
