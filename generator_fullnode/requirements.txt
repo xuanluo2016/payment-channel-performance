@@ -4,3 +4,6 @@ flask
 redis
 rq
 rq_dashboard
+matplotlib
+scipy
+statistics

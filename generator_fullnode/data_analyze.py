@@ -2,7 +2,6 @@ import requests
 import json
 import sys
 import matplotlib.pyplot as plt
-# import seaborn as sns
 import numpy as np
 from scipy.optimize import curve_fit
 from matplotlib.ticker import PercentFormatter
@@ -41,9 +40,10 @@ def get_waiting_mined_time():
 
     query = """
         select (t2.blocktime - t1.starttime),t1.gasprice, t1.starttime, t1.txhash
-        from transactionsdb.txcount as t1, transactionsdb.end as t2
+        from transactionsdb.txcount as t1, transactionsdb.blocktime as t2
         where t1.txhash = t2.txhash and t1.count = 5
         order by t1.starttime
+        limit 5000
         """
     cursor.execute(query)
     for row in cursor:
@@ -54,7 +54,7 @@ def get_waiting_mined_time():
     print(len(x))
     print(len(y))
     print(len(z))
-    
+
     return x,y,z
 
 
@@ -66,10 +66,10 @@ def get_waiting_mined_time_from_one_node(hostname):
     y = []
     z = []
 
-    
+
     query = """
         select (t2.blocktime - t1.starttime),t1.gasprice, t2.blocktime, t1.txhash, t1.starttime
-        from transactionsdb.startfromfile as t1, transactionsdb.end as t2
+        from transactionsdb.startfromfile as t1, transactionsdb.blocktime as t2
         where t1.txhash = t2.txhash and t1.hostname = '127.0.1.1ip-10-1-2-244'
         order by t1.starttime
     """
@@ -82,7 +82,7 @@ def get_waiting_mined_time_from_one_node(hostname):
     print(len(x))
     print(len(y))
     print(len(z))
-    
+
     return x,y,z
 
 
@@ -125,12 +125,12 @@ def get_data_avg_by_range(data,field_x,field_y,range=0,sample=1):
                 # Clear data for current range and start collecting data from next range
                 arr_y.clear()
                 arr_y.append(temp_y)
-                current_x = current_x + range 
+                current_x = current_x + range
 
-            index = index + 1   
+            index = index + 1
     else:
         print("input list is empty or invalid fields")
-    
+
     return (x,y)
 
 def remove_outlier(list):
@@ -146,7 +146,7 @@ def get_data_as_matrix(data, fields):
     n = len(fields)
 
     results = np.zeros((m,n))
-    
+
     for i in range(0, m) :
         for j in range(0,n):
             results[i][j] = data[i][fields[j]]
@@ -166,7 +166,7 @@ def create_test_data():
 
 
 def plot_curve_exp(x,y):
-    
+
     # exponential function
     def exp(x, a, b, c,d):
         return a * np.exp(-b *x + c ) + d
@@ -175,11 +175,11 @@ def plot_curve_exp(x,y):
         return A - B*np.exp(-k*t)
 
     def inverse(x, a, b):
-        return (a/x) + b 
+        return (a/x) + b
 
-    x = np.array(x, dtype=float) 
+    x = np.array(x, dtype=float)
     y = np.array(y, dtype=float)
-    
+
     # Fit curve with inverse function
     popt, pcov = curve_fit(inverse, x, y)
     plt.plot(x, inverse(x, *popt), 'b--',label='inverse: a=%5.3f, b=%5.3f' % tuple(popt))
@@ -204,9 +204,9 @@ def get_data_within_range(x,y, limit):
 
 
 def main():
-    # waiting_mined_time,gasprice,blocktime = get_waiting_mined_time()    
-    (waiting_mined_time,gasprice,blocktime) = get_waiting_mined_time_from_one_node('127.0.1.1ip-10-1-2-244')
-    
+    waiting_mined_time,gasprice,blocktime = get_waiting_mined_time()
+    #(waiting_mined_time,gasprice,blocktime) = get_waiting_mined_time_from_one_node('127.0.1.1ip-10-1-2-244')
+
     # waiting_mined_time with the goes of gas price
     x = gasprice
     y = waiting_mined_time
@@ -215,11 +215,11 @@ def main():
     print(type(x[0]))
     x = np.log(x)
 
-    # # Get log of waiting mined time 
+    # # Get log of waiting mined time
     # y = y + np.ones(len(y))
     # y = np.log(y)
-    
-    
+
+
     plt.scatter(x, y)
     plt.title('Tredency of waiting_mined_time goes with gas price')
     plt.xlabel('gas price')
