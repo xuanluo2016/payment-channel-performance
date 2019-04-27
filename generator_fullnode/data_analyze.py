@@ -9,6 +9,10 @@ import statistics as stat
 import mysql.connector
 import config
 from mpl_toolkits.mplot3d import Axes3D
+import os
+import unicodecsv as csv
+
+
 
 def get_db_connection():
     ctx = mysql.connector.connect(
@@ -202,6 +206,23 @@ def get_data_within_range(x,y, limit):
     return result_x, result_y
 
 
+def write_to_csv(x,y):
+	with open('%s.csv' % ('samples'), 'ab')as csvfile:
+		dir_path = os.path.dirname(os.path.realpath(__file__))
+		fieldnames = ['x', 'y']
+		writer = csv.DictWriter(csvfile, fieldnames=fieldnames,quoting=csv.QUOTE_ALL)
+		#writer.writeheader()
+		for i in range(0, len(x)):
+			try:
+				temp = {
+					"x": x[i],
+					"y": y[i],
+					}
+				writer.writerow(temp)
+			except Exception as e:
+				print(e)
+
+
 
 def main():
     waiting_mined_time,gasprice,blocktime = get_waiting_mined_time()
@@ -211,20 +232,21 @@ def main():
     x = gasprice
     y = waiting_mined_time
 
-    # Get log of gas price
-    print(type(x[0]))
-    x = np.log(x)
-
-    # # Get log of waiting mined time
-    # y = y + np.ones(len(y))
-    # y = np.log(y)
-
-
-    plt.scatter(x, y)
-    plt.title('Tredency of waiting_mined_time goes with gas price')
-    plt.xlabel('gas price')
-    plt.ylabel('waiting_mined_time')
-    plt.show()
+    write_to_csv(x,y)
+    # # Get log of gas price
+    # print(type(x[0]))
+    # x = np.log(x)
+    #
+    # # # Get log of waiting mined time
+    # # y = y + np.ones(len(y))
+    # # y = np.log(y)
+    #
+    #
+    # plt.scatter(x, y)
+    # plt.title('Tredency of waiting_mined_time goes with gas price')
+    # plt.xlabel('gas price')
+    # plt.ylabel('waiting_mined_time')
+    # plt.show()
 
     # # Probability distribution of gas price
     # x2 = np.sort(gasprice)
@@ -238,22 +260,22 @@ def main():
     # plt.ylabel('distribution of gas price')
     # plt.show()
 
-    # Relationship between gasprice, starttime and waiting_mined_time
-    x3 = np.log(gasprice)
-    y3 = blocktime
-    z3 = waiting_mined_time
-    # z3 = z3 + np.ones(len(z3))
-    # z3 = np.log(z3)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(x3, y3, z3)
-
-    ax.set_xlabel('gas price')
-    ax.set_ylabel('start time')
-    ax.set_zlabel('waiting mined time')
-
-    plt.show()
+    # # Relationship between gasprice, starttime and waiting_mined_time
+    # x3 = np.log(gasprice)
+    # y3 = blocktime
+    # z3 = waiting_mined_time
+    # # z3 = z3 + np.ones(len(z3))
+    # # z3 = np.log(z3)
+    #
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    # ax.scatter(x3, y3, z3)
+    #
+    # ax.set_xlabel('gas price')
+    # ax.set_ylabel('start time')
+    # ax.set_zlabel('waiting mined time')
+    #
+    # plt.show()
 
 if __name__== "__main__":
     main()
