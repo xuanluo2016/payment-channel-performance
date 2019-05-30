@@ -104,20 +104,24 @@ def get_waiting_time2():
     y = []
     z = []
 
+    # query = """
+    #     select (t2.blocktime - t1.starttime + t3.waitingtime) as waitingtime, t1.gasprice,  t1.starttime,
+    #     from db.tabletxcount as t1, db.blocktime as t2, db.confirmtime as t3
+    #     where t1.count = 5 and t1.txhash = t2.txhash and t2.blocknumber = t3.blocknumber
+    #     order by t1.starttime
+    #     """
+
     query = """
-        select (t1.minedtime + t1.waitingtime),t1.gasprice, t1.starttime
-        from transactionsdb.totaldata as t1
-        where t1.blocktime >= 1555027200 and blocktime <= 1555113600
-        """
+    Select gasprice, (blocktime - starttime + waitingtime) From db.summmary
+    where blocktime >= 1555027200 and blocktime < 1555200000
+    """
     cursor.execute(query)
     for row in cursor:
         x.append(row[0])
         y.append(row[1])
-        z.append(row[2])
 
     print(len(x))
     print(len(y))
-    print(len(z))
 
     return x,y,z
 
