@@ -112,9 +112,10 @@ def get_waiting_time2():
     #     """
 
     query = """
-    Select gasprice, (blocktime - starttime + waitingtime) From db.summmary
-    where blocktime >= 1555027200 and blocktime < 1555200000
+    Select gasprice, (blocktime - starttime + waitingtime), txhash From db.summmaryfromnode1
     """
+	#     where blocktime >= 1555027200 and blocktime < 1555200000
+
     cursor.execute(query)
     for row in cursor:
         x.append(row[0])
@@ -360,14 +361,14 @@ def write_to_csv(x,y):
 def main():
     #waiting_mined_time,gasprice,blocktime = get_waiting_mined_time()
     # waiting_mined_time,gasprice,blocktime = get_waiting_time()
-    waiting_mined_time,gasprice,starttime = get_waiting_time2()
+    gasprice, waitingtime, txhash= get_waiting_time2()
     # data = get_waiting_time_as_matrix()
 
     #(waiting_mined_time,gasprice,blocktime) = get_waiting_mined_time_from_one_node('127.0.1.1ip-10-1-2-244')
 
     # waiting_mined_time with the goes of gas price
     x = gasprice
-    y = waiting_mined_time
+    y = waitingtime
 
     write_to_csv(x,y)
     # # Get log of gas price
